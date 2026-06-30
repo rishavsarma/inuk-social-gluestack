@@ -1,0 +1,27 @@
+{
+  "auth": {
+    "verify": "सत्यापित करें",
+    "welcome": "इनुक में आपका स्वागत है",
+    "enter_phone": "आगे बढ़ने के लिए अपना फ़ोन नंबर दर्ज करें",
+    "phone_label": "फ़ोन नंबर",
+    "phone_placeholder": "XXXXX XXXXX",
+    "continue": "जारी रखें",
+    "select_country": "देश",
+    "invalid_phone_error": "कृपया एक वैध फ़ोन नंबर दर्ज करें",
+    "phone_helper": "हम इस नंबर पर 6-अंकीय सत्यापन कोड भेजेंगे",
+    "terms_agreement": "आगे बढ़कर, आप हमारी",
+    "terms_of_service": "सेवा की शर्तों",
+    "and": "और",
+    "privacy_policy": "गोपनीयता नीति से सहमत होते हैं"
+  },
+  "settings": {
+    "theme": "थीम",
+    "theme_light": "लाइट",
+    "theme_dark": "डार्क",
+    "theme_system": "सिस्टम",
+    "language": "भाषा",
+    "lang_en": "अंग्रेज़ी",
+    "lang_hi": "हिंदी",
+    "preferences": "प्राथमिकताएं"
+  }
+}

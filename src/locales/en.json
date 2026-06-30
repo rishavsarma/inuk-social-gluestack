@@ -1,0 +1,27 @@
+{
+  "auth": {
+    "verify": "Verify",
+    "welcome": "Welcome to inuk",
+    "enter_phone": "Enter your phone number to continue",
+    "phone_label": "Phone Number",
+    "phone_placeholder": "XXXXX XXXXX",
+    "continue": "Continue",
+    "select_country": "Country",
+    "invalid_phone_error": "Please enter a valid phone number",
+    "phone_helper": "We'll send a 6-digit verification code to this number",
+    "terms_agreement": "By continuing, you agree to our",
+    "terms_of_service": "Terms of Service",
+    "and": "and",
+    "privacy_policy": "Privacy Policy"
+  },
+  "settings": {
+    "theme": "Theme",
+    "theme_light": "Light",
+    "theme_dark": "Dark",
+    "theme_system": "System",
+    "language": "Language",
+    "lang_en": "English",
+    "lang_hi": "Hindi",
+    "preferences": "Preferences"
+  }
+}

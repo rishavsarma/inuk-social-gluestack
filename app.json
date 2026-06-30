@@ -8,7 +8,8 @@
     "scheme": "inuksocial",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon"
+      "icon": "./assets/expo.icon",
+      "bundleIdentifier": "com.rishav411.inuk-social"
     },
     "android": {
       "adaptiveIcon": {
@@ -34,11 +35,25 @@
             "imageWidth": 76
           }
         }
-      ]
+      ],
+      "expo-secure-store",
+      "expo-web-browser",
+      "expo-video",
+      "expo-sharing",
+      "expo-asset",
+      "expo-build-properties",
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "407f1498-b082-46cf-b356-0306714dc914"
+      }
+    },
+    "owner": "rishav411"
   }
 }
