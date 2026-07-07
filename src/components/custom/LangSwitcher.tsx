@@ -1,23 +1,22 @@
-import React from "react";
-import { useTranslation } from "react-i18next";
-import { Globe } from "lucide-react-native";
-import { useSettingStore } from "@/stores/setting.store";
-import { VStack } from "@/components/ui/vstack";
-import { Text } from "@/components/ui/text";
 import { ChevronDownIcon, Icon } from "@/components/ui/icon";
-import { LANGUAGES } from "@/constants";
 import {
   Select,
-  SelectTrigger,
-  SelectInput,
-  SelectIcon,
-  SelectPortal,
   SelectBackdrop,
   SelectContent,
   SelectDragIndicator,
   SelectDragIndicatorWrapper,
+  SelectIcon,
+  SelectInput,
   SelectItem,
+  SelectPortal,
+  SelectTrigger,
 } from "@/components/ui/select";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
+import { LANGUAGES } from "@/constants";
+import { useSettingStore } from "@/stores/setting.store";
+import { Globe } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 
 export function LangSwitcher() {
   const { t, i18n } = useTranslation();

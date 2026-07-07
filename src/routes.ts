@@ -6,11 +6,11 @@ export const ROUTES = {
   } as const,
   AUTH: {
     HOME: "/(auth)" as const,
-    SIGN_IN: "/(auth)/sign-in" as const,
     SIGNUP: "/(auth)/signup" as const,
     SET_PASSWORD: "/(auth)/set-password" as const,
     SET_PROFILE: "/(auth)/set-profile" as const,
     VERIFY_OTP: "/(auth)/verify-otp" as const,
+    PASSWORD_LOGIN: "/(auth)/password-login" as const,
   },
   TABS: {
     FEED: "/feed" as const,
@@ -18,13 +18,12 @@ export const ROUTES = {
     CREATE: "/create" as const,
     AWARDS: "/awards" as const,
     PROFILE: "/profile" as const,
-    PROFILE_ALT: "/profile-alt" as const,
     EXPLORE: "/explore" as const,
     NOTIFICATIONS: "/notifications" as const,
   },
   CONTENT: {
-    POST_DETAILS: (mediaId: string | number, postId: string | number) =>
-      `/post/${mediaId}/${postId}` as const,
+    POST_DETAILS: (mediaId: string, postId: string) =>
+      `/post-detail/${mediaId}/${postId}` as const,
     POST_COMMENTS: (mediaId: string | number, postId: string | number) =>
       `/post/${mediaId}/${postId}?comments=true` as const,
     CONTEST_DETAILS: (id: string | number) => `/contest/${id}` as const,

@@ -4,13 +4,13 @@ import { EdgeInsets, useSafeAreaInsets } from "react-native-safe-area-context";
 const EXTRA_INSETS = {
   android: {
     top: 10,
-    bottom: 30,
+    bottom: 20,
     left: 0,
     right: 0,
   },
   ios: {
-    top: 4,
-    bottom: 0,
+    top: 0,
+    bottom: 10,
     left: 0,
     right: 0,
   },

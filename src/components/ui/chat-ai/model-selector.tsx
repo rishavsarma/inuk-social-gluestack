@@ -4,7 +4,7 @@ import React, {
   cloneElement,
   type ReactNode,
   type ComponentProps,
-} from 'react';
+} from "react";
 import {
   Modal,
   ModalBackdrop,
@@ -12,9 +12,9 @@ import {
   ModalHeader,
   ModalCloseButton,
   ModalBody,
-} from '@/components/ui/modal';
-import { X } from 'lucide-react-native';
-import { Pressable, Text, View, TextInput, ScrollView } from 'react-native';
+} from "@/components/ui/modal";
+import { X } from "lucide-react-native";
+import { Pressable, Text, View, TextInput, ScrollView } from "react-native";
 
 // Context
 const ModelSelectorContext = React.createContext<{
@@ -26,7 +26,7 @@ const useModelSelector = () => {
   const ctx = React.useContext(ModelSelectorContext);
   if (!ctx)
     throw new Error(
-      'ModelSelector sub-components must be used inside <ModelSelector>'
+      "ModelSelector sub-components must be used inside <ModelSelector>",
     );
   return ctx;
 };
@@ -37,14 +37,14 @@ const useModelSelector = () => {
 export type ModelSelectorProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'full';
+  size?: "xs" | "sm" | "md" | "lg" | "full";
   children: ReactNode;
 };
 
 export const ModelSelector = ({
   open,
   onOpenChange,
-  size = 'md',
+  size = "md",
   children,
 }: ModelSelectorProps) => {
   const childrenArray = Children.toArray(children);
@@ -97,13 +97,13 @@ export const ModelSelectorTrigger = ({
     return cloneElement(children, {
       ...props,
       onPress: handlePress,
-      className: `${children.props.className || ''} ${className || ''}`,
+      className: `${children.props.className || ""} ${className || ""}`,
     } as any);
   }
 
   return (
     <Pressable
-      className={`w-[200px] h-[40px] bg-primary justify-between ${className || ''}`}
+      className={`w-[200px] h-[40px] bg-primary justify-between ${className || ""}`}
       onPress={handlePress}
       {...props}
     >
@@ -117,11 +117,11 @@ export const ModelSelectorTrigger = ({
 // ─────────────────────────────────────────────────────────────
 export type ModelSelectorContentProps = ComponentProps<typeof ModalContent> & {
   title?: ReactNode;
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'full'; // ← added
+  size?: "xs" | "sm" | "md" | "lg" | "full"; // ← added
 };
 
 export const ModelSelectorContent = ({
-  title = 'Model Selector',
+  title = "Model Selector",
   children,
   className,
   size, // ← receive from root
@@ -146,7 +146,7 @@ export const ModelSelectorInput = ({
   ...props
 }: ComponentProps<typeof TextInput>) => (
   <TextInput
-    className={`h-12 px-4 border-b border-border text-base text-foreground placeholder:text-muted-foreground ${className || ''}`}
+    className={`h-12 px-4 border-b border-border text-base text-foreground placeholder:text-muted-foreground ${className || ""}`}
     placeholder="Search models..."
     {...props}
   />
@@ -156,7 +156,7 @@ export const ModelSelectorList = ({
   className,
   ...props
 }: ComponentProps<typeof View>) => (
-  <View className={`flex-1 ${className || ' w-full'}`} {...props} />
+  <View className={`flex-1 ${className || " w-full"}`} {...props} />
 );
 
 export const ModelSelectorEmpty = ({
@@ -164,7 +164,7 @@ export const ModelSelectorEmpty = ({
   ...props
 }: ComponentProps<typeof View>) => (
   <View
-    className={`flex-1 items-center justify-center py-12 ${className || ''}`}
+    className={`flex-1 items-center justify-center py-12 ${className || ""}`}
     {...props}
   >
     <Text className="text-muted-foreground">No models found.</Text>
@@ -193,10 +193,9 @@ export const ModelSelectorItem = ({
   className,
   ...props
 }: ComponentProps<typeof Pressable> & { isSelected?: boolean }) => {
-  console.log(children);
   return (
     <Pressable
-      className={`flex-row items-center  h-4 w-4 px-4 py-3 ${isSelected ? 'bg-accent' : 'active:bg-muted'} ${className || ''}`}
+      className={`flex-row items-center  h-4 w-4 px-4 py-3 ${isSelected ? "bg-accent" : "active:bg-muted"} ${className || ""}`}
       {...props}
     >
       {children}
@@ -208,14 +207,14 @@ export const ModelSelectorShortcut = ({
   className,
   ...props
 }: ComponentProps<typeof View>) => (
-  <View className={`ml-auto ${className || ''}`} {...props} />
+  <View className={`ml-auto ${className || ""}`} {...props} />
 );
 
 export const ModelSelectorSeparator = ({
   className,
 }: {
   className?: string;
-}) => <View className={`h-px bg-border mx-4 my-1 ${className || ''}`} />;
+}) => <View className={`h-px bg-border mx-4 my-1 ${className || ""}`} />;
 
 export const ModelSelectorLogo = ({ provider }: { provider: string }) => (
   <View className="w-5 h-5 rounded-full bg-muted items-center justify-center">
@@ -232,7 +231,7 @@ export const ModelSelectorLogoGroup = ({
   children: ReactNode;
   className?: string;
 }) => (
-  <View className={`flex-row -space-x-1 ${className || ''}`}>{children}</View>
+  <View className={`flex-row -space-x-1 ${className || ""}`}>{children}</View>
 );
 
 export const ModelSelectorName = ({
@@ -243,7 +242,7 @@ export const ModelSelectorName = ({
   className?: string;
 }) => (
   <Text
-    className={`flex-1 text-left text-base ml-3 text-foreground ${className || ''}`}
+    className={`flex-1 text-left text-base ml-3 text-foreground ${className || ""}`}
   >
     {children}
   </Text>

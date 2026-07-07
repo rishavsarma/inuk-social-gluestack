@@ -1,30 +1,30 @@
 "use client";
 
-import React from "react";
+import { UIIcon } from "@gluestack-ui/core/icon/creator";
+import { createSelect } from "@gluestack-ui/core/select/creator";
+import type { VariantProps } from "@gluestack-ui/utils/nativewind-utils";
 import {
   tva,
-  withStyleContext,
   useStyleContext,
+  withStyleContext,
 } from "@gluestack-ui/utils/nativewind-utils";
-import { UIIcon } from "@gluestack-ui/core/icon/creator";
-import type { VariantProps } from "@gluestack-ui/utils/nativewind-utils";
-import { createSelect } from "@gluestack-ui/core/select/creator";
 import { styled } from "nativewind";
+import React from "react";
+import { Pressable, TextInput, View } from "react-native";
 import {
   Actionsheet,
+  ActionsheetBackdrop,
   ActionsheetContent,
-  ActionsheetItem,
-  ActionsheetItemText,
   ActionsheetDragIndicator,
   ActionsheetDragIndicatorWrapper,
-  ActionsheetBackdrop,
-  ActionsheetScrollView,
-  ActionsheetVirtualizedList,
   ActionsheetFlatList,
-  ActionsheetSectionList,
+  ActionsheetItem,
+  ActionsheetItemText,
+  ActionsheetScrollView,
   ActionsheetSectionHeaderText,
+  ActionsheetSectionList,
+  ActionsheetVirtualizedList,
 } from "./select-actionsheet";
-import { Pressable, View, TextInput } from "react-native";
 
 const SelectTriggerWrapper = React.forwardRef<
   React.ComponentRef<typeof Pressable>,
@@ -52,7 +52,7 @@ const selectStyle = tva({
 });
 
 const selectTriggerStyle = tva({
-  base: "border border-border rounded flex-row items-center overflow-hidden data-[hover=true]:border-primary/80 data-[focus=true]:border-primary/80 data-[disabled=true]:opacity-40 data-[disabled=true]:data-[hover=true]:border-border/80",
+  base: "border border-border  rounded flex-row items-center overflow-hidden data-[hover=true]:border-primary/80 data-[focus=true]:border-primary/80 data-[disabled=true]:opacity-40 data-[disabled=true]:data-[hover=true]:border-border/80",
   variants: {
     size: {
       xl: "min-h-12",
@@ -64,7 +64,7 @@ const selectTriggerStyle = tva({
       underlined:
         "border-0 border-b rounded-none data-[hover=true]:border-primary/80 data-[focus=true]:border-primary/80 data-[focus=true]:web:shadow-[inset_0_-1px_0_0] data-[focus=true]:web:shadow-primary/80 data-[invalid=true]:border-destructive data-[invalid=true]:web:shadow-destructive",
       outline:
-        "data-[focus=true]:border-primary/80 data-[focus=true]:web:shadow-[inset_0_0_0_1px] data-[focus=true]:data-[hover=true]:web:shadow-primary/80 data-[invalid=true]:web:shadow-[inset_0_0_0_1px] data-[invalid=true]:border-destructive data-[invalid=true]:web:shadow-destructive data-[invalid=true]:data-[hover=true]:border-destructive dark:bg-input/30 bg-transparent",
+        "data-[focus=true]:border-primary/80 data-[focus=true]:web:shadow-[inset_0_0_0_1px] data-[focus=true]:data-[hover=true]:web:shadow-primary/80 data-[invalid=true]:web:shadow-[inset_0_0_0_1px] data-[invalid=true]:border-destructive/40 data-[invalid=true]:web:shadow-destructive data-[invalid=true]:data-[hover=true]:border-destructive dark:bg-input/30 bg-background",
       rounded:
         "rounded-full data-[focus=true]:border-primary/80 data-[focus=true]:web:shadow-[inset_0_0_0_1px] data-[focus=true]:web:shadow-primary/80 data-[invalid=true]:border-destructive data-[invalid=true]:web:shadow-destructive",
     },
@@ -247,18 +247,18 @@ const SelectSectionHeaderText = UISelect.SectionHeaderText;
 
 export {
   Select,
-  SelectTrigger,
-  SelectInput,
-  SelectIcon,
-  SelectPortal,
   SelectBackdrop,
   SelectContent,
   SelectDragIndicator,
   SelectDragIndicatorWrapper,
-  SelectItem,
-  SelectScrollView,
-  SelectVirtualizedList,
   SelectFlatList,
-  SelectSectionList,
+  SelectIcon,
+  SelectInput,
+  SelectItem,
+  SelectPortal,
+  SelectScrollView,
   SelectSectionHeaderText,
+  SelectSectionList,
+  SelectTrigger,
+  SelectVirtualizedList,
 };

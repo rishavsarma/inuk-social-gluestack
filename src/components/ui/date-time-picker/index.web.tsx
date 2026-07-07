@@ -119,12 +119,35 @@ const DateTimePicker = React.forwardRef<
             <View className="mb-4">
               <Calendar
                 mode="single"
-                selected={tempDate}
-                onSelect={handleDateSelect}
-                initialDate={tempDate}
-                minDate={minimumDate}
-                maxDate={maximumDate}
-              />
+                value={tempDate}
+                onValueChange={(date) => {
+                  if (date instanceof Date) {
+                    handleDateSelect(date);
+                  }
+                }}
+              >
+                <CalendarHeader>
+                  <CalendarHeaderPrevButton>
+                    <PrimitiveIcon name="ChevronLeft" />
+                  </CalendarHeaderPrevButton>
+                  <CalendarHeaderTitle />
+                  <CalendarHeaderNextButton>
+                    <PrimitiveIcon name="ChevronRight" />
+                  </CalendarHeaderNextButton>
+                </CalendarHeader>
+                <CalendarBody>
+                  <CalendarWeekDaysHeader>
+                    <CalendarWeekDay />
+                  </CalendarWeekDaysHeader>
+                  <CalendarGrid>
+                    <CalendarWeek>
+                      <CalendarDay>
+                        <CalendarDayText />
+                      </CalendarDay>
+                    </CalendarWeek>
+                  </CalendarGrid>
+                </CalendarBody>
+              </Calendar>
             </View>
           )}
 

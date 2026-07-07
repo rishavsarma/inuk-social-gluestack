@@ -18,13 +18,16 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.rishav411.inuksocial"
     },
     "web": {
       "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
+      "./plugins/withDisableSandboxing.js",
+      "./plugins/withAndroidLargeHeap.js",
       "expo-router",
       [
         "expo-splash-screen",
@@ -41,8 +44,30 @@
       "expo-video",
       "expo-sharing",
       "expo-asset",
-      "expo-build-properties",
-      "expo-localization"
+      [
+        "expo-build-properties",
+        {
+          "android": {
+            "enableProguardInReleaseBuilds": true,
+            "extraOpts": [
+              "org.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m",
+              "org.gradle.caching=true"
+            ]
+          }
+        }
+      ],
+      "expo-localization",
+      "@react-native-community/datetimepicker",
+      [
+        "expo-font",
+        {
+          "fonts": [
+            "node_modules/@expo-google-fonts/inter/900Black/Inter_900Black.ttf"
+          ]
+        }
+      ],
+      "expo-image",
+      "expo-status-bar"
     ],
     "experiments": {
       "typedRoutes": true,

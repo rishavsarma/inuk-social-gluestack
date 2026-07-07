@@ -1,0 +1,60 @@
+import { useSettingStore } from "@/stores/setting.store";
+import { NativeTabs } from "expo-router/unstable-native-tabs";
+import { useTranslation } from "react-i18next";
+import { useColorScheme } from "react-native";
+
+export default function TabsLayout() {
+  const { t } = useTranslation();
+  const theme = useSettingStore((state) => state.theme);
+  const systemColorScheme = useColorScheme();
+  const activeTheme = theme === "system" ? systemColorScheme : theme;
+  const isDark = activeTheme === "dark";
+
+  const activeColor = isDark ? "#ffffff" : "#000000";
+  const inactiveColor = isDark ? "#71717a" : "#8e8e93";
+
+  return (
+    // <Box>
+    <NativeTabs minimizeBehavior="onScrollDown">
+      <NativeTabs.Trigger name="feed">
+        <NativeTabs.Trigger.Label>{t("tabs.feed")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          // renderingMode="template"
+          sf={{ default: "house", selected: "house.fill" }}
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="contest">
+        <NativeTabs.Trigger.Label>{t("tabs.contest")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "trophy", selected: "trophy.fill" }}
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="create">
+        <NativeTabs.Trigger.Label>{t("tabs.create")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "plus.circle", selected: "plus.circle.fill" }}
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="awards">
+        <NativeTabs.Trigger.Label>{t("tabs.awards")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{ default: "trophy", selected: "trophy.fill" }}
+        />
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="profile">
+        <NativeTabs.Trigger.Label>{t("tabs.profile")}</NativeTabs.Trigger.Label>
+        <NativeTabs.Trigger.Icon
+          sf={{
+            default: "person.crop.circle",
+            selected: "person.crop.circle.fill",
+          }}
+        />
+      </NativeTabs.Trigger>
+    </NativeTabs>
+    // </Box>
+  );
+}

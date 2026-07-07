@@ -1,12 +1,22 @@
-import { create } from 'zustand';
-import { persist, createJSONStorage, StateStorage } from 'zustand/middleware';
-import * as SecureStore from 'expo-secure-store';
+import { ROUTES } from "@/routes";
+import { router } from "expo-router";
+import * as SecureStore from "expo-secure-store";
+import { create } from "zustand";
+import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
 
 export interface User {
-  id: string;
-  username: string;
+  accountId: string;
+  accountType: string;
+  accountStatus: string;
+  tenantId: string;
+  profileId: string;
+  profileStatus: string;
+  avatar: string;
+  coverPhoto: string;
+  name: string;
+  mobile: string;
   email: string;
-  avatarUrl?: string;
+  expiry: string;
 }
 
 interface AuthState {
@@ -26,7 +36,7 @@ const secureStorage: StateStorage = {
       const value = await SecureStore.getItemAsync(name);
       return value ?? null;
     } catch (e) {
-      console.error('Failed to get item from SecureStore', e);
+      console.error("Failed to get item from SecureStore", e);
       return null;
     }
   },
@@ -34,14 +44,14 @@ const secureStorage: StateStorage = {
     try {
       await SecureStore.setItemAsync(name, value);
     } catch (e) {
-      console.error('Failed to set item in SecureStore', e);
+      console.error("Failed to set item in SecureStore", e);
     }
   },
   removeItem: async (name: string): Promise<void> => {
     try {
       await SecureStore.deleteItemAsync(name);
     } catch (e) {
-      console.error('Failed to delete item from SecureStore', e);
+      console.error("Failed to delete item from SecureStore", e);
     }
   },
 };
@@ -55,13 +65,20 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       setAuth: (user, token) =>
         set({ user, token, isAuthenticated: true, isLoading: false }),
-      logout: () =>
-        set({ user: null, token: null, isAuthenticated: false, isLoading: false }),
+      logout: () => {
+        router.replace(ROUTES.AUTH.HOME);
+        set({
+          user: null,
+          token: null,
+          isAuthenticated: false,
+          isLoading: false,
+        });
+      },
       setLoading: (isLoading) => set({ isLoading }),
     }),
     {
-      name: 'auth-storage',
+      name: "auth-storage",
       storage: createJSONStorage(() => secureStorage),
-    }
-  )
+    },
+  ),
 );

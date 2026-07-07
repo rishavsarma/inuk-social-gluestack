@@ -6,7 +6,7 @@ trigger: always_on
 
 ## General
 
-- Use Expo v56.
+- Use Expo v57.
 - Use Expo Router for navigation.
 - Use TypeScript only.
 - Use Functional Components only.
@@ -202,6 +202,8 @@ Organize by feature whenever possible.
 - Lazy-load heavy screens.
 - Optimize images.
 - Avoid unnecessary re-renders.
+- Always use function not arrow function
+- Use arrow function only the the final export default
 
 ---
 

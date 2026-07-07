@@ -1,11 +1,11 @@
-import { useReanimatedKeyboardAnimation } from 'react-native-keyboard-controller';
-import { useAnimatedReaction } from 'react-native-reanimated';
-import { useBlankContext } from './blank-context';
-import { useMessageHeight } from './useMessageHeight';
+import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
+import { useAnimatedReaction } from "react-native-reanimated";
+import { useBlankContext } from "./blank-context";
+import { useMessageHeight } from "./useMessageHeight";
 
 interface UseMessageBlankSizeOptions {
   disabled?: boolean;
-  role: 'user' | 'assistant';
+  role: "user" | "assistant";
 }
 
 export function useBlankSize({
@@ -14,7 +14,7 @@ export function useBlankSize({
 }: UseMessageBlankSizeOptions) {
   const context = useBlankContext();
   if (!context) {
-    throw new Error('useMessageBlankSize must be used inside Chat');
+    throw new Error("useMessageBlankSize must be used inside Chat");
   }
 
   const { height: keyboardHeight } = useReanimatedKeyboardAnimation();
@@ -29,22 +29,16 @@ export function useBlankSize({
     }),
 
     ({ user, assistant, disabled: isDisabled }) => {
-      'worklet';
-      console.log(
-        user,
-        assistant,
-        disabled,
-        context.messagesContainerHeight.value
-      );
+      "worklet";
 
       const pairedHeight = user;
       const nextBlank = Math.max(
         0,
-        context.messagesContainerHeight.value - pairedHeight - 46
+        context.messagesContainerHeight.value - pairedHeight - 46,
       );
-      console.log('blank', nextBlank);
+      console.log("blank", nextBlank);
       context.blankSize.value = nextBlank;
-    }
+    },
   );
 
   return { ref, onLayout: onLayout };

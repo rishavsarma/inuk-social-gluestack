@@ -1,3 +1,7 @@
+import { Dimensions } from "react-native";
+
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+
 export const THEMES = [
   { id: "light" as const, labelKey: "settings.theme_light" },
   { id: "dark" as const, labelKey: "settings.theme_dark" },
@@ -17,3 +21,9 @@ export const COUNTRY_CODES = [
   { code: "+61", country: "Australia", flag: "🇦🇺" },
   { code: "+81", country: "Japan", flag: "🇯🇵" },
 ] as const;
+
+export const POST_CONSTANTS = {
+  SCREEN_WIDTH,
+  SCREEN_HEIGHT,
+  HERO_HEIGHT: SCREEN_WIDTH * 1.1,
+};

@@ -1,50 +1,59 @@
-import axios from 'axios';
+import { useAuthStore } from "@/stores/auth.store";
+import { create } from "axios";
 
-// Replace with your production or local API Base URL
-const API_BASE_URL = 'https://api.inuksocial.com/v1';
+const API_BASE_URL =
+  process.env.EXPO_PUBLIC_API_URL ?? "https://dev.apiv2.inuk.in";
 
-export const api = axios.create({
+export { API_BASE_URL };
+
+export const api = create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 15_000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
+    Accept: "application/json",
   },
 });
 
-// Request interceptor to attach authentication token
+// ── Request interceptor ─────────────────────────────────────────────────────
+// Read API key and auth token on EVERY request so they're never stale.
+// axios.create() default headers are frozen at init time — env vars may not
+// be defined yet when the module first loads, so we set them here instead.
 api.interceptors.request.use(
-  async (config) => {
-    // Real implementation will query AsyncStorage or SecureStore
-    // e.g. const token = await SecureStore.getItemAsync('token');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
+  (config) => {
+    // API key — read fresh from process.env each time
+    const apiKey = process.env.EXPO_PUBLIC_API_KEY;
+    if (apiKey) {
+      config.headers["x-api-key"] = apiKey;
+    } else if (__DEV__) {
+      console.warn(
+        "[axios] EXPO_PUBLIC_API_KEY is not set — request may fail.",
+      );
+    }
+
+    // Auth token from Zustand (works outside React components)
+    const token = useAuthStore.getState().token;
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error),
 );
 
-// Response interceptor to handle global errors (e.g., token expiration)
+// ── Response interceptor ────────────────────────────────────────────────────
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response) {
-      // Request made and server responded with a status code
-      // that falls out of the range of 2xx
-      if (error.response.status === 401) {
-        // e.g. Handle user logout or token refresh
-        console.warn('Unauthorized request. Logging out user...');
-      }
-      console.error('API Error:', error.response.status, error.response.data);
-    } else if (error.request) {
-      // The request was made but no response was received
-      console.error('Network Error - no response:', error.request);
-    } else {
-      // Something happened in setting up the request that triggered an Error
-      console.error('Request Setup Error:', error.message);
+    // Only auto-logout on 401 when the user is already authenticated.
+    // Avoids accidentally triggering logout on auth/OTP screen errors.
+    if (
+      error.response?.status === 401 &&
+      useAuthStore.getState().isAuthenticated
+    ) {
+      useAuthStore.getState().logout();
     }
     return Promise.reject(error);
-  }
+  },
 );

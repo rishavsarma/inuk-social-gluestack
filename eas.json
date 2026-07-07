@@ -1,0 +1,29 @@
+{
+  "cli": {
+    "version": ">= 10.0.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://dev.apiv2.inuk.in",
+        "EXPO_PUBLIC_API_KEY": "16f1c650fc2c11f084db0af14eb8eb6f",
+        "EXPO_PUBLIC_IMAGE_BASE_URL": "https://i7q1kbspy5.execute-api.ap-south-1.amazonaws.com/cache"
+      }
+    },
+    "production": {
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://dev.apiv2.inuk.in",
+        "EXPO_PUBLIC_API_KEY": "16f1c650fc2c11f084db0af14eb8eb6f",
+        "EXPO_PUBLIC_IMAGE_BASE_URL": "https://i7q1kbspy5.execute-api.ap-south-1.amazonaws.com/cache"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}

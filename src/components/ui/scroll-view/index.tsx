@@ -1,2 +1,7 @@
-'use client';
-export { ScrollView } from 'react-native';
+"use client";
+import { ScrollView as RNScrollView } from "react-native";
+import { styled } from "nativewind";
+
+export const ScrollView = styled(RNScrollView, {
+  className: "style",
+});

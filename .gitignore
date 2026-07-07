@@ -2,6 +2,9 @@
 
 
 .history
+*.mp4
+*.pdf
+*.mov
 # dependencies
 node_modules/
 

@@ -1,69 +1,69 @@
-'use client';
-import React, { useCallback, useState, useEffect, useRef } from 'react';
+"use client";
+import { Overlay } from "@gluestack-ui/core/overlay/creator";
+import { tva } from "@gluestack-ui/utils/nativewind-utils";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  View,
-  Pressable,
-  Text,
-  Image as RNImage,
   Dimensions,
-  TouchableOpacity,
   FlatList,
-} from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-  withTiming,
-  interpolate,
-  Extrapolate,
-  FadeIn,
-  FadeOut,
-  Easing,
-  runOnJS,
-} from 'react-native-reanimated';
-import { tva } from '@gluestack-ui/utils/nativewind-utils';
+  Pressable,
+  Image as RNImage,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import {
   Gesture,
   GestureDetector,
   GestureHandlerRootView,
-} from 'react-native-gesture-handler';
-import { Overlay } from '@gluestack-ui/core/overlay/creator';
+} from "react-native-gesture-handler";
+import Animated, {
+  Easing,
+  Extrapolate,
+  FadeIn,
+  FadeOut,
+  interpolate,
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
+const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const AnimatedView = Animated.createAnimatedComponent(View);
 const AnimatedImage = Animated.createAnimatedComponent(RNImage);
 
 const imageViewerStyle = tva({
-  base: 'w-full',
+  base: "w-full",
 });
 
 const imageViewerModalStyle = tva({
-  base: 'flex-1 bg-[#000]/50',
+  base: "flex-1 bg-black",
 });
 
 const imageViewerContentStyle = tva({
-  base: 'flex-1 justify-center items-center overflow-hidden web:flex web:justify-center web:items-center',
+  base: "flex-1 justify-center items-center overflow-hidden web:flex web:justify-center web:items-center",
 });
 
 const imageViewerCloseButtonStyle = tva({
-  base: 'absolute top-12 right-4 z-50 w-10 h-10 rounded-full bg-black/60 justify-center items-center',
+  base: "absolute top-12 right-4 z-50 w-10 h-10 rounded-full bg-black/60 justify-center items-center",
 });
 
 const imageViewerNavigationStyle = tva({
-  base: 'absolute inset-0 flex-row justify-between items-center px-2',
+  base: "absolute inset-0 flex-row justify-between items-center px-2",
 });
 
 const imageViewerNavButtonStyle = tva({
-  base: 'w-12 h-12 rounded-full bg-black/50 justify-center items-center',
+  base: "w-12 h-12 rounded-full bg-black/50 justify-center items-center",
 });
 
 const imageViewerCounterStyle = tva({
-  base: 'absolute bottom-12 left-0 right-0 items-center',
+  base: "absolute bottom-12 left-0 right-0 items-center",
 });
 
 const imageViewerCounterTextStyle = tva({
-  base: 'text-white text-sm font-medium bg-black/60 px-4 py-2 rounded-full',
+  base: "text-white text-sm font-medium bg-black/60 px-4 py-2 rounded-full",
 });
 
 interface ImageItem {
@@ -132,7 +132,7 @@ const ZoomableImage = React.memo(
       onDismiss: () => void;
       onZoomChange?: (isZoomed: boolean) => void;
     },
-    ref
+    ref,
   ) {
     const scale = useSharedValue(1);
     const savedScale = useSharedValue(1);
@@ -196,7 +196,7 @@ const ZoomableImage = React.memo(
       .onUpdate((event) => {
         // Calculate max translation bounds for zoomed image
         const maxTranslateX = ((scale.value - 1) * SCREEN_WIDTH) / 2;
-        const maxTranslateY = ((scale.value - 1) * SCREEN_HEIGHT * 0.8) / 2;
+        const maxTranslateY = ((scale.value - 1) * SCREEN_HEIGHT) / 2;
 
         // Allow panning within bounds
         const newTranslateX = savedTranslateX.value + event.translationX;
@@ -205,11 +205,11 @@ const ZoomableImage = React.memo(
         // Clamp to bounds
         translateX.value = Math.max(
           -maxTranslateX,
-          Math.min(maxTranslateX, newTranslateX)
+          Math.min(maxTranslateX, newTranslateX),
         );
         translateY.value = Math.max(
           -maxTranslateY,
-          Math.min(maxTranslateY, newTranslateY)
+          Math.min(maxTranslateY, newTranslateY),
         );
       })
       .onEnd((event) => {
@@ -271,7 +271,7 @@ const ZoomableImage = React.memo(
           dismissProgress.value,
           [0, 1],
           [1, 0.3],
-          Extrapolate.CLAMP
+          Extrapolate.CLAMP,
         );
       })
       .onEnd((event) => {
@@ -308,7 +308,7 @@ const ZoomableImage = React.memo(
           savedScale.value = zoomScale;
 
           const centerX = SCREEN_WIDTH / 2;
-          const centerY = SCREEN_HEIGHT * 0.4;
+          const centerY = SCREEN_HEIGHT * 0.5;
           const deltaX = centerX - lastTapX.value;
           const deltaY = centerY - lastTapY.value;
           const targetX = (deltaX * zoomScale) / zoomScale;
@@ -326,8 +326,8 @@ const ZoomableImage = React.memo(
       doubleTapGesture,
       Gesture.Simultaneous(
         pinchGesture,
-        Gesture.Exclusive(panGesture, dismissGesture)
-      )
+        Gesture.Exclusive(panGesture, dismissGesture),
+      ),
     );
 
     const animatedStyle = useAnimatedStyle(() => ({
@@ -346,13 +346,13 @@ const ZoomableImage = React.memo(
           alt={image.alt}
           resizeMode="contain"
           style={[
-            { width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.8 },
+            { width: SCREEN_WIDTH, height: SCREEN_HEIGHT },
             animatedStyle,
           ]}
         />
       </GestureDetector>
     );
-  })
+  }),
 );
 
 // FlatList-based Image Gallery Component
@@ -421,7 +421,7 @@ const SlidableImageGallery = React.memo(function SlidableImageGallery({
         onIndexChange(newIndex);
       }
     },
-    [localIndex, images.length, onIndexChange]
+    [localIndex, images.length, onIndexChange],
   );
 
   const goNext = useCallback(() => {
@@ -439,7 +439,7 @@ const SlidableImageGallery = React.memo(function SlidableImageGallery({
   // Render each image item
   const renderItem = useCallback(
     ({ item, index }: { item: ImageItem; index: number }) => (
-      <View style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.8 }}>
+      <View style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT }}>
         <ZoomableImage
           ref={(ref) => {
             if (ref) {
@@ -458,7 +458,7 @@ const SlidableImageGallery = React.memo(function SlidableImageGallery({
         />
       </View>
     ),
-    [localIndex, goNext, goPrevious, onDismiss, handleZoomChange]
+    [localIndex, goNext, goPrevious, onDismiss, handleZoomChange],
   );
 
   // Get item layout for better performance
@@ -468,17 +468,17 @@ const SlidableImageGallery = React.memo(function SlidableImageGallery({
       offset: SCREEN_WIDTH * index,
       index,
     }),
-    []
+    [],
   );
 
   const keyExtractor = useCallback(
     (item: ImageItem, index: number) => `image-${index}-${item.url}`,
-    []
+    [],
   );
 
   return (
     <View
-      style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT * 0.8 }}
+      style={{ width: SCREEN_WIDTH, height: SCREEN_HEIGHT }}
       className="web:my-auto"
     >
       <FlatList
@@ -517,17 +517,21 @@ const ImageViewer = React.forwardRef<View, ImageViewerProps>(
       initialIndex = 0,
       children,
     },
-    ref
+    ref,
   ) {
     const [uncontrolledIsOpen, setUncontrolledIsOpen] = useState(defaultOpen);
-    const [currentIndex, setCurrentIndex] = useState(initialIndex);
-
     const isControlled = controlledIsOpen !== undefined;
     const isOpen = isControlled ? controlledIsOpen : uncontrolledIsOpen;
 
-    useEffect(() => {
-      onIndexChange?.(currentIndex);
-    }, [currentIndex, onIndexChange]);
+    const [currentIndex, setCurrentIndex] = useState(initialIndex);
+    const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+
+    if (isOpen !== prevIsOpen) {
+      setPrevIsOpen(isOpen);
+      if (isOpen) {
+        setCurrentIndex(initialIndex);
+      }
+    }
 
     const open = useCallback(() => {
       if (!isControlled) {
@@ -544,12 +548,20 @@ const ImageViewer = React.forwardRef<View, ImageViewerProps>(
     }, [isControlled, onOpenChange]);
 
     const goNext = useCallback(() => {
-      setCurrentIndex((prev) => Math.min(prev + 1, images.length - 1));
-    }, [images.length]);
+      setCurrentIndex((prev) => {
+        const next = Math.min(prev + 1, images.length - 1);
+        onIndexChange?.(next);
+        return next;
+      });
+    }, [images.length, onIndexChange]);
 
     const goPrevious = useCallback(() => {
-      setCurrentIndex((prev) => Math.max(prev - 1, 0));
-    }, []);
+      setCurrentIndex((prev) => {
+        const next = Math.max(prev - 1, 0);
+        onIndexChange?.(next);
+        return next;
+      });
+    }, [onIndexChange]);
 
     const contextValue = React.useMemo(
       () => ({
@@ -561,7 +573,7 @@ const ImageViewer = React.forwardRef<View, ImageViewerProps>(
         goNext,
         goPrevious,
       }),
-      [images, currentIndex, isOpen, open, close, goNext, goPrevious]
+      [images, currentIndex, isOpen, open, close, goNext, goPrevious],
     );
 
     return (
@@ -571,7 +583,7 @@ const ImageViewer = React.forwardRef<View, ImageViewerProps>(
         </ImageViewerContext.Provider>
       </View>
     );
-  }
+  },
 );
 
 // Trigger Component
@@ -616,20 +628,20 @@ const ImageViewerContent = React.forwardRef<
             exiting={FadeOut.duration(200).easing(Easing.in(Easing.ease))}
             className={imageViewerModalStyle({})}
             style={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
             }}
           >
             <View
               ref={ref}
               className={imageViewerContentStyle({})}
               style={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
+                width: "100%",
+                height: "100%",
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
               {currentImage && (
@@ -713,31 +725,45 @@ const ImageViewerNavigation = React.forwardRef<View, { className?: string }>(
         )}
       </View>
     );
-  }
+  },
 );
 
 // Counter Component
-const ImageViewerCounter = React.forwardRef<View, { className?: string }>(
-  function ImageViewerCounter({ className }, ref) {
-    const { currentIndex, images } = useImageViewerContext();
+const ImageViewerCounter = React.forwardRef<
+  View,
+  { className?: string; variant?: "number" | "dots" }
+>(function ImageViewerCounter({ className, variant = "number" }, ref) {
+  const { currentIndex, images } = useImageViewerContext();
 
-    return (
-      <View ref={ref} className={imageViewerCounterStyle({ class: className })}>
+  return (
+    <View ref={ref} className={imageViewerCounterStyle({ class: className })}>
+      {variant === "dots" ? (
+        <View className="flex-row items-center gap-1.5 bg-black/60 px-3 py-2 rounded-full">
+          {images.map((_, idx) => (
+            <View
+              key={idx}
+              className={`h-1.5 rounded-full ${
+                idx === currentIndex ? "w-4 bg-white" : "w-1.5 bg-white/50"
+              }`}
+            />
+          ))}
+        </View>
+      ) : (
         <Text className={imageViewerCounterTextStyle({})}>
           {currentIndex + 1} / {images.length}
         </Text>
-      </View>
-    );
-  }
-);
+      )}
+    </View>
+  );
+});
 
 export {
   ImageViewer,
-  ImageViewerTrigger,
-  ImageViewerContent,
   ImageViewerCloseButton,
-  ImageViewerNavigation,
+  ImageViewerContent,
   ImageViewerCounter,
+  ImageViewerNavigation,
+  ImageViewerTrigger,
 };
 
 export type { ImageItem, ImageViewerProps, ImageViewerTriggerProps };
