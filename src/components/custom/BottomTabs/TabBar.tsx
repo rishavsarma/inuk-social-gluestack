@@ -1,5 +1,5 @@
 import { Icon } from "@/components/ui/icon";
-import { useAppBottomInset } from "@/hooks/use-app-insets";
+import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 import { useSettingStore } from "@/stores/setting.store";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";

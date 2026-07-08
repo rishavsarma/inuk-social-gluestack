@@ -25,10 +25,10 @@ import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { ChevronRightIcon, Icon } from "@/components/ui/icon";
-import { useAppBottomInset } from "@/hooks/use-app-insets";
+import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 
-import { useSignInVerifyOtp, useSignUpVerifyOtp } from "@/hooks/use-auth";
+import { useSignInVerifyOtp, useSignUpVerifyOtp } from "@/hooks/useAuth";
 import { useAuthStore } from "@/stores/auth.store";
 import { useJourneyStore } from "@/stores/journey.store";
 import { useSettingStore } from "@/stores/setting.store";

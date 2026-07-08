@@ -26,10 +26,10 @@ import { VStack } from "@/components/ui/vstack";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { ChevronRightIcon, Icon } from "@/components/ui/icon";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-import { useAppBottomInset } from "@/hooks/use-app-insets";
+import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
-import { useResetPasswordUpdate, useSignUpSetPassword } from "@/hooks/use-auth";
+import { useResetPasswordUpdate, useSignUpSetPassword } from "@/hooks/useAuth";
 
 const SetPassword = () => {
   const bottomInset = useAppBottomInset();

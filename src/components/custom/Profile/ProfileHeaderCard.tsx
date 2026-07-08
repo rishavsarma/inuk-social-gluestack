@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useAppTopInset } from "@/hooks/use-app-insets";
+import { useAppTopInset } from "@/hooks/useAppInsets";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";

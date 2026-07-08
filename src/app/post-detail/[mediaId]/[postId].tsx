@@ -12,8 +12,8 @@ import PostPhotoGallery from "@/components/custom/Post/PostPhotoGallery";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { POST_CONSTANTS } from "@/constants";
-import { useAppBottomInset } from "@/hooks/use-app-insets";
-import { usePostPhotoDetailsQuery } from "@/hooks/use-posts";
+import { useAppBottomInset } from "@/hooks/useAppInsets";
+import { usePostPhotoDetailsQuery } from "@/hooks/usePosts";
 import { useAuthStore } from "@/stores/auth.store";
 import { useLocalSearchParams } from "expo-router";
 import {

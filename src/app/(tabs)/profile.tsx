@@ -6,10 +6,10 @@ import ProfileGridItem from "@/components/custom/Profile/ProfilePostList";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
-import { useGetPhotoPosts, useGetVideoPosts } from "@/hooks/use-posts";
+import { useGetPhotoPosts, useGetVideoPosts } from "@/hooks/usePosts";
 import { ROUTES } from "@/routes";
 
-import { useGetProfile } from "@/hooks/use-profile";
+import { useGetProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
 import { FlashList } from "@shopify/flash-list";
 import { Href, router, useLocalSearchParams } from "expo-router";

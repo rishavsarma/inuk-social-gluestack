@@ -44,7 +44,7 @@ import {
   SliderTrack,
 } from "@/components/ui/slider";
 import { Text } from "@/components/ui/text";
-import { useAppBottomInset, useAppTopInset } from "@/hooks/use-app-insets";
+import { useAppBottomInset, useAppTopInset } from "@/hooks/useAppInsets";
 
 import { CanvasView, CanvasViewRef } from "./CanvasView";
 import { GestureOverlayItem } from "./GestureOverlay";

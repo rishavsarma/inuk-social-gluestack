@@ -39,8 +39,8 @@ import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { COUNTRY_CODES } from "@/constants";
-import { useAppBottomInset } from "@/hooks/use-app-insets";
-import { useInitiateJourney } from "@/hooks/use-auth";
+import { useAppBottomInset } from "@/hooks/useAppInsets";
+import { useInitiateJourney } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
 import { useJourneyStore } from "@/stores/journey.store";
 import { useSettingStore } from "@/stores/setting.store";

@@ -1,70 +1,38 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { BlurView } from "expo-blur";
+import { Image } from "expo-image";
 import { useVideoPlayer, VideoView, type VideoPlayer } from "expo-video";
 
-import { Dimensions, Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 
 import { Volume2, VolumeX } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { useAnimatedReaction } from "react-native-reanimated";
-import { scheduleOnRN } from "react-native-worklets";
 
 import { useFeedVideoStore } from "@/stores/feed-video.store";
 
-import { useKeyboardAvoidingScrollViewScrollY } from "@/components/custom/KeyboardAvoidingScrollView";
 import { useSettingStore } from "@/stores/setting.store";
 import { Button, ButtonIcon } from "@/components/ui/button";
-
-const VISIBILITY_SCROLL_DELTA = 4;
 
 interface FeedPostVideoProps {
   id: string;
   uri: string;
+  /** Thumbnail shown behind the player while the video buffers its first
+   * frame — without it, a freshly recycled/mounted FlashList item shows a
+   * blank surface for a beat before playback starts. */
+  posterUri?: string;
 }
 
 function applyPlayerMuted(player: VideoPlayer, muted: boolean) {
   player.muted = muted;
 }
 
-function FeedPostVideo({ id, uri }: FeedPostVideoProps) {
+function FeedPostVideo({ id, uri, posterUri }: FeedPostVideoProps) {
   const { t } = useTranslation();
   const { theme } = useSettingStore();
   const isDark = theme === "dark";
 
-  const containerRef = useRef<View>(null);
-  const scrollY = useKeyboardAvoidingScrollViewScrollY();
-  const reportVisibility = useFeedVideoStore((s) => s.reportVisibility);
-  const removeVideo = useFeedVideoStore((s) => s.removeVideo);
   const isActive = useFeedVideoStore((s) => s.activeVideoId === id);
-
-  const measureVisibility = useCallback(() => {
-    containerRef.current?.measure((_x, _y, width, height, _pageX, pageY) => {
-      if (!height) return;
-      const windowHeight = Dimensions.get("window").height;
-      const visibleTop = Math.max(pageY, 0);
-      const visibleBottom = Math.min(pageY + height, windowHeight);
-      const visibleHeight = Math.max(visibleBottom - visibleTop, 0);
-      reportVisibility(id, visibleHeight / height);
-    });
-  }, [id, reportVisibility]);
-
-  useAnimatedReaction(
-    () => scrollY?.value ?? 0,
-    (current, previous) => {
-      if (
-        previous === null ||
-        Math.abs(current - previous) > VISIBILITY_SCROLL_DELTA
-      ) {
-        scheduleOnRN(measureVisibility);
-      }
-    },
-  );
-
-  useEffect(() => {
-    measureVisibility();
-    return () => removeVideo(id);
-  }, [measureVisibility, removeVideo, id]);
 
   const player = useVideoPlayer({ uri }, (p) => {
     p.loop = true;
@@ -87,11 +55,14 @@ function FeedPostVideo({ id, uri }: FeedPostVideoProps) {
   }, []);
 
   return (
-    <View
-      ref={containerRef}
-      style={StyleSheet.absoluteFill}
-      onLayout={measureVisibility}
-    >
+    <View style={StyleSheet.absoluteFill}>
+      {!!posterUri && (
+        <Image
+          source={{ uri: posterUri }}
+          style={StyleSheet.absoluteFill}
+          contentFit="cover"
+        />
+      )}
       <VideoView
         style={{ width: "100%", height: "100%" }}
         player={player}

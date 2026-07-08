@@ -25,8 +25,8 @@ import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { ChevronRightIcon, Icon } from "@/components/ui/icon";
-import { useAppBottomInset } from "@/hooks/use-app-insets";
-import { useSignInInitiateOtp, useVerifyPassword } from "@/hooks/use-auth";
+import { useAppBottomInset } from "@/hooks/useAppInsets";
+import { useSignInInitiateOtp, useVerifyPassword } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
 import { useJourneyStore } from "@/stores/journey.store";

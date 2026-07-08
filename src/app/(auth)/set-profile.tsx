@@ -47,7 +47,7 @@ import {
   EyeOffIcon,
   Icon,
 } from "@/components/ui/icon";
-import { useAppBottomInset } from "@/hooks/use-app-insets";
+import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
 import { useSettingStore } from "@/stores/setting.store";

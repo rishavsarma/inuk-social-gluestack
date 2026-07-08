@@ -18,7 +18,7 @@ import { LinearGradient } from "@/components/ui/linear-gradient";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { POST_CONSTANTS } from "@/constants";
-import { useTimeAgo } from "@/hooks/use-time-ago";
+import { useTimeAgo } from "@/hooks/useTimeAgo";
 import { Image } from "expo-image";
 import { UserPlus } from "lucide-react-native";
 import * as React from "react";
