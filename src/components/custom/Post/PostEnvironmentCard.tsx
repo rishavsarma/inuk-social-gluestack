@@ -214,13 +214,14 @@ export const PostEnvironmentCard = React.memo(function PostEnvironmentCard({
   if (enviroment.place) {
     items.push({
       icon: MapPinIcon,
+      type: "location",
       label: t("post_detail.location"),
       value: enviroment.place,
     });
   }
 
   for (const w of enviroment.weatherInfo ?? []) {
-    items.push({ icon: w.icon, label: w.label, value: w.value });
+    items.push({ icon: w.icon, type: w.type, label: w.label, value: w.value });
   }
 
   // Pair items into rows of 2

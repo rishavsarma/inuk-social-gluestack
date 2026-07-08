@@ -22,6 +22,7 @@ import { useTimeAgo } from "@/hooks/useTimeAgo";
 import { Image } from "expo-image";
 import { UserPlus } from "lucide-react-native";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -31,6 +32,7 @@ import Animated, {
 const PostPhotoGallery = React.memo(function PostMediaGallery({
   post,
 }: PostMediaGalleryProps) {
+  const { t } = useTranslation();
   const [currentMediaIndex, setCurrentMediaIndex] = React.useState(0);
   const [isFullScreen, setIsFullScreen] = React.useState(false);
   const [currentIndex, setCurrentIndex] = React.useState(0);
@@ -143,7 +145,7 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
               {!is_me && (
                 <Button className="rounded-full">
                   <ButtonIcon as={UserPlus} />
-                  <ButtonText>Follow</ButtonText>
+                  <ButtonText>{t("post_detail.follow")}</ButtonText>
                 </Button>
               )}
             </HStack>

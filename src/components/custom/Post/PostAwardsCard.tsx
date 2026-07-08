@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable } from "react-native";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
@@ -46,10 +47,15 @@ interface AwardItemProps {
 }
 
 const AwardItem = React.memo(function AwardItem({ item }: AwardItemProps) {
+  const { t } = useTranslation();
+
   return (
     <Pressable
       accessible
-      accessibilityLabel={`Award: ${item.label} – ${item.value}. Double tap to view details.`}
+      accessibilityLabel={t("post_detail.award_a11y", {
+        label: item.label,
+        value: item.value,
+      })}
       className="items-center active:opacity-70"
     >
       <AwardBadge
@@ -84,71 +90,68 @@ const AwardItem = React.memo(function AwardItem({ item }: AwardItemProps) {
 export const PostAwardsCard = React.memo(function PostAwardsCard({
   postId = "12121212",
 }: PostAwardsCardProps) {
+  const { t } = useTranslation();
+
   const awards = [
     {
       id: `mock-award-spotlight-${postId}`,
       postId,
       shape: "shield",
       theme: "gold",
-      period: "WEEK 25",
+      period: t("post_detail.award_spotlight.period"),
       rank: "1",
       suffix: "ST",
-      label: "SPOTLIGHT",
-      value: "1st Place Winner",
-      description:
-        "Ranked #1 in Uttarakhand weekly spotlight contest for outstanding cinematography.",
+      label: t("post_detail.award_spotlight.label"),
+      value: t("post_detail.award_spotlight.value"),
+      description: t("post_detail.award_spotlight.description"),
     },
     {
       id: `mock-award-creator-${postId}`,
       postId,
       shape: "octagon",
       theme: "silver",
-      period: "JUNE 2026",
+      period: t("post_detail.award_creator.period"),
       rank: "5",
       suffix: "%",
-      label: "CREATOR",
-      value: "Top 5% Votes",
-      description:
-        "Awarded to creators who received votes placing them in the top 5% overall for June.",
+      label: t("post_detail.award_creator.label"),
+      value: t("post_detail.award_creator.value"),
+      description: t("post_detail.award_creator.description"),
     },
     {
       id: `mock-award-himalayan-${postId}`,
       postId,
       shape: "octagon-round",
       theme: "bronze",
-      period: "2026",
+      period: t("post_detail.award_himalayan.period"),
       rank: "10",
       suffix: "%",
-      label: "HIMALAYAN",
-      value: "Top 10% Votes",
-      description:
-        "Recognized for ranking in the top 10% of overall engagement and community votes.",
+      label: t("post_detail.award_himalayan.label"),
+      value: t("post_detail.award_himalayan.value"),
+      description: t("post_detail.award_himalayan.description"),
     },
     {
       id: `mock-award-hidden-${postId}`,
       postId,
       shape: "scallop",
       theme: "#EF4444",
-      period: "Q2 2026",
+      period: t("post_detail.award_choice.period"),
       rank: "WIN",
       suffix: "",
-      label: "CHOICE",
-      value: "Spotlight Choice",
-      description:
-        "Recognized for uncovering and documenting a unique, off-the-beaten-path Himalayan destination.",
+      label: t("post_detail.award_choice.label"),
+      value: t("post_detail.award_choice.value"),
+      description: t("post_detail.award_choice.description"),
     },
     {
       id: `mock-award-favorite-${postId}`,
       postId,
       shape: "circle",
       theme: "#3B82F6",
-      period: "WEEK 24",
+      period: t("post_detail.award_favorite.period"),
       rank: "TOP",
       suffix: "",
-      label: "FAVORITE",
-      value: "Most Loved Post",
-      description:
-        "Awarded for receiving the highest number of comments and community interactions in a single week.",
+      label: t("post_detail.award_favorite.label"),
+      value: t("post_detail.award_favorite.value"),
+      description: t("post_detail.award_favorite.description"),
     },
   ];
 
@@ -156,7 +159,7 @@ export const PostAwardsCard = React.memo(function PostAwardsCard({
     <Card className="rounded-none shadow-none border-0">
       <VStack>
         <Text className="text-app-text mb-4 text-sm font-bold uppercase tracking-wide opacity-50 dark:text-white">
-          Awards & Highlights
+          {t("post_detail.awards_highlights")}
         </Text>
 
         <Box className="flex-row flex-wrap justify-evenly gap-y-5">

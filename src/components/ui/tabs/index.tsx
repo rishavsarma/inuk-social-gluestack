@@ -9,7 +9,7 @@ import {
 } from "@gluestack-ui/utils/nativewind-utils";
 import { styled } from "nativewind";
 import React, { useEffect, useMemo, useRef } from "react";
-import { FlatList, Platform, Pressable, Text, View } from "react-native";
+import { Platform, Pressable, ScrollView, Text, View } from "react-native";
 import Animated, {
   runOnJS,
   useAnimatedScrollHandler,
@@ -21,7 +21,7 @@ import { TabsAnimatedIndicator } from "./TabsAnimatedIndicator";
 
 const SCOPE = "TABS";
 const AnimatedView = Animated.createAnimatedComponent(View);
-const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 /** Styles */
 
 const tabsStyle = tva({
@@ -149,11 +149,17 @@ const TabsList = React.forwardRef<
 >(({ className, children, ...props }, ref) => {
   const context = React.useContext(TabsContext);
 
-  const flatListRef = useRef<any>(null);
+  const scrollViewRef = useRef<any>(null);
 
   if (!context) return null;
 
-  const { orientation, setScrollOffset, selectedKey, listRef } = context;
+  const {
+    orientation,
+    setScrollOffset,
+    selectedKey,
+    listRef,
+    triggerLayouts,
+  } = context;
 
   // Shared value for indicator sync
   const animatedScrollOffset = useSharedValue(0);
@@ -169,34 +175,26 @@ const TabsList = React.forwardRef<
   }, [context, animatedScrollOffset]);
 
   /**
-   * Auto scroll to selected tab
+   * Auto scroll to selected tab, using its measured layout so the
+   * offset is exact rather than an index-based approximation.
    */
   useEffect(() => {
     if (orientation !== "horizontal" || !selectedKey) return;
 
-    const childArray = React.Children.toArray(children);
-    const triggers = childArray.filter(
-      (child: any) => child?.type?.displayName !== "TabsIndicator",
-    );
+    const layout = triggerLayouts.get(selectedKey);
+    if (!layout || !scrollViewRef.current) return;
 
-    const selectedIndex = triggers.findIndex(
-      (child: any) => child?.props?.value === selectedKey,
-    );
+    const timer = setTimeout(() => {
+      try {
+        scrollViewRef.current.scrollTo({
+          x: Math.max(0, layout.x - layout.width / 2),
+          animated: true,
+        });
+      } catch {}
+    }, 100);
 
-    if (selectedIndex >= 0 && flatListRef.current) {
-      const timer = setTimeout(() => {
-        try {
-          flatListRef.current.scrollToIndex({
-            index: selectedIndex,
-            animated: true,
-            viewPosition: 0.5,
-          });
-        } catch {}
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
-  }, [selectedKey, orientation, children]);
+    return () => clearTimeout(timer);
+  }, [selectedKey, orientation, triggerLayouts]);
 
   /**
    * Native animated scroll handler (ONLY for iOS / Android)
@@ -223,12 +221,15 @@ const TabsList = React.forwardRef<
   };
 
   /**
-   * Horizontal tabs → FlatList
+   * Horizontal tabs → ScrollView
+   *
+   * A FlatList wraps each rendered item in its own non-flexible cell
+   * wrapper, so a trigger's `flex-1` class never reaches a parent with
+   * room to distribute — the row can't stretch to fill the width. A
+   * plain ScrollView renders triggers as direct flex siblings, so a
+   * small fixed set of tabs stretches full-width via `flex-1` while
+   * still scrolling if the set overflows the available space.
    */
-  // Memoize the split so FlatList's `data` prop stays referentially stable
-  // across scroll-driven re-renders (scrollOffset in context ticks on every
-  // scroll event; without this, FlatList re-renders every cell every frame,
-  // firing onLayout → measureTrigger on every scroll tick).
   const { triggers, indicator } = useMemo(() => {
     const childArray = React.Children.toArray(children);
     return {
@@ -249,33 +250,20 @@ const TabsList = React.forwardRef<
       >
         {indicator}
 
-        <AnimatedFlatList
-          ref={flatListRef}
+        <AnimatedScrollView
+          ref={scrollViewRef}
           horizontal
-          data={triggers}
-          renderItem={({ item }) => item as any}
-          keyExtractor={(item: any, index) =>
-            item?.props?.value ?? `tab-${index}`
-          }
           showsHorizontalScrollIndicator={false}
           scrollEventThrottle={16}
-          style={{ zIndex: 100 }}
+          style={{ zIndex: 100, width: "100%" }}
+          contentContainerStyle={{ flexGrow: 1, flexDirection: "row" }}
           onScroll={
             Platform.OS === "web" ? handleWebScroll : nativeScrollHandler
           }
-          onScrollToIndexFailed={(info) => {
-            setTimeout(() => {
-              try {
-                flatListRef.current?.scrollToIndex({
-                  index: info.index,
-                  animated: false,
-                  viewPosition: 0.5,
-                });
-              } catch {}
-            }, 500);
-          }}
           {...props}
-        />
+        >
+          {triggers}
+        </AnimatedScrollView>
       </View>
     );
   }

@@ -69,7 +69,9 @@ export function ProfileEmptyState({
       <Pressable
         onPress={() => router.push(ROUTES.TABS.CREATE)}
         accessibilityRole="button"
-        accessibilityLabel={`Create new ${activeTab} post`}
+        accessibilityLabel={t("profile.create_post_a11y", {
+          type: t(`profile.${activeTab}`),
+        })}
         className="mt-8 flex-row items-center gap-2 rounded-full bg-[#E50914] px-6 py-3.5 shadow-md shadow-red-500/20 active:opacity-80"
       >
         <Icon as={PlusCircleIcon} size={20} color="#fff" />

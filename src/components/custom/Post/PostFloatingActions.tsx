@@ -1,6 +1,7 @@
 import { Icon } from "@/components/ui/icon";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import { HeartIcon, MessageCircleIcon, Share2Icon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
 import { Pressable, Text, View } from "react-native";
 import Animated from "react-native-reanimated";
 
@@ -33,6 +34,8 @@ export function PostFloatingActions({
   onShare,
   onComment,
 }: PostFloatingActionsProps) {
+  const { t } = useTranslation();
+
   return (
     <View
       style={{ paddingBottom: Math.max(bottomInset, 16) }}
@@ -46,8 +49,12 @@ export function PostFloatingActions({
             hitSlop={12}
             className="flex-row items-center gap-1.5"
             accessibilityRole="button"
-            accessibilityLabel={isLiked ? "Unlike post" : "Like post"}
-            accessibilityHint="Toggles the like status of this post"
+            accessibilityLabel={
+              isLiked
+                ? t("post_detail.unlike_post")
+                : t("post_detail.like_post")
+            }
+            accessibilityHint={t("post_detail.like_hint")}
           >
             <Icon
               as={HeartIcon}
@@ -74,8 +81,8 @@ export function PostFloatingActions({
           hitSlop={12}
           className="flex-row items-center gap-1.5"
           accessibilityRole="button"
-          accessibilityLabel="Comments"
-          accessibilityHint="Opens the comments section for this post"
+          accessibilityLabel={t("post_detail.comments")}
+          accessibilityHint={t("post_detail.comments_hint")}
         >
           <Icon as={MessageCircleIcon} className="text-foreground" />
           <Text className="text-[13px] font-medium tracking-wide text-foreground">
@@ -91,8 +98,8 @@ export function PostFloatingActions({
           onPress={onShare}
           hitSlop={12}
           accessibilityRole="button"
-          accessibilityLabel="Share post"
-          accessibilityHint="Opens the share menu to send this post to others"
+          accessibilityLabel={t("post_detail.share_post")}
+          accessibilityHint={t("post_detail.share_hint")}
         >
           <Icon as={Share2Icon} className="text-foreground" />
         </Pressable>

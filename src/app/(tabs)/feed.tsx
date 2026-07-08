@@ -77,7 +77,7 @@ const FeedScreen = () => {
       const type = item.type;
       const avatarUrl = item.author?.avatar_url;
       const displayName =
-        item.author?.display_name || item.author?.username || "User";
+        item.author?.display_name || item.author?.username || t("common.user");
       const createdAt = item.created_at
         ? formatDistanceToNow(new Date(item.created_at), { addSuffix: true })
         : "";
@@ -206,7 +206,7 @@ const FeedScreen = () => {
         </Card>
       );
     },
-    [isDark],
+    [isDark, t],
   );
 
   return (

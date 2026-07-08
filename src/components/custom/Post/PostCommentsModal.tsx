@@ -2,6 +2,7 @@ import BottomSheet, { BottomSheetFlatList, BottomSheetTextInput } from '@gorhom/
 import { Image } from 'expo-image';
 import { ArrowUp, HeartIcon, X } from 'lucide-react-native';
 import React, { useCallback, useMemo, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Keyboard, Pressable, Text, View, ActivityIndicator } from 'react-native';
 
 export interface PostCommentsModalProps {
@@ -35,6 +36,7 @@ export function PostCommentsModal({
   isDark,
   insets,
 }: PostCommentsModalProps) {
+  const { t } = useTranslation();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const snapPoints = useMemo(() => ['85%'], []);
 
@@ -64,7 +66,9 @@ export function PostCommentsModal({
         <View className="items-center border-b border-neutral-100 pb-4 pt-1 dark:border-neutral-800">
           <View className="w-full flex-row items-center justify-between px-6">
             <View className="flex-row items-center gap-2.5">
-              <Text className="text-lg font-black text-neutral-900 dark:text-white">Comments</Text>
+              <Text className="text-lg font-black text-neutral-900 dark:text-white">
+                {t("post_detail.comments_modal.title")}
+              </Text>
               <View className="rounded-full bg-neutral-100 px-2 py-0.5 dark:bg-neutral-800">
                 <Text className="text-xs font-bold text-neutral-500">{totalComments}</Text>
               </View>
@@ -99,7 +103,7 @@ export function PostCommentsModal({
             ) : (
               <View className="flex-1 items-center justify-center py-10">
                 <Text className="text-[14px] font-medium text-neutral-500 dark:text-neutral-400">
-                  No comments yet. Be the first to comment!
+                  {t("post_detail.comments_modal.empty")}
                 </Text>
               </View>
             )
@@ -147,7 +151,9 @@ export function PostCommentsModal({
                   {comment.repliesCount !== undefined && comment.repliesCount > 0 && (
                     <Pressable className="active:opacity-75">
                       <Text className="text-[12px] font-bold text-neutral-400">
-                        {comment.repliesCount} {comment.repliesCount === 1 ? 'reply' : 'replies'}
+                        {t("post_detail.comments_modal.replies_count", {
+                          count: comment.repliesCount,
+                        })}
                       </Text>
                     </Pressable>
                   )}
@@ -167,7 +173,7 @@ export function PostCommentsModal({
           /> */}
           <View className="flex-1 flex-row items-center rounded-full border border-neutral-200 bg-neutral-100 px-4 py-2 dark:border-neutral-700 dark:bg-neutral-800">
             <BottomSheetTextInput
-              placeholder="Add a comment..."
+              placeholder={t("post_detail.comments_modal.placeholder")}
               placeholderTextColor={isDark ? '#666' : '#888'}
               value={commentText}
               onChangeText={setCommentText}

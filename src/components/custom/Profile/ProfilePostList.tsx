@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import { LayersIcon, MusicIcon, PlayIcon } from "lucide-react-native";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -24,6 +25,7 @@ const ProfileGridItem = ({
   isDark: boolean;
   onPress: () => void;
 }) => {
+  const { t } = useTranslation();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => {
@@ -64,7 +66,7 @@ const ProfileGridItem = ({
         scale.set(withTiming(1, { duration: 150 }));
       }}
       accessibilityRole="button"
-      accessibilityLabel={`View ${typeStr} post`}
+      accessibilityLabel={t("profile.view_post", { type: typeStr })}
       style={{ width: imageSize, height: imageSize, padding: 0.5 }}
     >
       <Animated.View
@@ -92,7 +94,7 @@ const ProfileGridItem = ({
               numberOfLines={4}
               className="text-center text-[11px] font-semibold leading-snug tracking-tight text-foreground/90"
             >
-              {item.caption || "Text Post"}
+              {item.caption || t("profile.text_post_fallback")}
             </Text>
           </LinearGradient>
         ) : (

@@ -169,7 +169,7 @@ const ListHeader = ({
             <Button
               variant="secondary"
               accessibilityRole="button"
-              accessibilityLabel="Open menu"
+              accessibilityLabel={t("profile.open_menu")}
               size="icon"
               onPress={() => setShowActionsheet(true)}
               className="rounded-full h-12 w-12 opacity-80"
@@ -188,7 +188,7 @@ const ListHeader = ({
 
           <ActionsheetItem onPress={() => {}}>
             <ActionsheetItemText>
-              {userDetail?.referral || "N/A"}
+              {userDetail?.referral || t("common.not_available")}
             </ActionsheetItemText>
           </ActionsheetItem>
           <Grid _extra={{ className: "grid-cols-2" }}>
@@ -247,7 +247,7 @@ const ListHeader = ({
           //   onPress={() => !isOtherUser && router.push(ROUTES.USER.EDIT_PROFILE)}
           accessibilityRole="button"
           accessibilityLabel={
-            isOtherUser ? "Profile avatar" : "Edit profile avatar"
+            isOtherUser ? t("profile.avatar") : t("profile.edit_avatar")
           }
           className="relative -mt-12 active:opacity-80"
         >
