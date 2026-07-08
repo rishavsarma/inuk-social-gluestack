@@ -293,7 +293,9 @@
       "food": "Food",
       "fashion": "Fashion"
     },
-    "share": "Share"
+    "share": "Share",
+    "mute_video": "Mute video",
+    "unmute_video": "Unmute video"
   },
   "contest_tab": {
     "title": "Contests",

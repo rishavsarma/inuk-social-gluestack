@@ -1,392 +1,107 @@
----
-trigger: always_on
----
+# Project Rules — Expo App
 
-# AI Development Rules
+Before building any UI, check @docs/gluestack-components.md for the available component and its docs link.
 
-## General
+## Stack (non-negotiable)
 
-- Use Expo v57.
-- Use Expo Router for navigation.
-- Use TypeScript only.
-- Use Functional Components only.
-- Follow React Native New Architecture.
-- Keep components modular and reusable.
-- Prefer composition over inheritance.
-
----
-
-# UI
-
-- Use gluestack UI v5 components whenever possible.
-- Never recreate an existing gluestack component.
-- Search the gluestack documentation before creating custom UI.
-- Compose gluestack primitives before creating custom components.
-- Only build custom components when no gluestack component exists.
-- The cumpome components should be inside custom folder
-
-Preferred Layout Components
-
-- Box
-- VStack
-- HStack
-- Grid
-- Center
-- Card
-
-Preferred Typography
-
-- Heading
-- Text
+| Concern      | Use                                         | Never use                                            |
+| ------------ | ------------------------------------------- | ---------------------------------------------------- |
+| Framework    | Expo v57, New Architecture                  | Bare RN CLI patterns                                 |
+| Language     | TypeScript only                             | JavaScript                                           |
+| Navigation   | Expo Router (typed routes)                  | React Navigation directly                            |
+| UI Kit       | gluestack UI v5                             | Custom UI when a gluestack component exists          |
+| Styling      | NativeWind + semantic theme tokens          | `StyleSheet.create`, inline styles, hardcoded colors |
+| Lists        | `@shopify/flash-list`                       | `FlatList`, `ScrollView` + `.map()` for large data   |
+| Networking   | Axios (shared instance, inside `services/`) | `fetch`, API calls in components                     |
+| Global state | Zustand (split by feature)                  | Redux, Context API for global state                  |
+| Dates        | `date-fns`                                  | `Moment.js`, manual date math                        |
+| Icons        | `@gluestack-ui/icon` (Lucide)               | Mixed icon libraries                                 |
+| i18n         | `react-i18next`, every string via `t()`     | Hardcoded user-facing text                           |
 
 ---
 
-# Styling
+## Component Style
 
-- Use NativeWind exclusively.
-- Never use StyleSheet.create unless absolutely necessary.
-- Never use inline styles except for animated or runtime-calculated values.
-- Always use semantic theme tokens.
-- Support both Light and Dark mode.
-- Never hardcode colors.
+- Functional components only.
+- Use `function` declarations for components, hooks, and named exports.
+- Use arrow functions only for: the final `export default`, inline callbacks, and event handlers.
+- Prefer composition over inheritance; compose gluestack primitives before writing custom components.
+- Keep components presentation-only — business logic lives outside the UI layer (hooks/services/stores).
 
----
+## Before Writing Any Code — Decision Order
 
-# Internationalization
+1. **UI needed** → search gluestack UI docs → use existing component → compose primitives → build custom only as last resort (place in `components/custom/`).
+2. **Form needed** → use gluestack form components only (`FormControl`, `FormControlLabel`, `FormControlLabelText`, `Input`, `InputField`, `FormControlHelper`, `FormControlHelperText`, `FormControlError`, `FormControlErrorIcon`, `FormControlErrorText`). Never raw `TextInput`. Never custom validation UI — always surface errors via `FormControlError`. Every form must handle loading, disabled, error, and success states.
+3. **Data fetching** → Axios, inside `services/`, never called directly from components.
+4. **State** → Zustand for global/shared state, `useState` for local component state, `persist` middleware only when persistence is required.
+5. **Large list** → FlashList, always with `estimatedItemSize`, `keyExtractor`, `ListEmptyComponent`, `refreshing`, `onRefresh`.
+6. **Dates** → `date-fns`.
+7. **Any visible text** → `t("...")` via i18next. This includes buttons, labels, headings, placeholders, helper/validation/error/success text, empty & loading states, toasts, alerts, dialog titles/descriptions, menu/drawer/tab labels. No exceptions.
 
-- Use react-i18next.
-- Never hardcode user-facing text.
-- Every visible string must come from translation files.
+## File Structure
 
-This includes:
-
-- Button text
-- Labels
-- Headings
-- Placeholders
-- Helper text
-- Validation messages
-- Error messages
-- Success messages
-- Empty states
-- Loading states
-- Toasts
-- Alerts
-- Dialog titles
-- Dialog descriptions
-- Menu items
-- Drawer items
-- Tab labels
-
-Always use
-
-t("...")
-
----
-
-# Forms
-
-- Always use gluestack UI form components.
-- Never use plain React Native TextInput.
-- Always use:
-  - FormControl
-  - FormControlLabel
-  - FormControlLabelText
-  - Input
-  - InputField
-  - FormControlHelper
-  - FormControlHelperText
-  - FormControlError
-  - FormControlErrorIcon
-  - FormControlErrorText
-
-- Use the official gluestack form APIs/controllers when implementing forms.
-- Do not build custom validation UI.
-- Always display validation using FormControlError.
-- Every label, placeholder, helper text, and validation message must use i18n.
-- Every form should support:
-  - Loading
-  - Disabled
-  - Error
-  - Success
-
----
-
-# Lists
-
-- Always use FlashList.
-- Never use FlatList unless FlashList is incompatible.
-- Never use ScrollView + map() for large datasets.
-
-Every FlashList should include:
-
-- estimatedItemSize
-- keyExtractor
-- ListEmptyComponent
-- refreshing
-- onRefresh
-
----
-
-# Networking
-
-- Use Axios exclusively.
-- Never use fetch.
-- Create a shared axios instance.
-- Keep all API calls inside services/.
-
-Never call APIs directly from UI components.
-
----
-
-# Global State
-
-- Use Zustand.
-- Never use Redux.
-- Never use Context API for global application state.
-- Split stores by feature.
-- Use persist middleware when persistence is required.
-
----
-
-# Date Handling
-
-- Use date-fns exclusively.
-- Never use Moment.js.
-- Never manually manipulate dates.
-
----
-
-# Icons
-
-- Use @gluestack-ui/icon.
-- Prefer Lucide icons.
-- Never mix multiple icon libraries unless explicitly requested.
-
----
-
-# Navigation
-
-- Use Expo Router.
-- Organize routes using route groups.
-- Use typed routes whenever possible.
-
----
-
-# File Structure
-
+```
 app/
 components/
-components/ui/
+components/custom/   # only for UI with no gluestack equivalent
 features/
 hooks/
-services/
-stores/
+services/            # all API calls
+stores/              # zustand, split by feature
 lib/
-constants/
+constants/           # all constants — never hardcode values in UI
 utils/
-types/
-assets/
+types/               # all shared types → global.d.ts
 locales/
+assets/
+```
 
-Organize by feature whenever possible.
+Organize by feature wherever possible.
 
----
+## Naming
 
-# Performance
+| Item       | Convention     | Example             |
+| ---------- | -------------- | ------------------- |
+| Components | PascalCase     | `UserCard.tsx`      |
+| Hooks      | `useX`         | `useAuth.ts`        |
+| Stores     | `x.store.ts`   | `cart.store.ts`     |
+| Services   | `x.service.ts` | `orders.service.ts` |
+| Variables  | camelCase      | `userId`            |
+| Constants  | UPPER_CASE     | `MAX_RETRIES`       |
+| Folders    | kebab-case     | `order-details/`    |
 
-- Always optimize rendering.
-- Use React.memo where appropriate.
-- Use useMemo for expensive computations.
-- Use useCallback for stable callbacks.
+## Import Order
+
+React → Expo → React Native → gluestack UI → third-party libs → services → stores → hooks → components → utils → constants → types
+
+## Performance
+
+- `React.memo` where it reduces real re-renders.
+- `useMemo` for expensive computations, `useCallback` for stable callback references.
 - Lazy-load heavy screens.
 - Optimize images.
-- Avoid unnecessary re-renders.
-- Always use function not arrow function
-- Use arrow function only the the final export default
-
----
-
-# Accessibility
-
-Every interactive component must include appropriate accessibility props.
-
-Support screen readers.
-
----
-
-# Imports
-
-Import order:
-
-1. React
-2. Expo
-3. React Native
-4. gluestack UI
-5. Third-party libraries
-6. Services
-7. Stores
-8. Hooks
-9. Components
-10. Utils
-11. Constants
-12. Types
-
----
-
-# Constants
-
-Keep all constants in constants folder
-Dont keep any constant hardcoded value in the ui
-
----
-
-# Types
-
-Declare all types in global.d.ts
-
----
-
-# Naming
-
-Components
-
-- PascalCase
-
-Hooks
-
-- useSomething
-
-Stores
-
-- something.store.ts
-
-Services
-
-- something.service.ts
-
-Variables
-
-- camelCase
-
-Constants
-
-- UPPER_CASE
-
-Folders
-
-- kebab-case
-
----
-
-# Code Style
-
-- Use arrow functions.
-- Prefer named exports.
-- Keep components focused on presentation.
-- Move business logic outside UI components.
-- Avoid duplicated code.
-
----
-
-# AI Decision Rules
-
-Before creating UI
-
-1. Search gluestack UI.
-2. Use an existing component if available.
-3. Compose existing primitives if needed.
-4. Build custom UI only as a last resort.
-
-Before creating a form
-
-1. Use gluestack form components.
-2. Use the official gluestack form APIs/controllers.
-3. Never use React Native TextInput directly.
-4. Never build custom validation UI.
-5. Localize every visible string.
-
-Before fetching data
-
-1. Use Axios.
-2. Keep API calls inside services.
-3. Never call APIs directly from components.
-
-Before storing state
-
-1. Global state → Zustand.
-2. Local component state → useState.
-
-Before displaying large lists
-
-Always use FlashList.
-
-Before formatting dates
-
-Always use date-fns.
-
-Before writing text
-
-1. Use i18n.
-2. Never hardcode strings.
-
----
-
-# Preferred Libraries
-
-UI
-
-- gluestack UI v5
-
-Styling
-
-- NativeWind
-
-Navigation
-
-- Expo Router
-
-Lists
-
-- @shopify/flash-list
-
-Networking
-
-- Axios
-
-Global State
-
-- Zustand
-
-Date Utilities
-
-- date-fns
-
-Icons
-
-- @gluestack-ui/icon
-
-Internationalization
-
-- react-i18next
-
----
-
-# Quality Checklist
-
-- ✅ Uses gluestack UI
-- ✅ Uses NativeWind
-- ✅ Uses FlashList
-- ✅ Uses Axios
-- ✅ Uses Zustand
-- ✅ Uses date-fns
-- ✅ Uses react-i18next
-- ✅ Uses semantic theme tokens
-- ✅ No hardcoded colors
-- ✅ No hardcoded user-facing text
-- ✅ Supports Dark Mode
-- ✅ Accessible
-- ✅ Responsive
-- ✅ Optimized
-- ✅ TypeScript only
-- ✅ Production ready
+- Avoid unnecessary re-renders — don't over-apply memoization where it adds no value.
+
+## Accessibility & Theming
+
+- Every interactive element needs appropriate accessibility props and screen reader support.
+- Support light and dark mode via semantic tokens — never hardcode colors.
+
+## Anti-Patterns (check before generating code)
+
+Never: `StyleSheet.create` (unless truly unavoidable) · inline styles (except runtime/animated values) · Redux · Context for global state · `Moment.js` · `FlatList` when FlashList works · `fetch` · raw `TextInput` in forms · hardcoded strings · hardcoded colors · hardcoded constants in UI · custom UI duplicating an existing gluestack component.
+
+## Definition of Done
+
+- [ ] gluestack UI used, no duplicated components
+- [ ] NativeWind + semantic tokens, no hardcoded colors
+- [ ] FlashList for lists, with all required props
+- [ ] Axios inside `services/`, none in components
+- [ ] Zustand for global state
+- [ ] `date-fns` for dates
+- [ ] All strings via `react-i18next`
+- [ ] Light + dark mode supported
+- [ ] Accessible
+- [ ] TypeScript only, types in `global.d.ts`
+- [ ] Optimized (memo/useMemo/useCallback where warranted)
+- [ ] Production ready

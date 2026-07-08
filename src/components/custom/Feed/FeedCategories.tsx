@@ -1,9 +1,12 @@
+import { Box } from "@/components/ui/box";
+import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
 import * as Haptics from "expo-haptics";
 import { Image } from "expo-image";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, ScrollView, View } from "react-native";
+import { ScrollView } from "react-native";
 
 interface FeedCategory {
   id: string;
@@ -17,7 +20,8 @@ const CATEGORIES: FeedCategory[] = [
     id: "nature",
     labelKey: "feed.categories.nature",
     ringClassName: "border-emerald-500",
-    imageUrl: "https://picsum.photos/seed/inuk-nature/200/200",
+    imageUrl:
+      "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&q=80&w=150&h=150",
   },
   {
     id: "photography",
@@ -53,52 +57,47 @@ const CATEGORIES: FeedCategory[] = [
 
 export function FeedCategories() {
   const { t } = useTranslation();
-  const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   return (
-    <ScrollView
-      horizontal
-      showsHorizontalScrollIndicator={false}
-      contentContainerClassName="gap-4 px-4"
-    >
-      {CATEGORIES.map((category) => {
-        const isActive = activeCategory === category.id;
-        return (
-          <Pressable
-            key={category.id}
-            accessibilityRole="button"
-            accessibilityLabel={t(category.labelKey)}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              setActiveCategory((prev) =>
-                prev === category.id ? null : category.id,
-              );
-            }}
-            className="w-16 items-center active:opacity-70"
-          >
-            <View
-              className={`h-[68px] w-[68px] rounded-full border-[2.5px] p-[3px] ${category.ringClassName} ${
-                isActive ? "opacity-100" : "opacity-90"
-              }`}
+    <Box className="bg-card border-b border-border/20  py-3  mb-2">
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerClassName=" gap-4 px-4"
+      >
+        {CATEGORIES.map((category) => {
+          return (
+            <Button
+              variant="default"
+              key={category.id}
+              accessibilityRole="button"
+              accessibilityLabel={t(category.labelKey)}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              className="px-0  py-0 data-[active=true]:bg-transparent bg-transparent"
             >
-              <View className="flex-1 overflow-hidden rounded-full bg-muted">
-                <Image
-                  source={{ uri: category.imageUrl }}
-                  style={{ width: "100%", height: "100%" }}
-                  contentFit="cover"
-                  transition={200}
-                />
-              </View>
-            </View>
-            <Text
-              numberOfLines={1}
-              className="mt-1.5 text-xs font-medium text-foreground"
-            >
-              {t(category.labelKey)}
-            </Text>
-          </Pressable>
-        );
-      })}
-    </ScrollView>
+              <VStack space="xs" className="items-center">
+                <Box
+                  className={`h-20 w-20 rounded-full border-[2.5px] p-0.75 ${category.ringClassName}`}
+                >
+                  <Box className="h-full w-full overflow-hidden rounded-full ">
+                    <Image
+                      source={{ uri: category.imageUrl }}
+                      style={{ width: "100%", height: "100%" }}
+                      contentFit="cover"
+                      transition={200}
+                    />
+                  </Box>
+                </Box>
+                <Text size="xs" className=" font-medium">
+                  {t(category.labelKey)}
+                </Text>
+              </VStack>
+            </Button>
+          );
+        })}
+      </ScrollView>
+    </Box>
   );
 }

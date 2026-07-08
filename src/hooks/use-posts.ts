@@ -50,7 +50,7 @@ export function useGetFeedPosts() {
   return useInfiniteQuery({
     queryKey: ["feed-posts"],
     queryFn: async ({ pageParam }: { pageParam: number }) => {
-      return postService.getFeedPosts(pageParam, 10);
+      return postService.getFeedPosts(pageParam, 1000);
     },
     getNextPageParam: (lastPage: any) => {
       if (!lastPage?.data?.length) return undefined;
