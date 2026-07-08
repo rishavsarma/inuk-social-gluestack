@@ -15,6 +15,7 @@ import {
   Trophy,
 } from "lucide-react-native";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
@@ -81,20 +82,22 @@ export const PostPerformanceCard = React.memo(function PostPerformanceCard({
   awardsCount = 0,
   score = 0,
 }: PostPerformanceCardProps) {
+  const { t } = useTranslation();
+
   const rows: [StatItemProps, StatItemProps | null][] = [
     [
       {
         icon: Star,
         iconBgClassName: "bg-amber-100 dark:bg-[#3B2B00]",
         value: formatCount(score),
-        label: "Score",
+        label: t("post_detail.score"),
         iconClassName: "text-[#F59E0B] fill-[#F59E0B]",
       },
       {
         icon: Trophy,
         iconBgClassName: "bg-violet-100 dark:bg-[#1A0D33]",
         value: awardsCount.toString(),
-        label: "Awards",
+        label: t("post_detail.awards"),
         iconClassName: "text-[#A78BFA] fill-[#A78BFA]",
       },
     ],
@@ -103,14 +106,14 @@ export const PostPerformanceCard = React.memo(function PostPerformanceCard({
         icon: Heart,
         iconBgClassName: "bg-red-100 dark:bg-[#2D0A0A]",
         value: formatCount(likesCount),
-        label: "Likes",
+        label: t("post_detail.likes"),
         iconClassName: "text-[#EF4444] fill-[#EF4444]",
       },
       {
         icon: MessageCircle,
         iconBgClassName: "bg-sky-100 dark:bg-[#0C2D3A]",
         value: formatCount(commentsCount),
-        label: "Comments",
+        label: t("post_detail.comments"),
         iconClassName: "text-[#38BDF8] fill-[#38BDF8]",
       },
     ],
@@ -119,14 +122,14 @@ export const PostPerformanceCard = React.memo(function PostPerformanceCard({
         icon: Eye,
         iconBgClassName: "bg-blue-100 dark:bg-[#0D1B33]",
         value: formatCount(viewsCount),
-        label: "Views",
+        label: t("post_detail.views"),
         iconClassName: "text-[#3B82F6]",
       },
       {
         icon: Share2,
         iconBgClassName: "bg-green-100 dark:bg-[#0A2D14]",
         value: formatCount(sharesCount),
-        label: "Shares",
+        label: t("post_detail.shares"),
         iconClassName: "text-[#22C55E]",
       },
     ],
@@ -136,7 +139,7 @@ export const PostPerformanceCard = React.memo(function PostPerformanceCard({
     <Card className="rounded-none shadow-none border-0">
       <VStack>
         <Text className="text-app-text mb-4 text-sm font-bold uppercase tracking-wide opacity-50 dark:text-white">
-          Performance
+          {t("post_detail.performance")}
         </Text>
         <Box className="gap-4">
           {rows.map((row, rowIdx) => (

@@ -16,11 +16,12 @@ import {
   TimerIcon,
 } from "lucide-react-native";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 // ─── Types ─────────────────────────────────────────────────────────────────
 
 export interface PostCameraCardProps {
-  cameraExif: { icon: any; label: string; value: string }[];
+  cameraExif: { icon: any; type: string; label: string; value: string }[];
 }
 
 // ─── Helpers ───────────────────────────────────────────────────────────────
@@ -30,34 +31,34 @@ interface ExifStyle {
   iconColor: string;
 }
 
-function getExifStyle(label: string): ExifStyle {
-  const lower = label.toLowerCase();
-  if (lower.includes("camera"))
+// Matched against the stable `type` identifier, not the (translated) `label`.
+function getExifStyle(type: string): ExifStyle {
+  if (type === "camera")
     return {
       iconBg: "bg-blue-100 dark:bg-[#0D1B33]",
       iconColor: "text-[#3B82F6]",
     };
-  if (lower.includes("lens") || lower.includes("focal"))
+  if (type === "lens" || type === "focal_length")
     return {
       iconBg: "bg-violet-100 dark:bg-[#1A0D33]",
       iconColor: "text-[#A78BFA]",
     };
-  if (lower.includes("aperture"))
+  if (type === "aperture")
     return {
       iconBg: "bg-rose-100 dark:bg-[#2D0A0A]",
       iconColor: "text-[#FB7185]",
     };
-  if (lower.includes("shutter") || lower.includes("exposure"))
+  if (type === "shutter")
     return {
       iconBg: "bg-orange-100 dark:bg-[#2D1400]",
       iconColor: "text-[#FB923C]",
     };
-  if (lower.includes("iso"))
+  if (type === "iso")
     return {
       iconBg: "bg-amber-100 dark:bg-[#3B2B00]",
       iconColor: "text-[#F59E0B]",
     };
-  if (lower.includes("date") || lower.includes("time"))
+  if (type === "date_taken" || type === "date_uploaded")
     return {
       iconBg: "bg-sky-100 dark:bg-[#0C2D3A]",
       iconColor: "text-[#38BDF8]",
@@ -68,17 +69,15 @@ function getExifStyle(label: string): ExifStyle {
   };
 }
 
-function getExifIcon(label: string, fallback: LucideIcon): LucideIcon {
-  const lower = label.toLowerCase();
-  if (lower.includes("camera")) return CameraIcon;
-  if (lower.includes("lens")) return FocusIcon;
-  if (lower.includes("focal")) return FocusIcon;
-  if (lower.includes("aperture")) return ApertureIcon;
-  if (lower.includes("shutter") || lower.includes("exposure")) return TimerIcon;
-  if (lower.includes("iso")) return SunIcon;
-  if (lower.includes("date taken")) return CalendarIcon;
-  if (lower.includes("date uploaded")) return CalendarIcon;
-  if (lower.includes("time")) return ClockIcon;
+function getExifIcon(type: string, fallback: LucideIcon): LucideIcon {
+  if (type === "camera") return CameraIcon;
+  if (type === "lens") return FocusIcon;
+  if (type === "focal_length") return FocusIcon;
+  if (type === "aperture") return ApertureIcon;
+  if (type === "shutter") return TimerIcon;
+  if (type === "iso") return SunIcon;
+  if (type === "date_taken") return CalendarIcon;
+  if (type === "date_uploaded") return CalendarIcon;
   return fallback;
 }
 
@@ -86,13 +85,19 @@ function getExifIcon(label: string, fallback: LucideIcon): LucideIcon {
 
 interface ExifItemProps {
   icon: LucideIcon;
+  type: string;
   label: string;
   value: string;
 }
 
-const ExifItem = memo(function ExifItem({ icon, label, value }: ExifItemProps) {
-  const style = getExifStyle(label);
-  const resolvedIcon = getExifIcon(label, icon);
+const ExifItem = memo(function ExifItem({
+  icon,
+  type,
+  label,
+  value,
+}: ExifItemProps) {
+  const style = getExifStyle(type);
+  const resolvedIcon = getExifIcon(type, icon);
 
   return (
     <HStack className="flex-1 flex-row items-center gap-3">
@@ -129,6 +134,8 @@ const ExifItem = memo(function ExifItem({ icon, label, value }: ExifItemProps) {
 export const PostCameraCard = memo(function PostCameraCard({
   cameraExif,
 }: PostCameraCardProps) {
+  const { t } = useTranslation();
+
   if (!cameraExif || cameraExif.length === 0) return null;
 
   // Pair items into rows of 2
@@ -137,8 +144,8 @@ export const PostCameraCard = memo(function PostCameraCard({
     const a = cameraExif[i];
     const b = cameraExif[i + 1] ?? null;
     rows.push([
-      { icon: a.icon, label: a.label, value: a.value },
-      b ? { icon: b.icon, label: b.label, value: b.value } : null,
+      { icon: a.icon, type: a.type, label: a.label, value: a.value },
+      b ? { icon: b.icon, type: b.type, label: b.label, value: b.value } : null,
     ]);
   }
 
@@ -146,7 +153,7 @@ export const PostCameraCard = memo(function PostCameraCard({
     <Card className="rounded-none shadow-none border-0">
       <VStack>
         <Text className="text-app-text mb-4 text-sm font-bold uppercase tracking-wide opacity-50 dark:text-white">
-          Camera Specs
+          {t("post_detail.camera_specs")}
         </Text>
 
         <Box className="gap-4">

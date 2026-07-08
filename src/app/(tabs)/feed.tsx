@@ -55,10 +55,7 @@ const FeedScreen = () => {
     () => postsData?.pages?.flatMap((page: any) => page?.data ?? []) ?? [],
     [postsData],
   );
-  const videoPosts = useMemo(
-    () => feedPosts.filter((f) => f.type === "video"),
-    [feedPosts],
-  );
+  const posts = useMemo(() => feedPosts, [feedPosts]);
 
   const setActiveVideoId = useFeedVideoStore((s) => s.setActiveVideoId);
   const viewabilityConfig = useMemo(
@@ -67,7 +64,9 @@ const FeedScreen = () => {
   );
   const handleViewableItemsChanged = useCallback(
     ({ viewableItems }: { viewableItems: ViewToken<any>[] }) => {
-      const activeVideo = viewableItems.find((token) => token.isViewable);
+      const activeVideo = viewableItems.find(
+        (token) => token.isViewable && token.item?.type === "video",
+      );
       setActiveVideoId(activeVideo ? String(activeVideo.item.id) : null);
     },
     [setActiveVideoId],
@@ -214,7 +213,7 @@ const FeedScreen = () => {
     <KeyboardAvoidingScrollView variant="list">
       {({ scrollProps, topInset }) => (
         <FlashList
-          data={videoPosts}
+          data={posts}
           keyExtractor={(item: any) => String(item.id)}
           renderItem={renderItem}
           {...scrollProps}
@@ -222,6 +221,7 @@ const FeedScreen = () => {
           onViewableItemsChanged={handleViewableItemsChanged}
           drawDistance={800}
           showsVerticalScrollIndicator={false}
+          progressViewOffset={topInset + 20}
           contentContainerStyle={{ paddingTop: topInset, paddingBottom: 160 }}
           ListHeaderComponent={
             <>

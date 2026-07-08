@@ -13,6 +13,7 @@ import {
   NavigationIcon,
 } from "lucide-react-native";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import Animated, {
   useAnimatedStyle,
@@ -33,24 +34,24 @@ interface EnvStyle {
   iconColor: string;
 }
 
-function getEnvStyle(label: string): EnvStyle {
-  const lower = label.toLowerCase();
-  if (lower.includes("location") || lower.includes("place"))
+// Matched against the stable `type` identifier, not the (translated) `label`.
+function getEnvStyle(type: string): EnvStyle {
+  if (type === "location")
     return {
       iconBg: "bg-rose-100 dark:bg-[#2D0A0A]",
       iconColor: "text-[#FB7185]",
     };
-  if (lower.includes("coord") || lower.includes("lat") || lower.includes("lng"))
+  if (type === "coordinates")
     return {
       iconBg: "bg-violet-100 dark:bg-[#1A0D33]",
       iconColor: "text-[#A78BFA]",
     };
-  if (lower.includes("altitude") || lower.includes("elevation"))
+  if (type === "altitude")
     return {
       iconBg: "bg-emerald-100 dark:bg-[#0A2D14]",
       iconColor: "text-[#34D399]",
     };
-  if (lower.includes("direction") || lower.includes("bearing"))
+  if (type === "direction")
     return {
       iconBg: "bg-sky-100 dark:bg-[#0C2D3A]",
       iconColor: "text-[#38BDF8]",
@@ -61,14 +62,11 @@ function getEnvStyle(label: string): EnvStyle {
   };
 }
 
-function getEnvIcon(label: string, fallback: LucideIcon): LucideIcon {
-  const lower = label.toLowerCase();
-  if (lower.includes("location") || lower.includes("place")) return MapPinIcon;
-  if (lower.includes("coord")) return CompassIcon;
-  if (lower.includes("altitude") || lower.includes("elevation"))
-    return MountainIcon;
-  if (lower.includes("direction") || lower.includes("bearing"))
-    return NavigationIcon;
+function getEnvIcon(type: string, fallback: LucideIcon): LucideIcon {
+  if (type === "location") return MapPinIcon;
+  if (type === "coordinates") return CompassIcon;
+  if (type === "altitude") return MountainIcon;
+  if (type === "direction") return NavigationIcon;
   return fallback;
 }
 
@@ -76,17 +74,19 @@ function getEnvIcon(label: string, fallback: LucideIcon): LucideIcon {
 
 interface EnvItemProps {
   icon: LucideIcon;
+  type: string;
   label: string;
   value: string;
 }
 
 const EnvItem = React.memo(function EnvItem({
   icon,
+  type,
   label,
   value,
 }: EnvItemProps) {
-  const style = getEnvStyle(label);
-  const resolvedIcon = getEnvIcon(label, icon);
+  const style = getEnvStyle(type);
+  const resolvedIcon = getEnvIcon(type, icon);
 
   return (
     <HStack className="flex-1 flex-row items-center gap-3">
@@ -129,6 +129,7 @@ const MapTile = React.memo(function MapTile({
   latitude,
   longitude,
 }: MapTileProps) {
+  const { t } = useTranslation();
   const scale = useSharedValue(1);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -182,7 +183,7 @@ const MapTile = React.memo(function MapTile({
           <View className="absolute bottom-2.5 right-3 flex-row items-center gap-1 rounded-lg bg-black/60 px-3 py-1">
             <Icon as={NavigationIcon} size="xs" className="text-white/80" />
             <Text className="text-[10px] font-bold uppercase tracking-wider text-white">
-              Open Maps
+              {t("post_detail.open_maps")}
             </Text>
           </View>
         </View>
@@ -196,6 +197,7 @@ const MapTile = React.memo(function MapTile({
 export const PostEnvironmentCard = React.memo(function PostEnvironmentCard({
   post,
 }: PostEnvironmentCardProps) {
+  const { t } = useTranslation();
   const { enviroment } = post;
 
   if (
@@ -212,7 +214,7 @@ export const PostEnvironmentCard = React.memo(function PostEnvironmentCard({
   if (enviroment.place) {
     items.push({
       icon: MapPinIcon,
-      label: "Location",
+      label: t("post_detail.location"),
       value: enviroment.place,
     });
   }
@@ -231,7 +233,7 @@ export const PostEnvironmentCard = React.memo(function PostEnvironmentCard({
     <Card className="rounded-none shadow-none border-0">
       <VStack>
         <Text className="text-app-text mb-4 text-sm font-bold uppercase tracking-wide opacity-50 dark:text-white">
-          Environment
+          {t("post_detail.environment")}
         </Text>
 
         <Box className="gap-4">

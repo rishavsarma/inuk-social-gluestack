@@ -12,7 +12,7 @@ import PostPhotoGallery from "@/components/custom/Post/PostPhotoGallery";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { POST_CONSTANTS } from "@/constants";
-import { useAppBottomInset } from "@/hooks/useAppInsets";
+import { useAppBottomInset, useAppTopInset } from "@/hooks/useAppInsets";
 import { usePostPhotoDetailsQuery } from "@/hooks/usePosts";
 import { useAuthStore } from "@/stores/auth.store";
 import { useLocalSearchParams } from "expo-router";
@@ -26,6 +26,7 @@ import {
   SunIcon,
 } from "lucide-react-native";
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 import { useColorScheme, View } from "react-native";
 import Animated, {
   Extrapolation,
@@ -95,6 +96,8 @@ const PostDetail = () => {
   const user = useAuthStore((s) => s.user);
   const my_profile_id = user?.profileId || profile_id;
   const bottomInset = useAppBottomInset();
+  const topInset = useAppTopInset();
+  const { t } = useTranslation();
 
   const { data: postDetails, isLoading } = usePostPhotoDetailsQuery(
     id,
@@ -114,52 +117,68 @@ const PostDetail = () => {
     const apiLiked = postDetails?.isLiked ?? false;
 
     // ── Build arrays first, then reference them ─────────────────────
-    const cameraExif: { icon: LucideIcon; label: string; value: string }[] = [];
-    const weatherInfo: { icon: LucideIcon; label: string; value: string }[] =
-      [];
+    const cameraExif: {
+      icon: LucideIcon;
+      type: string;
+      label: string;
+      value: string;
+    }[] = [];
+    const weatherInfo: {
+      icon: LucideIcon;
+      type: string;
+      label: string;
+      value: string;
+    }[] = [];
 
     if (apiExif) {
       if (apiExif.cameraMake || apiExif.cameraModel)
         cameraExif.push({
           icon: CameraIcon,
-          label: "Camera",
+          type: "camera",
+          label: t("post_detail.camera"),
           value:
             `${apiExif.cameraMake || ""} ${apiExif.cameraModel || ""}`.trim(),
         });
       if (apiExif.lensModel)
         cameraExif.push({
           icon: CameraIcon,
-          label: "Lens",
+          type: "lens",
+          label: t("post_detail.lens"),
           value: apiExif.lensModel,
         });
       if (apiExif.focalLengthMm)
         cameraExif.push({
           icon: CameraIcon,
-          label: "Focal Length",
+          type: "focal_length",
+          label: t("post_detail.focal_length"),
           value: `${apiExif.focalLengthMm}mm`,
         });
       if (apiExif.fnumber)
         cameraExif.push({
           icon: CameraIcon,
-          label: "Aperture",
+          type: "aperture",
+          label: t("post_detail.aperture"),
           value: `f/${apiExif.fnumber}`,
         });
       if (apiExif.exposureTimeText || apiExif.exposureTimeSeconds)
         cameraExif.push({
           icon: CameraIcon,
-          label: "Shutter",
+          type: "shutter",
+          label: t("post_detail.shutter"),
           value: apiExif.exposureTimeText || `${apiExif.exposureTimeSeconds}s`,
         });
       if (apiExif.iso)
         cameraExif.push({
           icon: SunIcon,
-          label: "ISO",
+          type: "iso",
+          label: t("post_detail.iso"),
           value: apiExif.iso.toString(),
         });
       if (apiExif.takenAt)
         cameraExif.push({
           icon: ClockIcon,
-          label: "Date Taken",
+          type: "date_taken",
+          label: t("post_detail.date_taken"),
           value: new Date(apiExif.takenAt * 1000).toLocaleDateString(
             undefined,
             {
@@ -172,7 +191,8 @@ const PostDetail = () => {
       if (apiPost?.dateCreated)
         cameraExif.push({
           icon: ClockIcon,
-          label: "Date Uploaded",
+          type: "date_uploaded",
+          label: t("post_detail.date_uploaded"),
           value: new Date(apiPost.dateCreated).toLocaleDateString(undefined, {
             month: "long",
             day: "numeric",
@@ -184,7 +204,8 @@ const PostDetail = () => {
     if (apiPost?.place)
       weatherInfo.push({
         icon: MapPinIcon,
-        label: "Location",
+        type: "location",
+        label: t("post_detail.location"),
         value: apiPost.place,
       });
 
@@ -194,7 +215,8 @@ const PostDetail = () => {
       if (!isNaN(lat) && !isNaN(lng))
         weatherInfo.push({
           icon: CompassIcon,
-          label: "Coordinates",
+          type: "coordinates",
+          label: t("post_detail.coordinates"),
           value: `${lat.toFixed(4)}, ${lng.toFixed(4)}`,
         });
     }
@@ -204,7 +226,8 @@ const PostDetail = () => {
       if (!isNaN(alt))
         weatherInfo.push({
           icon: MountainIcon,
-          label: "Altitude",
+          type: "altitude",
+          label: t("post_detail.altitude"),
           value: `${Math.round(alt)}m`,
         });
     }
@@ -279,20 +302,28 @@ const PostDetail = () => {
         place: apiPost.place,
       },
     };
-  }, [postDetails, id, type, my_profile_id]);
+  }, [postDetails, id, type, my_profile_id, t]);
 
   if (isLoading) {
     return (
-      <View className="flex-1 bg-background items-center justify-center">
-        <Text className="text-muted-foreground">Loading…</Text>
+      <View
+        style={{ paddingTop: topInset }}
+        className="flex-1 bg-background items-center justify-center"
+      >
+        <Text className="text-muted-foreground">{t("post_detail.loading")}</Text>
       </View>
     );
   }
 
   if (!formattedPost) {
     return (
-      <View className="flex-1 bg-background items-center justify-center">
-        <Text className="text-muted-foreground">Post not found.</Text>
+      <View
+        style={{ paddingTop: topInset }}
+        className="flex-1 bg-background items-center justify-center"
+      >
+        <Text className="text-muted-foreground">
+          {t("post_detail.not_found")}
+        </Text>
       </View>
     );
   }

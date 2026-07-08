@@ -305,6 +305,9 @@ interface PostDetail {
   camera: {
     cameraExif: {
       icon: import("lucide-react-native").LucideIcon;
+      /** Stable, untranslated identifier used to pick icon/color styling — the
+       * displayed `label` is translated and must not be pattern-matched on. */
+      type: string;
       label: string;
       value: string;
     }[];
@@ -323,6 +326,9 @@ interface PostDetail {
   enviroment: {
     weatherInfo: {
       icon: import("lucide-react-native").LucideIcon;
+      /** Stable, untranslated identifier used to pick icon/color styling — the
+       * displayed `label` is translated and must not be pattern-matched on. */
+      type: string;
       label: string;
       value: string;
     }[];
