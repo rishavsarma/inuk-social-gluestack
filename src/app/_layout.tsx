@@ -1,14 +1,7 @@
-import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import "@/globals.css";
 import "@/locales/i18n";
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useSettingStore } from "@/stores/setting.store";
-import {
-  Inter_400Regular,
-  Inter_500Medium,
-  Inter_600SemiBold,
-  Inter_700Bold,
-  useFonts,
-} from "@expo-google-fonts/inter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
@@ -18,6 +11,7 @@ import { StatusBar } from "expo-status-bar";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useAuthStore } from "@/stores/auth.store";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -52,13 +46,6 @@ export default function RootLayout() {
   const language = useSettingStore((state) => state.language);
   const { i18n } = useTranslation();
 
-  const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
-  });
-
   useEffect(() => {
     if (i18n.language !== language) {
       i18n.changeLanguage(language);
@@ -66,14 +53,8 @@ export default function RootLayout() {
   }, [language, i18n]);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
-  }, [fontsLoaded, fontError]);
-
-  if (!fontsLoaded && !fontError) {
-    return null;
-  }
+    SplashScreen.hideAsync();
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

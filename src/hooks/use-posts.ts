@@ -24,6 +24,45 @@ export function useGetPhotoPosts(profileId: string, enabled: boolean = true) {
     initialPageParam: 1,
   });
 }
+export function useGetVideoPosts(profileId: string, enabled: boolean = true) {
+  return useInfiniteQuery({
+    queryKey: ["profile-videos", profileId],
+    enabled: !!profileId && enabled,
+    queryFn: async ({ pageParam }: { pageParam: number }) => {
+      const { data } = await postService.getPostVideoList(
+        profileId,
+        pageParam,
+        50,
+      );
+      return data;
+    },
+    getNextPageParam: (lastPage: any, allPages: any[]) => {
+      const allItems = allPages.flatMap((p: any) => p.data || []);
+      if (allItems.length < lastPage?.total) {
+        return allItems.length;
+      }
+      return undefined;
+    },
+    initialPageParam: 1,
+  });
+}
+export function useGetFeedPosts() {
+  return useInfiniteQuery({
+    queryKey: ["feed-posts"],
+    queryFn: async ({ pageParam }: { pageParam: number }) => {
+      return postService.getFeedPosts(pageParam, 10);
+    },
+    getNextPageParam: (lastPage: any) => {
+      if (!lastPage?.data?.length) return undefined;
+      const nextOffset = (lastPage.offset || 1) + 1;
+      const totalPages = Math.ceil(
+        (lastPage.total || 0) / (lastPage.limit || 10),
+      );
+      return nextOffset <= totalPages ? nextOffset : undefined;
+    },
+    initialPageParam: 1,
+  });
+}
 
 export function usePostPhotoDetailsQuery(
   id: string,

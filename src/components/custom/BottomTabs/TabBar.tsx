@@ -202,10 +202,10 @@ export default function CustomTabBar() {
       Platform.OS === "ios"
         ? isDark
           ? "rgba(0,0,0,0.95)"
-          : "rgba(245,245,245,0.95)"
+          : "rgba(245,245,247,0.95)"
         : isDark
           ? "rgba(14,14,14,0.96)"
-          : "rgba(245,245,245,0.96)",
+          : "rgba(245,245,247,0.96)",
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 12 },
     shadowRadius: 32,

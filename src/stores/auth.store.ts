@@ -24,9 +24,11 @@ interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
+  _hasHydrated: boolean;
   setAuth: (user: User, token: string) => void;
   logout: () => void;
   setLoading: (isLoading: boolean) => void;
+  setHasHydrated: (hasHydrated: boolean) => void;
 }
 
 // Custom storage engine mapping Zustand persist to Expo SecureStore
@@ -63,6 +65,7 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       isAuthenticated: false,
       isLoading: false,
+      _hasHydrated: false,
       setAuth: (user, token) =>
         set({ user, token, isAuthenticated: true, isLoading: false }),
       logout: () => {
@@ -75,10 +78,14 @@ export const useAuthStore = create<AuthState>()(
         });
       },
       setLoading: (isLoading) => set({ isLoading }),
+      setHasHydrated: (hasHydrated) => set({ _hasHydrated: hasHydrated }),
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => secureStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     },
   ),
 );

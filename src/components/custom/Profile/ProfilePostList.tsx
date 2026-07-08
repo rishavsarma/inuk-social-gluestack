@@ -13,11 +13,13 @@ import Animated, {
 
 const ProfileGridItem = ({
   item,
+  type,
   imageSize,
   isDark,
   onPress,
 }: {
   item: ProfileMediaItem;
+  type: string;
   imageSize: number;
   isDark: boolean;
   onPress: () => void;
@@ -30,14 +32,21 @@ const ProfileGridItem = ({
     };
   });
 
+  console.log("type", type);
   const postData = {
     blur_hash: item.blurHash,
     created_at: item.dateCreated,
     media_id: item.mediaId,
     post_id: item.postId,
     profile_id: item.profileId,
-    url: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${item.mediaId}/jpeg/720`,
+    type: type,
+    url:
+      type === "video"
+        ? item.thumbnailUrl
+        : `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${item.mediaId}/jpeg/720`,
   };
+
+  console.log("postData", postData);
 
   const typeStr = (item.type || item.postType || "photo").toLowerCase();
   const isText = typeStr === "text";
@@ -67,7 +76,7 @@ const ProfileGridItem = ({
           },
           animatedStyle,
         ]}
-        className="s bg-muted"
+        className="bg-background"
       >
         {isText ? (
           <LinearGradient
@@ -84,26 +93,6 @@ const ProfileGridItem = ({
               className="text-center text-[11px] font-semibold leading-snug tracking-tight text-foreground/90"
             >
               {item.caption || "Text Post"}
-            </Text>
-          </LinearGradient>
-        ) : isAudio ? (
-          <LinearGradient
-            colors={isDark ? ["#1e293b", "#0f172a"] : ["#f1f5f9", "#e2e8f0"]}
-            style={{
-              flex: 1,
-              padding: 8,
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <View className="mb-1 h-9 w-9 items-center justify-center rounded-full border border-theme/20 bg-theme/10 dark:bg-theme/20">
-              <Icon as={MusicIcon} className="text-theme" />
-            </View>
-            <Text
-              numberOfLines={1}
-              className="max-w-[90%] text-center text-[9px] font-bold text-muted-foreground"
-            >
-              {item.caption || "Audio Post"}
             </Text>
           </LinearGradient>
         ) : (

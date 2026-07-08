@@ -284,7 +284,16 @@
     "hours_ago": "{{count}}h ago",
     "days_ago": "{{count}}d ago",
     "comments": "Comments",
-    "no_comments": "No comments yet. Say something kind!"
+    "no_comments": "No comments yet. Say something kind!",
+    "categories": {
+      "nature": "Nature",
+      "photography": "Photography",
+      "design": "Design",
+      "travel": "Travel",
+      "food": "Food",
+      "fashion": "Fashion"
+    },
+    "share": "Share"
   },
   "contest_tab": {
     "title": "Contests",
@@ -483,5 +492,8 @@
       "sec7_title": "7. Contact Us",
       "sec7_text": "If you have questions about this Privacy Policy, please contact us via the support section in the app."
     }
+  },
+  "common": {
+    "error_loading": "Something went wrong. Please try again."
   }
 }

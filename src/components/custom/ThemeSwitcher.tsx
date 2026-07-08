@@ -58,14 +58,6 @@ export function ThemeSwitcher({ variant = "tab" }: ThemeSwitcherProps) {
       switchThemeFunction: () => {
         setTheme(selectedTheme);
       },
-      animationConfig: {
-        type: "circular",
-        duration: 800,
-        startingPoint: {
-          cxRatio: 0.5,
-          cyRatio: 0.0,
-        },
-      },
     });
   };
 
@@ -80,14 +72,6 @@ export function ThemeSwitcher({ variant = "tab" }: ThemeSwitcherProps) {
       switchTheme({
         switchThemeFunction: () => {
           setTheme(tempTheme);
-        },
-        animationConfig: {
-          type: "circular",
-          duration: 800,
-          startingPoint: {
-            cxRatio: 0.5,
-            cyRatio: 1.0,
-          },
         },
       });
     }, 250);

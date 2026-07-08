@@ -6,7 +6,7 @@ import ProfileGridItem from "@/components/custom/Profile/ProfilePostList";
 import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
-import { useGetPhotoPosts } from "@/hooks/use-posts";
+import { useGetPhotoPosts, useGetVideoPosts } from "@/hooks/use-posts";
 import { ROUTES } from "@/routes";
 
 import { useGetProfile } from "@/hooks/use-profile";
@@ -42,18 +42,26 @@ const ProfileScreen = () => {
   } = useGetProfile(profileId);
 
   const {
-    data: postsData,
+    data: postsPhotoData,
     isLoading: isLoadingPhotoPosts,
     refetch: refetchPhotoPosts,
   } = useGetPhotoPosts(profileId, activeTab === "image");
+  const {
+    data: postsVideoData,
+    isLoading: isLoadingVideoPosts,
+    refetch: refetchVideoPosts,
+  } = useGetVideoPosts(profileId, activeTab === "video");
 
   const renderItem = useCallback(
     ({ item }: { item: ProfileMediaItem }) => {
-      const typeStr = (item.type || item.postType || "photo").toLowerCase();
+      const typeStr = activeTab;
+      console.log("activeTab", activeTab);
       return (
         <ProfileGridItem
+          key={item.id}
           item={item}
           imageSize={width / 3}
+          type={typeStr}
           isDark={true}
           onPress={() => {
             router.push(
@@ -68,7 +76,7 @@ const ProfileScreen = () => {
         />
       );
     },
-    [width],
+    [width, activeTab],
   );
   const onRefresh = useCallback(() => {
     refetch();
@@ -78,12 +86,18 @@ const ProfileScreen = () => {
   if (
     isLoadingProfile ||
     (activeTab === "image" && isLoadingPhotoPosts) ||
+    (activeTab === "video" && isLoadingVideoPosts) ||
     !profileData
   ) {
     return null;
   }
 
-  const posts = activeTab === "image" ? postsData?.pages?.[0] || [] : [];
+  const posts =
+    activeTab === "image"
+      ? postsPhotoData?.pages?.[0] || []
+      : activeTab === "video"
+        ? postsVideoData?.pages?.[0] || []
+        : [];
 
   return (
     <KeyboardAvoidingScrollView

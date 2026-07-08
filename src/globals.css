@@ -18,14 +18,14 @@
   :root {
     --primary: 23 23 23;
     --primary-foreground: 250 250 250;
-    --card: 245 245 245;
+    --card: 255 255 255;
     --secondary: 245 245 245;
     --secondary-foreground: 23 23 23;
-    --background: 255 255 255;
+    --background: 242, 242, 247;
     --popover: 255 255 255;
     --popover-foreground: 10 10 10;
     --muted: 245 245 245;
-    --muted-foreground: 115 115 115;
+    --muted-foreground: 108, 108, 112;
     --destructive: 231 0 11;
     --foreground: 10 10 10;
     --border: 229 229 229;
@@ -47,7 +47,7 @@
       --popover: 23 23 23;
       --popover-foreground: 250 250 250;
       --muted: 38 38 38;
-      --muted-foreground: 161 161 161;
+      --muted-foreground: 142, 142, 147;
       --destructive: 255 100 103;
       --foreground: 250 250 250;
       --border: 46 46 46;
@@ -125,13 +125,13 @@
   --color-theme: rgb(var(--theme));
 
   /* Custom Font mappings for Tailwind/NativeWind v4 */
-  --font-sans: Inter_400Regular, Inter;
+  /* --font-sans: Inter_400Regular, Inter;
   --font-body: Inter_400Regular, Inter;
-  --font-heading: Inter_700Bold, Inter;
+  --font-heading: Inter_700Bold, Inter; */
 }
 
 /* Custom weight mapping rules for Native React Native to select the correct font file */
-.font-normal {
+/* .font-normal {
   font-family: Inter_400Regular;
 }
 .font-medium {
@@ -145,4 +145,4 @@
 }
 .font-extrabold {
   font-family: Inter_700Bold;
-}
+} */

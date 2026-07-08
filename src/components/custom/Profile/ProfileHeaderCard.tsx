@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 
 import {
   ArrowLeftIcon,
@@ -8,7 +8,9 @@ import {
   Music,
   Pencil,
   Star,
+  User,
   Video,
+  View,
 } from "lucide-react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-worklets";
@@ -35,6 +37,17 @@ import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { AnimatedStatNumber } from "../NumberFormatter";
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+  ActionsheetItem,
+  ActionsheetItemText,
+} from "@/components/ui/actionsheet";
+import { Pressable } from "react-native";
+import { ROUTES } from "@/routes";
 
 const PROFILE_TABS = ["image", "video", "audio", "text"] as const;
 
@@ -106,6 +119,7 @@ const ListHeader = ({
 }: ListHeaderProps) => {
   const userDetail = {
     name: profile.firstName + " " + profile.lastName,
+    referral: profile.referralCode,
     cover: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.coverPhoto}/jpeg/720`,
     avatar: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.avatar}/jpeg/720`,
     username: profile.username,
@@ -116,6 +130,8 @@ const ListHeader = ({
   };
   const { t } = useTranslation();
   const topInset = useAppTopInset();
+  const [showActionsheet, setShowActionsheet] = useState(false);
+  const handleClose = () => setShowActionsheet(false);
 
   return (
     <VStack space="sm">
@@ -155,14 +171,75 @@ const ListHeader = ({
               accessibilityRole="button"
               accessibilityLabel="Open menu"
               size="icon"
+              onPress={() => setShowActionsheet(true)}
               className="rounded-full h-12 w-12 opacity-80"
             >
-              <Icon as={MoreHorizontal} />
+              <ButtonIcon size="lg" as={MoreHorizontal} />
             </Button>
           )}
         </HStack>
       </Box>
+      <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
+        <ActionsheetBackdrop />
+        <ActionsheetContent>
+          <ActionsheetDragIndicatorWrapper>
+            <ActionsheetDragIndicator />
+          </ActionsheetDragIndicatorWrapper>
 
+          <ActionsheetItem onPress={() => {}}>
+            <ActionsheetItemText>
+              {userDetail?.referral || "N/A"}
+            </ActionsheetItemText>
+          </ActionsheetItem>
+          <Grid _extra={{ className: "grid-cols-2" }}>
+            <GridItem _extra={{ className: "col-span-1" }}>
+              <ActionsheetItem onPress={() => {}}>
+                <Pressable
+                  onPress={() => {
+                    // bottomSheetRef.current?.dismiss();
+                    // router.push(ROUTES.USER.EDIT_PROFILE);
+                  }}
+                  className="flex-1 border border-secondary bg-card p-4 active:opacity-90"
+                >
+                  <View className="mb-3 h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 dark:bg-blue-500/20">
+                    <Icon as={User} size={"xl"} color="#3B82F6" />
+                  </View>
+                  <Text className="text-[14px] font-bold text-foreground">
+                    {t("profile_bottom_sheet.edit_profile")}
+                  </Text>
+                  <Text className="mt-1 text-[10px] text-muted-foreground">
+                    {t("profile_bottom_sheet.update_name_avatar")}
+                  </Text>
+                </Pressable>
+              </ActionsheetItem>
+            </GridItem>
+            <GridItem
+              className=" bg-red-500"
+              _extra={{ className: "col-span-1" }}
+            >
+              <ActionsheetItem onPress={() => {}}>
+                <ActionsheetItemText>A</ActionsheetItemText>
+              </ActionsheetItem>
+            </GridItem>
+            <GridItem
+              className=" bg-green-500"
+              _extra={{ className: "col-span-1" }}
+            >
+              <ActionsheetItem onPress={() => {}}>
+                <ActionsheetItemText>A</ActionsheetItemText>
+              </ActionsheetItem>
+            </GridItem>
+            <GridItem
+              className=" bg-yellow-500"
+              _extra={{ className: "col-span-1" }}
+            >
+              <ActionsheetItem onPress={() => {}}>
+                <ActionsheetItemText>A</ActionsheetItemText>
+              </ActionsheetItem>
+            </GridItem>
+          </Grid>
+        </ActionsheetContent>
+      </Actionsheet>
       <HStack className="">
         {/* Avatar with overlays */}
         <Button

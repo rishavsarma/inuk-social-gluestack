@@ -1,3 +1,4 @@
+import { useAuthStore } from "@/stores/auth.store";
 import { api } from "./api";
 
 export const postService = {
@@ -191,6 +192,20 @@ export const postService = {
     );
     return data;
   },
+  getPostVideoList: async (
+    profileId: string,
+    offset: number = 1,
+    limit: number = 50,
+  ) => {
+    const mediaSearchStr = `{ "dataOption": "all", "criteria": [ { "filterKey":"profileId", "operation": "eq", "value": "${profileId}" } ] }`;
+    const mediaSortStr = `{ "criteria": [ { "by": "dateUpdated", "order": "desc" } ] }`;
+    const limitStr = `&offset=${offset}&limit=${limit}`;
+
+    const { data } = await api.get(
+      `/content/api/video/search?sort=${mediaSortStr}${limitStr}`,
+    );
+    return data;
+  },
 
   getPostPhotoDetails: async (
     id: string,
@@ -365,5 +380,195 @@ export const postService = {
       },
     );
     return data;
+  },
+
+  getFeedPosts: async (pageParam: number = 1, limit: number = 10) => {
+    const myProfileId = useAuthStore.getState().user?.profileId;
+    const response = await api.get<any>(`/content/api/post/search`, {
+      params: {
+        offset: pageParam,
+        limit,
+      },
+    });
+    const postsData = response.data?.data || response.data;
+    const postsArray = Array.isArray(postsData) ? postsData : [];
+
+    // Get unique profile IDs from the returned posts
+    const uniqueProfileIds = Array.from(
+      new Set(postsArray.map((p: any) => p.profileId).filter(Boolean)),
+    ) as string[];
+
+    // Fetch the profiles dynamically in parallel
+    const profilePromises = uniqueProfileIds.map(async (profileId) => {
+      try {
+        const { data: profileRes } = await api.get(`/iam/profile/${profileId}`);
+        const profile = profileRes?.data?.[0] || profileRes?.data || profileRes;
+        return { profileId, profile };
+      } catch (e) {
+        console.warn(`Failed to fetch profile for ID ${profileId}:`, e);
+        return { profileId, profile: null };
+      }
+    });
+    const profilesRes = await Promise.all(profilePromises);
+    const profileMap = new Map(
+      profilesRes.map((p) => [p.profileId, p.profile]),
+    );
+
+    // Fetch media, stats, and like interaction status for all retrieved posts in parallel
+    const postDetailsPromises = postsArray.map(async (post: any) => {
+      const isVideo = (post.postType || "PHOTO").toUpperCase() === "VIDEO";
+
+      const mediaPromise = (async () => {
+        try {
+          if (isVideo) {
+            const videoId = post.mediaId || post.videoId || post.id;
+            const videoSearchStr = `{ "dataOption": "all", "criteria": [ { "filterKey": "id", "operation": "eq", "value": "${videoId}" } ] }`;
+            const { data: mediaRes } = await api.get(
+              `/content/api/video/search?search=${encodeURIComponent(videoSearchStr)}`,
+            );
+            if (!mediaRes?.data || mediaRes.data.length === 0) {
+              const videoSearchByPostStr = `{ "dataOption": "all", "criteria": [ { "filterKey": "postId", "operation": "eq", "value": "${post.id}" } ] }`;
+              const { data: fallbackRes } = await api.get(
+                `/content/api/video/search?search=${encodeURIComponent(videoSearchByPostStr)}`,
+              );
+              return fallbackRes?.data || [];
+            }
+            return mediaRes?.data || [];
+          } else {
+            const mediaSearchStr = `{ "dataOption": "all", "criteria": [ { "filterKey": "postId", "operation": "eq", "value": "${post.id}" } ] }`;
+            const mediaSortStr = `{ "criteria": [ { "by": "dateUpdated", "order": "desc" } ] }`;
+            const { data: mediaRes } = await api.get(
+              `/content/api/photo/search?search=${encodeURIComponent(mediaSearchStr)}&sort=${encodeURIComponent(mediaSortStr)}`,
+            );
+            return mediaRes?.data || [];
+          }
+        } catch (e) {
+          return [];
+        }
+      })();
+
+      const statsPromise = (async () => {
+        try {
+          const { data } = await api.get(
+            `/content/api/stat/content?contentId=${post.id}&contentType=POST`,
+          );
+          return data?.data || data || [];
+        } catch (e) {
+          return [];
+        }
+      })();
+
+      const likePromise = (async () => {
+        try {
+          if (!myProfileId) return false;
+          const { data } = await api.get(
+            `/content/api/like/interaction/${post.id}?contentType=POST&profileId=${myProfileId}`,
+          );
+          return Array.isArray(data) && data.length > 0;
+        } catch (e) {
+          return false;
+        }
+      })();
+
+      const [media, stats, isLiked] = await Promise.all([
+        mediaPromise,
+        statsPromise,
+        likePromise,
+      ]);
+
+      return {
+        postId: post.id,
+        media,
+        stats,
+        isLiked,
+      };
+    });
+
+    const allPostDetails = await Promise.all(postDetailsPromises);
+    const postDetailsMap = new Map(allPostDetails.map((d) => [d.postId, d]));
+
+    const mapped = postsArray.map((post: any): PostDetail => {
+      const postDetail = postDetailsMap.get(post.id);
+      const mediaItems = postDetail?.media || [];
+      const isVideo = (post.postType || "PHOTO").toUpperCase() === "VIDEO";
+      const mappedMedia: PostMedia[] = mediaItems.map((m: any) => ({
+        id: m.id || m.mediaId || String(Math.random()),
+        url: isVideo
+          ? m.hlsMasterUrl
+          : `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${m.mediaId || m.id}/jpg/1080`,
+        type: isVideo ? "video" : "image",
+        width: m.width || 1080,
+        height: m.height || 1080,
+        thumbnail_url: isVideo ? m.thumbnailUrl : m.blurHash,
+      }));
+
+      const authorProfile = profileMap.get(post.profileId);
+      const username = authorProfile?.username || "user";
+      const display_name =
+        authorProfile?.givenName ||
+        `${authorProfile?.firstName || ""} ${authorProfile?.lastName || ""}`.trim() ||
+        "Inuk User";
+      const avatar_url =
+        authorProfile?.avatar && authorProfile?.avatar !== "string"
+          ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${authorProfile.avatar}/jpeg/720`
+          : null;
+
+      const stats = postDetail?.stats || [];
+      const likes_count =
+        stats.find((s: any) => s.statType === "LIKE")?.count || 0;
+      const comments_count =
+        stats.find((s: any) => s.statType === "COMMENT")?.count || 0;
+      const shares_count =
+        stats.find((s: any) => s.statType === "SHARE")?.count || 0;
+      const saves_count =
+        stats.find((s: any) => s.statType === "SAVE")?.count || 0;
+      const is_liked = postDetail?.isLiked || false;
+
+      return {
+        id: post.id,
+        type: (post.postType || "photo").toLowerCase() as any,
+        author: {
+          id: post.profileId || "84064d0c11c84e15bc3df02a2080ffe6",
+          username,
+          display_name,
+          avatar_url,
+          is_verified: false,
+          is_following: false,
+        },
+        caption: post.description || post.title || "",
+        media: mappedMedia,
+        likes_count,
+        comments_count,
+        shares_count,
+        saves_count,
+        is_liked,
+        is_saved: false,
+        location: post.place || null,
+        tags: Array.isArray(post.tags) ? post.tags : [],
+        created_at: post.dateCreated
+          ? new Date(post.dateCreated).toISOString()
+          : new Date().toISOString(),
+        updated_at: post.dateUpdated
+          ? new Date(post.dateUpdated).toISOString()
+          : new Date().toISOString(),
+      };
+    });
+
+    return {
+      data: mapped,
+      offset: response.data?.offset || pageParam,
+      limit: response.data?.limit || 10,
+      total: response.data?.total || 0,
+    };
+  },
+  initialPageParam: 1,
+  getNextPageParam: (lastPage: any) => {
+    if (!lastPage || !lastPage.data || lastPage.data.length === 0)
+      return undefined;
+    const nextOffset = (lastPage.offset || 1) + 1;
+    const totalPages = Math.ceil(
+      (lastPage.total || 0) / (lastPage.limit || 10),
+    );
+    return nextOffset <= totalPages ? nextOffset : undefined;
   },
 };
