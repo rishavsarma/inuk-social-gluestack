@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 
 import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
+import { useIsFocused } from "expo-router";
 import { useVideoPlayer, VideoView, type VideoPlayer } from "expo-video";
 
 import { Platform, StyleSheet, View } from "react-native";
@@ -33,6 +34,11 @@ function FeedPostVideo({ id, uri, posterUri }: FeedPostVideoProps) {
   const isDark = theme === "dark";
 
   const isActive = useFeedVideoStore((s) => s.activeVideoId === id);
+  // The feed list only updates `activeVideoId` on scroll, so it doesn't
+  // change when navigating away to another screen (e.g. post detail).
+  // Gate playback on focus too, otherwise this video keeps playing behind
+  // whatever screen you navigated to.
+  const isFocused = useIsFocused();
 
   const player = useVideoPlayer({ uri }, (p) => {
     p.loop = true;
@@ -40,9 +46,17 @@ function FeedPostVideo({ id, uri, posterUri }: FeedPostVideoProps) {
   });
 
   useEffect(() => {
-    if (isActive) player.play();
+    if (isActive && isFocused) player.play();
     else player.pause();
-  }, [isActive, player]);
+  }, [isActive, isFocused, player]);
+
+  useEffect(() => {
+    return () => {
+      try {
+        player.pause();
+      } catch {}
+    };
+  }, [player]);
 
   const [isMuted, setIsMuted] = useState(true);
 

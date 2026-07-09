@@ -1,7 +1,6 @@
 import { POST_CONSTANTS } from "@/constants";
 import { useEvent } from "expo";
 import { Image } from "expo-image";
-import { useIsFocused } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import * as React from "react";
 import {
@@ -23,11 +22,6 @@ import Animated, {
 export interface VideoControlsState {
   isPlaying: boolean;
   isMuted: boolean;
-  isFullscreen: boolean;
-  /** Whether the control chrome (seekbar/play/mute/fullscreen) is showing.
-   * Tapping the video toggles this; while it's false the caller should show
-   * the author/user-detail overlay instead. */
-  showControls: boolean;
   currentTime: number;
   duration: number;
   trackWidth: number;
@@ -35,7 +29,6 @@ export interface VideoControlsState {
   onTogglePlay: () => void;
   onToggleMute: () => void;
   onToggleFullscreen: () => void;
-  onToggleControls: () => void;
   onSeek: (e: any) => void;
   onTrackLayout: (e: any) => void;
   formatTime: (s: number) => string;
@@ -44,20 +37,16 @@ export interface VideoControlsState {
 // ─── Props ────────────────────────────────────────────────────────────────
 
 export interface PostVideoHeroProps {
-  post: PostDetail;
+  post: FormattedPost;
   scrollY: SharedValue<number>;
-  /** Whether the hero is currently scrolled into view. Playback pauses
-   * when it isn't, even though the screen itself stays focused. */
-  isVisible?: boolean;
   onControlsReady?: (state: VideoControlsState) => void;
 }
 
 // ─── Component ───────────────────────────────────────────────────────────
 
-const PostVideoGallery = React.memo(function PostVideoHero({
+export const PostVideoHero = React.memo(function PostVideoHero({
   post,
   scrollY,
-  isVisible = true,
   onControlsReady,
 }: PostVideoHeroProps) {
   const [currentMediaIndex, setCurrentMediaIndex] = React.useState(0);
@@ -88,7 +77,6 @@ const PostVideoGallery = React.memo(function PostVideoHero({
               mediaObj={m}
               scrollY={scrollY}
               isActive={idx === currentMediaIndex}
-              isVisible={isVisible}
               onControlsReady={
                 idx === currentMediaIndex ? onControlsReady : undefined
               }
@@ -99,7 +87,7 @@ const PostVideoGallery = React.memo(function PostVideoHero({
 
       {post.post.media.length > 1 && (
         <View
-          className="absolute bottom-[136px] left-0 right-0 z-10 flex-row items-center justify-center gap-1"
+          className="absolute bottom-34 left-0 right-0 z-10 flex-row items-center justify-center gap-1"
           pointerEvents="none"
         >
           {post.post.media.map((_: unknown, idx: number) => (
@@ -117,13 +105,11 @@ function PostVideoHeroItem({
   mediaObj,
   scrollY,
   isActive,
-  isVisible,
   onControlsReady,
 }: {
   mediaObj: any;
   scrollY: SharedValue<number>;
   isActive: boolean;
-  isVisible: boolean;
   onControlsReady?: (state: VideoControlsState) => void;
 }) {
   const videoViewRef = React.useRef<VideoView>(null);
@@ -133,33 +119,16 @@ function PostVideoHeroItem({
   const heroImage = mediaObj?.url || mediaObj?.uri;
 
   const player = useVideoPlayer({ uri: heroImage || "" }, (p) => {
-    p.loop = false;
+    p.loop = true;
     p.muted = false;
     p.timeUpdateEventInterval = 0.1;
+    if (isActive) p.play();
   });
 
-  // Tie playback directly to a reactive focus flag rather than an effect
-  // cleanup — cleanup-based pausing depends on exactly when React runs it
-  // relative to the screen's blur/unmount, which isn't reliable during
-  // back navigation. `useIsFocused` re-renders this component the instant
-  // the screen loses focus, so play/pause always reflects current reality.
-  const isFocused = useIsFocused();
-
   React.useEffect(() => {
-    if (isActive && isFocused && isVisible) player.play();
+    if (isActive) player.play();
     else player.pause();
-  }, [isActive, isFocused, isVisible, player]);
-
-  // Last-resort safety net for unmounts that happen without a focus
-  // change firing first. Wrapped in try/catch since expo-video may have
-  // already released the native player by the time this runs.
-  React.useEffect(() => {
-    return () => {
-      try {
-        player.pause();
-      } catch {}
-    };
-  }, [player]);
+  }, [isActive, player]);
 
   const playingEvent = useEvent(player, "playingChange", {
     isPlaying: player.playing,
@@ -196,18 +165,11 @@ function PostVideoHeroItem({
   }, [player.status]);
 
   const [trackWidth, setTrackWidth] = React.useState(0);
-  // Author details show by default; the settings button and the controls'
-  // close (X) button explicitly toggle between the two panels.
-  const [showControls, setShowControls] = React.useState(false);
 
   const togglePlay = React.useCallback(() => {
     if (player.playing) player.pause();
     else player.play();
   }, [player]);
-
-  const toggleControls = React.useCallback(() => {
-    setShowControls((v) => !v);
-  }, []);
 
   const toggleMute = React.useCallback(() => {
     player.muted = !player.muted;
@@ -250,8 +212,6 @@ function PostVideoHeroItem({
     onControlsReady({
       isPlaying,
       isMuted,
-      isFullscreen,
-      showControls,
       currentTime,
       duration: player.duration,
       trackWidth,
@@ -259,21 +219,11 @@ function PostVideoHeroItem({
       onTogglePlay: togglePlay,
       onToggleMute: toggleMute,
       onToggleFullscreen: toggleFullscreen,
-      onToggleControls: toggleControls,
       onSeek: handleSeek,
       onTrackLayout: (e: any) => setTrackWidth(e.nativeEvent.layout.width),
       formatTime,
     });
-  }, [
-    isPlaying,
-    isMuted,
-    isFullscreen,
-    showControls,
-    currentTime,
-    player.duration,
-    trackWidth,
-    isActive,
-  ]);
+  }, [isPlaying, isMuted, currentTime, player.duration, trackWidth, isActive]);
 
   const posterUri =
     mediaObj?.thumbnail_url || mediaObj?.url || mediaObj?.uri || null;
@@ -330,5 +280,3 @@ function IndicatorDot({ isActive }: { isActive: boolean }) {
   }));
   return <Animated.View className="h-1.5 rounded-full" style={animStyle} />;
 }
-
-export default PostVideoGallery;

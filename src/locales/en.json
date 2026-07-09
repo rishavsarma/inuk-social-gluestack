@@ -295,7 +295,8 @@
     },
     "share": "Share",
     "mute_video": "Mute video",
-    "unmute_video": "Unmute video"
+    "unmute_video": "Unmute video",
+    "view_post_a11y": "View post"
   },
   "contest_tab": {
     "title": "Contests",
@@ -574,6 +575,11 @@
     "comments_hint": "Opens the comments section for this post",
     "share_post": "Share post",
     "share_hint": "Opens the share menu to send this post to others",
+    "play_video": "Play video",
+    "pause_video": "Pause video",
+    "fullscreen_video": "Enter fullscreen",
+    "close_video": "Close",
+    "post_options": "Post options",
     "comments_modal": {
       "title": "Comments",
       "empty": "No comments yet. Be the first to comment!",

@@ -5,16 +5,26 @@ import {
 import { PostCameraCard } from "@/components/custom/Post/PostCameraCard";
 import PostCaption from "@/components/custom/Post/PostCaption";
 import { PostEnvironmentCard } from "@/components/custom/Post/PostEnvironmentCard";
+import PostAuthorHeader from "@/components/custom/Post/PostAuthorHeader";
 import { PostAwardsCard } from "@/components/custom/Post/PostAwardsCard";
 import { PostFloatingActions } from "@/components/custom/Post/PostFloatingActions";
 import { PostPerformanceCard } from "@/components/custom/Post/PostPerformanceCard";
 import PostPhotoGallery from "@/components/custom/Post/PostPhotoGallery";
+import PostVideoGallery, {
+  VideoControlsState,
+} from "@/components/custom/Post/PostVideoGallery";
+import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { POST_CONSTANTS } from "@/constants";
 import { useAppBottomInset, useAppTopInset } from "@/hooks/useAppInsets";
-import { usePostPhotoDetailsQuery } from "@/hooks/usePosts";
+import {
+  usePostPhotoDetailsQuery,
+  usePostVideoDetailsQuery,
+} from "@/hooks/usePosts";
 import { useAuthStore } from "@/stores/auth.store";
+import { BlurView } from "expo-blur";
 import { useLocalSearchParams } from "expo-router";
 import {
   CameraIcon,
@@ -22,21 +32,60 @@ import {
   CompassIcon,
   LucideIcon,
   MapPinIcon,
+  Maximize,
   MountainIcon,
+  Pause,
+  Play,
   SunIcon,
+  Volume2,
+  VolumeX,
+  X,
 } from "lucide-react-native";
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useColorScheme, View } from "react-native";
+import {
+  Platform,
+  Pressable,
+  StyleSheet,
+  useColorScheme,
+  View,
+} from "react-native";
 import Animated, {
+  Easing,
   Extrapolation,
   FadeInDown,
   interpolate,
+  runOnJS,
+  SlideInLeft,
+  SlideInRight,
+  SlideOutLeft,
+  SlideOutRight,
+  useAnimatedReaction,
   useAnimatedStyle,
 } from "react-native-reanimated";
 
 const PostDetailContent = ({ formattedPost }: { formattedPost: any }) => {
   const scrollY = useKeyboardAvoidingScrollViewScrollY();
+  const { t } = useTranslation();
+  const isVideo = formattedPost.post.type === "video";
+  const [videoControls, setVideoControls] =
+    useState<VideoControlsState | null>(null);
+
+  const handleControlsReady = useCallback((state: VideoControlsState) => {
+    setVideoControls(state);
+  }, []);
+
+  // The hero video sits at the top of the scroll content, not pinned —
+  // scrolling past it moves it off-screen without unmounting or blurring
+  // the route, so playback must be gated on scroll position too, not just
+  // navigation focus.
+  const [isHeroVisible, setIsHeroVisible] = useState(true);
+  useAnimatedReaction(
+    () => (scrollY ? scrollY.value < POST_CONSTANTS.HERO_HEIGHT : true),
+    (visible, previous) => {
+      if (visible !== previous) runOnJS(setIsHeroVisible)(visible);
+    },
+  );
 
   const heroAnimatedStyle = useAnimatedStyle(() => {
     const scrollYValue = scrollY ? scrollY.value : 0;
@@ -77,7 +126,130 @@ const PostDetailContent = ({ formattedPost }: { formattedPost: any }) => {
         },
       ]}
     >
-      <PostPhotoGallery post={formattedPost} />
+      {isVideo ? (
+        <>
+          <PostVideoGallery
+            post={formattedPost}
+            scrollY={scrollY!}
+            isVisible={isHeroVisible}
+            onControlsReady={handleControlsReady}
+          />
+          {videoControls &&
+            !videoControls.isFullscreen &&
+            (videoControls.showControls ? (
+              <Animated.View
+                key="controls"
+                entering={SlideInRight.duration(280).easing(
+                  Easing.out(Easing.cubic),
+                )}
+                exiting={SlideOutRight.duration(220).easing(
+                  Easing.in(Easing.cubic),
+                )}
+                className="absolute bottom-4 left-4 right-4 z-20 overflow-hidden rounded-full shadow-lg"
+                pointerEvents="box-none"
+              >
+                <BlurView
+                  intensity={Platform.OS === "android" ? 100 : 70}
+                  tint="dark"
+                  style={StyleSheet.absoluteFill}
+                />
+                <HStack
+                  space="sm"
+                  className="items-center bg-black/45 py-2 pl-2 pr-3"
+                >
+                  <Pressable
+                    onPress={videoControls.onTogglePlay}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      videoControls.isPlaying
+                        ? t("post_detail.pause_video")
+                        : t("post_detail.play_video")
+                    }
+                    hitSlop={8}
+                    className="h-9 w-9 items-center justify-center"
+                  >
+                    <Icon
+                      as={videoControls.isPlaying ? Pause : Play}
+                      size="md"
+                      className="text-white"
+                    />
+                  </Pressable>
+                  <Text className="text-[12px] font-medium text-white">
+                    {videoControls.formatTime(videoControls.currentTime)}
+                  </Text>
+                  <Pressable
+                    onPress={videoControls.onSeek}
+                    onLayout={videoControls.onTrackLayout}
+                    hitSlop={{ top: 12, bottom: 12 }}
+                    className="h-1 flex-1 overflow-hidden rounded-full bg-white/30"
+                  >
+                    <Animated.View
+                      style={videoControls.progressAnimStyle}
+                      className="h-full rounded-full bg-theme"
+                    />
+                  </Pressable>
+                  <Text className="text-[12px] font-medium text-white">
+                    {videoControls.formatTime(videoControls.duration)}
+                  </Text>
+                  <Pressable
+                    onPress={videoControls.onToggleMute}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      videoControls.isMuted
+                        ? t("feed.unmute_video")
+                        : t("feed.mute_video")
+                    }
+                    hitSlop={8}
+                    className="h-9 w-9 items-center justify-center"
+                  >
+                    <Icon
+                      as={videoControls.isMuted ? VolumeX : Volume2}
+                      size="md"
+                      className="text-white"
+                    />
+                  </Pressable>
+                  <Pressable
+                    onPress={videoControls.onToggleFullscreen}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("post_detail.fullscreen_video")}
+                    hitSlop={8}
+                    className="h-9 w-9 items-center justify-center"
+                  >
+                    <Icon as={Maximize} size="md" className="text-white" />
+                  </Pressable>
+                  <Pressable
+                    onPress={videoControls.onToggleControls}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("post_detail.close_video")}
+                    hitSlop={8}
+                    className="h-9 w-9 items-center justify-center"
+                  >
+                    <Icon as={X} size="md" className="text-white" />
+                  </Pressable>
+                </HStack>
+              </Animated.View>
+            ) : (
+              <Animated.View
+                key="author"
+                entering={SlideInLeft.duration(280).easing(
+                  Easing.out(Easing.cubic),
+                )}
+                exiting={SlideOutLeft.duration(220).easing(
+                  Easing.in(Easing.cubic),
+                )}
+                className="absolute bottom-4 left-4 right-4 z-20"
+                pointerEvents="box-none"
+              >
+                <PostAuthorHeader
+                  post={formattedPost}
+                  onOptionsPress={videoControls.onToggleControls}
+                />
+              </Animated.View>
+            ))}
+        </>
+      ) : (
+        <PostPhotoGallery post={formattedPost} />
+      )}
     </Animated.View>
   );
 };
@@ -99,13 +271,29 @@ const PostDetail = () => {
   const topInset = useAppTopInset();
   const { t } = useTranslation();
 
-  const { data: postDetails, isLoading } = usePostPhotoDetailsQuery(
-    id,
-    postId,
-    mediaId,
-    profile_id,
-    my_profile_id,
-  );
+  const isVideoPost = type === "video";
+
+  const { data: photoDetails, isLoading: isLoadingPhoto } =
+    usePostPhotoDetailsQuery(
+      id,
+      postId,
+      mediaId,
+      profile_id,
+      my_profile_id,
+      !isVideoPost,
+    );
+  const { data: videoDetails, isLoading: isLoadingVideo } =
+    usePostVideoDetailsQuery(
+      id,
+      postId,
+      mediaId,
+      profile_id,
+      my_profile_id,
+      isVideoPost,
+    );
+
+  const postDetails = isVideoPost ? videoDetails : photoDetails;
+  const isLoading = isVideoPost ? isLoadingVideo : isLoadingPhoto;
 
   const formattedPost = useMemo<PostDetail | null>(() => {
     if (!postDetails || !postDetails.post) return null;
@@ -250,8 +438,21 @@ const PostDetail = () => {
       is_me: apiProfile?.id === my_profile_id,
     };
 
-    const media =
-      postDetails.media?.data && postDetails.media.data.length > 0
+    const hasApiMedia =
+      postDetails.media?.data && postDetails.media.data.length > 0;
+
+    const media = isVideoPost
+      ? hasApiMedia
+        ? postDetails.media.data.map((m: Record<string, unknown>) => ({
+            id: (m?.id as string) || id,
+            url: m?.hlsMasterUrl as string,
+            type: "video",
+            width: (m?.width as number) || 1080,
+            height: (m?.height as number) || 1920,
+            thumbnail_url: m?.thumbnailUrl as string,
+          }))
+        : []
+      : hasApiMedia
         ? postDetails.media.data.map((m: Record<string, unknown>) => ({
             id: (m?.id as string) || id,
             url: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${(m?.mediaId as string) || id}/jpg/1080`,
@@ -302,7 +503,7 @@ const PostDetail = () => {
         place: apiPost.place,
       },
     };
-  }, [postDetails, id, type, my_profile_id, t]);
+  }, [postDetails, id, type, isVideoPost, my_profile_id, t]);
 
   if (isLoading) {
     return (
@@ -327,10 +528,6 @@ const PostDetail = () => {
       </View>
     );
   }
-
-  const isVideo = formattedPost.post.type === "video";
-
-  console.log(formattedPost.post.id);
 
   return (
     <View className="flex-1">

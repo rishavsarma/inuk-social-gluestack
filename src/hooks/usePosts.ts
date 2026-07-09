@@ -73,10 +73,34 @@ export function usePostPhotoDetailsQuery(
   enabled: boolean = true,
 ) {
   return useQuery({
-    queryKey: ["post-details", postId, mediaId],
+    queryKey: ["post-details", "photo", postId, mediaId],
     enabled: !!postId && !!mediaId && enabled,
     queryFn: async () => {
       const data = await postService.getPostPhotoDetails(
+        id,
+        postId,
+        mediaId,
+        profileId,
+        myProfileId,
+      );
+      return data;
+    },
+  });
+}
+
+export function usePostVideoDetailsQuery(
+  id: string,
+  postId: string,
+  mediaId: string,
+  profileId: string,
+  myProfileId: string,
+  enabled: boolean = true,
+) {
+  return useQuery({
+    queryKey: ["post-details", "video", postId, mediaId],
+    enabled: !!postId && !!mediaId && enabled,
+    queryFn: async () => {
+      const data = await postService.getPostVideoDetails(
         id,
         postId,
         mediaId,
