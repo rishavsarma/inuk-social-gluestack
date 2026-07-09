@@ -1,20 +1,16 @@
 import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 import { useSettingStore } from "@/stores/setting.store";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
+import * as Haptics from "expo-haptics";
 import { GlassView } from "expo-glass-effect";
 import { usePathname, useRouter } from "expo-router";
 import { Gamepad2, Home, Plus, Trophy, User } from "lucide-react-native";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Platform,
-  Pressable,
-  Text,
-  View,
-  useWindowDimensions,
-} from "react-native";
+import { Platform, Pressable, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
@@ -86,18 +82,26 @@ function TabItem({
     scaleRef.current.value = withTiming(1, { duration: 100 });
   };
 
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    onPress();
+  };
+
   const isCreate = tab.name === "create";
+  const label = t(`tabs.${tab.name}`);
 
   if (isCreate) {
     return (
       <Pressable
-        onPress={onPress}
+        onPress={handlePress}
         onPressIn={onPressIn}
         onPressOut={onPressOut}
+        accessibilityRole="button"
+        accessibilityLabel={label}
         className="flex-1 items-center justify-center"
       >
         <Animated.View style={pressStyle}>
-          <View className="h-11 w-11 items-center justify-center rounded-full bg-theme">
+          <View className="h-12 w-12 items-center justify-center rounded-full bg-theme">
             <Icon as={Plus} className="size-6 text-white" />
           </View>
         </Animated.View>
@@ -107,24 +111,28 @@ function TabItem({
 
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       onPressIn={onPressIn}
       onPressOut={onPressOut}
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      accessibilityState={{ selected: isActive }}
       className="h-14 flex-1 items-center justify-center"
     >
       <Animated.View style={pressStyle} className="items-center">
         {/* Crossfading icon — opacity driven by Reanimated, position by Nativewind */}
         <View className="h-5.5 w-5.5">
           <Animated.View style={inactiveIconStyle} className="absolute inset-0">
-            <Icon as={tab.icon} className="size-5 text-foreground/60" />
+            <Icon as={tab.icon} size="lg" className="text-foreground/60" />
           </Animated.View>
           <Animated.View style={activeIconStyle} className="absolute inset-0">
-            <Icon as={tab.icon} className="size-5 text-theme" />
+            <Icon as={tab.icon} size="lg" className="text-theme" />
           </Animated.View>
         </View>
 
         {/* Label */}
         <Text
+          size="lg"
           className={cn(
             "text-xs pt-1 leading-3 tracking-wide",
             isActive
@@ -132,7 +140,7 @@ function TabItem({
               : "font-medium text-foreground/60",
           )}
         >
-          {tab.label ? t(`tabs.${tab.name}`) : ""}
+          {tab.label ? label : ""}
         </Text>
       </Animated.View>
     </Pressable>
@@ -201,8 +209,8 @@ export default function CustomTabBar() {
     backgroundColor:
       Platform.OS === "ios"
         ? isDark
-          ? "rgba(0,0,0,0.95)"
-          : "rgba(245,245,247,0.95)"
+          ? "rgba(0,0,0,0.5)"
+          : "rgba(245,245,247,0.5)"
         : isDark
           ? "rgba(14,14,14,0.96)"
           : "rgba(245,245,247,0.96)",

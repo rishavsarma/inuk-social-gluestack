@@ -237,7 +237,7 @@ const ListHeader = ({
   };
 
   return (
-    <VStack space="sm">
+    <VStack space="sm" className="">
       <Box className="relative h-64 w-full bg-muted ">
         <Image
           source={userDetail.cover}
@@ -294,6 +294,144 @@ const ListHeader = ({
           )}
         </HStack>
       </Box>
+
+      <HStack className="">
+        {/* Avatar with overlays */}
+        <Button
+          variant="ghost"
+          onPress={() => !isOtherUser && router.push(ROUTES.USER.EDIT_PROFILE)}
+          accessibilityRole="button"
+          accessibilityLabel={
+            isOtherUser ? t("profile.avatar") : t("profile.edit_avatar")
+          }
+          className="relative -mt-12 data-[active=true]:bg-transparent"
+        >
+          <Box className="h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-background">
+            <Image
+              source={{ uri: userDetail.avatar }}
+              style={{ width: "100%", height: "100%" }}
+              contentFit="cover"
+            />
+          </Box>
+
+          {!isOtherUser && (
+            <Box className="absolute right-4 bottom-4 h-6 w-6 bg-theme rounded-full items-center justify-center ring-2 ring-background">
+              <Icon as={Pencil} className="h-3.5 w-3.5 text-white" />
+            </Box>
+          )}
+        </Button>
+
+        {/* Stats */}
+        <Grid
+          className=" flex-1 items-center "
+          _extra={{ className: "grid-cols-3" }}
+        >
+          <GridItem _extra={{ className: "col-span-1" }}>
+            <Button
+              variant="ghost"
+              accessibilityRole="button"
+              accessibilityLabel={t("profile.posts_count", {
+                count: userDetail?.post || 0,
+              })}
+              // onPress={() =>
+              //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=followers` as any)
+              // }
+              className="items-center active:opacity-70"
+            >
+              <VStack className="items-center">
+                <AnimatedStatNumber value={userDetail?.post || 0} />
+                <ButtonText className="text-muted-foreground">
+                  {t("profile.posts")}
+                </ButtonText>
+              </VStack>
+            </Button>
+          </GridItem>
+          <GridItem
+            // className="bg-muted p-6 rounded-md"
+            _extra={{ className: "col-span-1" }}
+          >
+            <Button
+              variant="ghost"
+              accessibilityRole="button"
+              accessibilityLabel={t("profile.followers_count", {
+                count: userDetail?.followers || 0,
+              })}
+              // onPress={() =>
+              //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=followers` as any)
+              // }
+              className="items-center active:opacity-70"
+            >
+              <VStack className="items-center">
+                <AnimatedStatNumber value={userDetail?.followers || 0} />
+                <ButtonText className="text-muted-foreground">
+                  {t("profile.followers")}
+                </ButtonText>
+              </VStack>
+            </Button>
+          </GridItem>
+          <GridItem
+            // className="bg-muted p-6 rounded-md"
+            _extra={{ className: "col-span-1" }}
+          >
+            <Button
+              // onPress={() =>
+              //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=following` as any)
+              // }
+              variant="ghost"
+              accessibilityRole="button"
+              accessibilityLabel={t("profile.following_count", {
+                count: userDetail?.following || 0,
+              })}
+              className="items-center active:opacity-70"
+            >
+              <VStack className="items-center">
+                <AnimatedStatNumber value={userDetail?.following || 0} />
+                <ButtonText className="text-muted-foreground">
+                  {t("profile.following")}
+                </ButtonText>
+              </VStack>
+            </Button>
+          </GridItem>
+        </Grid>
+      </HStack>
+      <VStack space="xs" className="px-4">
+        <HStack space="sm" className="items-center">
+          <Heading size="xl" className="">
+            {userDetail.name}
+          </Heading>
+          <Badge variant="outline" className="h-6 py-0 rounded-full">
+            <BadgeText className="lowercase line-clamp-1">
+              @{userDetail.username}
+            </BadgeText>
+          </Badge>
+        </HStack>
+        <Text className="mt-1.5 text-[14px] leading-5 text-foreground">
+          {userDetail.bio}
+        </Text>
+      </VStack>
+
+      <Tabs
+        value={activeTab}
+        onValueChange={(val: ProfileTab) => setActiveTab(val)}
+        variant="underlined"
+        className=" justify-between "
+        orientation="horizontal"
+      >
+        <TabsList className="bg-transparent rounded-none pb-0.5">
+          <TabsTrigger value="image" className=" flex-1">
+            <TabsTriggerIcon as={ImageIcon} className="w-6 h-6" />
+          </TabsTrigger>
+          <TabsTrigger value="video" className="flex-1">
+            <TabsTriggerIcon as={Video} className="w-6 h-6" />
+          </TabsTrigger>
+
+          <TabsTrigger value="text" className="flex-1">
+            <TabsTriggerIcon as={FileText} className="w-6 h-6" />
+          </TabsTrigger>
+          <TabsIndicator className="border-b" />
+        </TabsList>
+      </Tabs>
+
       <Actionsheet
         snapPoints={[80]}
         isOpen={showActionsheet}
@@ -434,142 +572,6 @@ const ListHeader = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <HStack className="">
-        {/* Avatar with overlays */}
-        <Button
-          variant="ghost"
-          onPress={() => !isOtherUser && router.push(ROUTES.USER.EDIT_PROFILE)}
-          accessibilityRole="button"
-          accessibilityLabel={
-            isOtherUser ? t("profile.avatar") : t("profile.edit_avatar")
-          }
-          className="relative -mt-12 data-[active=true]:bg-transparent"
-        >
-          <Box className="h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-background">
-            <Image
-              source={{ uri: userDetail.avatar }}
-              style={{ width: "100%", height: "100%" }}
-              contentFit="cover"
-            />
-          </Box>
-
-          {!isOtherUser && (
-            <Box className="absolute right-4 bottom-4 h-6 w-6 bg-theme rounded-full items-center justify-center ring-2 ring-background">
-              <Icon as={Pencil} className="h-3.5 w-3.5 text-white" />
-            </Box>
-          )}
-        </Button>
-
-        {/* Stats */}
-        <Grid
-          className=" flex-1 items-center "
-          _extra={{ className: "grid-cols-3" }}
-        >
-          <GridItem _extra={{ className: "col-span-1" }}>
-            <Button
-              variant="ghost"
-              accessibilityRole="button"
-              accessibilityLabel={t("profile.posts_count", {
-                count: userDetail?.post || 0,
-              })}
-              // onPress={() =>
-              //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=followers` as any)
-              // }
-              className="items-center active:opacity-70"
-            >
-              <VStack className="items-center">
-                <AnimatedStatNumber value={userDetail?.post || 0} />
-                <ButtonText className="text-muted-foreground">
-                  {t("profile.posts")}
-                </ButtonText>
-              </VStack>
-            </Button>
-          </GridItem>
-          <GridItem
-            // className="bg-muted p-6 rounded-md"
-            _extra={{ className: "col-span-1" }}
-          >
-            <Button
-              variant="ghost"
-              accessibilityRole="button"
-              accessibilityLabel={t("profile.followers_count", {
-                count: userDetail?.followers || 0,
-              })}
-              // onPress={() =>
-              //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=followers` as any)
-              // }
-              className="items-center active:opacity-70"
-            >
-              <VStack className="items-center">
-                <AnimatedStatNumber value={userDetail?.followers || 0} />
-                <ButtonText className="text-muted-foreground">
-                  {t("profile.followers")}
-                </ButtonText>
-              </VStack>
-            </Button>
-          </GridItem>
-          <GridItem
-            // className="bg-muted p-6 rounded-md"
-            _extra={{ className: "col-span-1" }}
-          >
-            <Button
-              // onPress={() =>
-              //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=following` as any)
-              // }
-              variant="ghost"
-              accessibilityRole="button"
-              accessibilityLabel={t("profile.following_count", {
-                count: userDetail?.following || 0,
-              })}
-              className="items-center active:opacity-70"
-            >
-              <VStack className="items-center">
-                <AnimatedStatNumber value={userDetail?.following || 0} />
-                <ButtonText className="text-muted-foreground">
-                  {t("profile.following")}
-                </ButtonText>
-              </VStack>
-            </Button>
-          </GridItem>
-        </Grid>
-      </HStack>
-      <VStack space="xs" className="px-4">
-        <HStack space="sm" className="items-center">
-          <Heading size="xl" className="">
-            {userDetail.name}
-          </Heading>
-          <Badge variant="outline" className="h-6 py-0 rounded-full">
-            <BadgeText className="lowercase line-clamp-1">
-              @{userDetail.username}
-            </BadgeText>
-          </Badge>
-        </HStack>
-        <Text className="mt-1.5 text-[14px] leading-5 text-foreground">
-          {userDetail.bio}
-        </Text>
-      </VStack>
-
-      <Tabs
-        value={activeTab}
-        onValueChange={(val: ProfileTab) => setActiveTab(val)}
-        variant="underlined"
-        className=" justify-between"
-        orientation="horizontal"
-      >
-        <TabsList className="bg-transparent rounded-none ">
-          <TabsTrigger value="image" className=" flex-1">
-            <TabsTriggerIcon as={ImageIcon} className="w-6 h-6" />
-          </TabsTrigger>
-          <TabsTrigger value="video" className="flex-1">
-            <TabsTriggerIcon as={Video} className="w-6 h-6" />
-          </TabsTrigger>
-
-          <TabsTrigger value="text" className="flex-1">
-            <TabsTriggerIcon as={FileText} className="w-6 h-6" />
-          </TabsTrigger>
-          <TabsIndicator />
-        </TabsList>
-      </Tabs>
     </VStack>
   );
 };

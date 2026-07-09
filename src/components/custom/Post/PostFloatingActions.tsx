@@ -1,8 +1,9 @@
 import { Icon } from "@/components/ui/icon";
+import { Text } from "@/components/ui/text";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import { HeartIcon, MessageCircleIcon, Share2Icon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, View } from "react-native";
 import Animated from "react-native-reanimated";
 
 function fmt(n: number) {
@@ -41,7 +42,7 @@ export function PostFloatingActions({
       style={{ paddingBottom: Math.max(bottomInset, 16) }}
       className="pointer-events-box-none absolute bottom-0 left-0 right-0 items-center justify-end px-6 z-10"
     >
-      <View className="w-full max-w-[220px] flex-row items-center justify-between rounded-full border border-background/5 bg-background/85 px-5 py-2.5 backdrop-blur-3xl dark:border-white/10 dark:bg-[#1a1a1a]/85">
+      <View className="w-full max-w-55 flex-row items-center justify-between rounded-full border border-background/5 bg-card/90 px-5 py-2 backdrop-blur-3xl dark:border-white/10 dark:bg-[#1a1a1a]/85">
         {/* Like */}
         <Animated.View style={likeAnimStyle}>
           <Pressable
@@ -62,8 +63,9 @@ export function PostFloatingActions({
               fill={isLiked ? "#E50914" : "transparent"}
             />
             <Text
+              size="sm"
               className={cn(
-                "text-[13px] font-medium tracking-wide",
+                " font-medium tracking-wide",
                 isLiked ? "text-theme" : "text-foreground",
               )}
             >
@@ -73,7 +75,7 @@ export function PostFloatingActions({
         </Animated.View>
 
         {/* Separator */}
-        <View className="h-4 w-[1px] rounded-full bg-foreground/10" />
+        <View className="h-4 w-px rounded-full bg-foreground/10" />
 
         {/* Comment */}
         <Pressable
@@ -84,14 +86,14 @@ export function PostFloatingActions({
           accessibilityLabel={t("post_detail.comments")}
           accessibilityHint={t("post_detail.comments_hint")}
         >
-          <Icon as={MessageCircleIcon} className="text-foreground" />
-          <Text className="text-[13px] font-medium tracking-wide text-foreground">
+          <Icon size="sm" as={MessageCircleIcon} className="text-foreground" />
+          <Text size="sm" className="font-medium tracking-wide text-foreground">
             {fmt(commentsCount)}
           </Text>
         </Pressable>
 
         {/* Separator */}
-        <View className="h-4 w-[1px] rounded-full bg-foreground/10" />
+        <View className="h-4 w-px rounded-full bg-foreground/10" />
 
         {/* Share */}
         <Pressable
@@ -100,8 +102,15 @@ export function PostFloatingActions({
           accessibilityRole="button"
           accessibilityLabel={t("post_detail.share_post")}
           accessibilityHint={t("post_detail.share_hint")}
+          className="flex-row items-center gap-1.5"
         >
-          <Icon as={Share2Icon} className="text-foreground" />
+          <Icon size="sm" as={Share2Icon} className="text-foreground/80" />
+          <Text
+            size="sm"
+            className=" font-medium tracking-wide text-foreground"
+          >
+            {fmt(commentsCount)}
+          </Text>
         </Pressable>
       </View>
     </View>
