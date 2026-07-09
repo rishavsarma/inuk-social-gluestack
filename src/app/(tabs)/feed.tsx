@@ -1,5 +1,6 @@
 import { EmptyState } from "@/components/custom/Feed/EmptyState";
 import { FeedCategories } from "@/components/custom/Feed/FeedCategories";
+import FeedHeader from "@/components/custom/Feed/FeedHeader";
 import { FeedPostVideo } from "@/components/custom/Feed/FeedPostVideo";
 import { PostSkeleton } from "@/components/custom/Feed/PostSkeleton";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
@@ -244,7 +245,8 @@ const FeedScreen = () => {
           contentContainerStyle={{ paddingTop: topInset, paddingBottom: 160 }}
           ListHeaderComponent={
             <>
-              <ThemeSwitcher />
+              <FeedHeader />
+              {/* <ThemeSwitcher /> */}
               <FeedCategories />
             </>
           }

@@ -20,7 +20,7 @@ const AnimatedFlashList = Animated.createAnimatedComponent(
   FlashList as unknown as React.ComponentClass<any>,
 );
 
-const PROFILE_TABS = ["image", "video", "audio", "text"] as const;
+const PROFILE_TABS = ["image", "video", "text"] as const;
 
 type ProfileTab = (typeof PROFILE_TABS)[number];
 

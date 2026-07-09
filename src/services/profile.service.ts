@@ -15,7 +15,7 @@ export const profileService = {
     return data;
   },
 
-  updateProfile: async (id: string, payload: any) => {
+  updateProfile: async (id: string, payload: UpdateProfilePayload) => {
     const { data } = await api.put(`/iam/profile/${id}`, payload);
     return data;
   },

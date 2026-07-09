@@ -1,5 +1,5 @@
 import { profileService } from "@/services/profile.service";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetProfile = (profileId: string) => {
   return useQuery({
@@ -14,3 +14,15 @@ export const useGetProfile = (profileId: string) => {
     enabled: !!profileId,
   });
 };
+
+export function useUpdateProfile(profileId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: UpdateProfilePayload) =>
+      profileService.updateProfile(profileId, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profile", profileId] });
+    },
+  });
+}

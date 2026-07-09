@@ -22,6 +22,10 @@ export const COUNTRY_CODES = [
   { code: "+81", country: "Japan", flag: "🇯🇵" },
 ] as const;
 
+/** Matches the `--theme` accent token in globals.css — for native props
+ * (e.g. Switch trackColor) that need a runtime color value, not a class. */
+export const THEME_ACCENT_COLOR = "rgb(192, 57, 42)";
+
 export const POST_CONSTANTS = {
   SCREEN_WIDTH,
   SCREEN_HEIGHT,

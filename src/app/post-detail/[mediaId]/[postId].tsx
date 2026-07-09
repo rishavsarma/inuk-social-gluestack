@@ -10,9 +10,9 @@ import { PostAwardsCard } from "@/components/custom/Post/PostAwardsCard";
 import { PostFloatingActions } from "@/components/custom/Post/PostFloatingActions";
 import { PostPerformanceCard } from "@/components/custom/Post/PostPerformanceCard";
 import PostPhotoGallery from "@/components/custom/Post/PostPhotoGallery";
-import PostVideoGallery, {
+import PostVideoHero, {
   VideoControlsState,
-} from "@/components/custom/Post/PostVideoGallery";
+} from "@/components/custom/Post/PostVideoHero";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
@@ -128,7 +128,7 @@ const PostDetailContent = ({ formattedPost }: { formattedPost: any }) => {
     >
       {isVideo ? (
         <>
-          <PostVideoGallery
+          <PostVideoHero
             post={formattedPost}
             scrollY={scrollY!}
             isVisible={isHeroVisible}

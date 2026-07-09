@@ -363,10 +363,15 @@
     "log_out": "Log Out",
     "sign_out_app": "Sign out of app",
     "confirm_logout": "Are you sure you want to log out?",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "copy_code": "Copy referral code",
+    "share_code": "Share referral code"
   },
   "edit_profile": {
     "title": "Edit Profile",
+    "basic_information": "Basic Information",
+    "personal_details": "Personal Details",
+    "tap_to_change_photo": "Tap to change photo",
     "name": "Name",
     "name_placeholder": "Your full name",
     "username": "Username",
@@ -392,7 +397,11 @@
     "change_cover": "Change Cover",
     "save_profile": "Save Profile",
     "updating": "Updating...",
-    "profile_saved": "Profile saved successfully!"
+    "profile_saved": "Profile saved successfully!",
+    "name_error_required": "Name is required",
+    "error_generic": "Something went wrong. Please try again.",
+    "avatar_upload_error": "Failed to update avatar. Please try again.",
+    "cover_upload_error": "Failed to update cover photo. Please try again."
   },
   "profile": {
     "copied": "Copied!",
@@ -436,7 +445,14 @@
     "title": "Sparks & Transactions",
     "inuk_balance": "Inuk Balance",
     "earn_more": "Earn more points by engaging with the community and winning contests!",
-    "recent_history": "Recent History"
+    "recent_history": "Recent History",
+    "no_history": "No transactions yet",
+    "no_history_sub": "Earn sparks by posting and joining contests.",
+    "txn_post": "Shared a new post",
+    "txn_contest_post": "Contest entry bonus",
+    "txn_join_contest": "Joined a contest",
+    "txn_welcome": "Welcome bonus",
+    "txn_activity": "Community activity"
   },
   "network": {
     "title_user": "Network",

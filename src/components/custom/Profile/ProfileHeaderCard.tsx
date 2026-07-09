@@ -2,18 +2,19 @@ import React, { useCallback, useState } from "react";
 
 import {
   ArrowLeftIcon,
+  Copy,
   FileText,
+  Gift,
   ImageIcon,
   LogOut,
   MoreHorizontal,
   Music,
   Pencil,
   Settings,
-  Sparkles,
+  Share2,
   Star,
   User,
   Video,
-  View,
 } from "lucide-react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-worklets";
@@ -57,13 +58,13 @@ import {
   ActionsheetContent,
   ActionsheetDragIndicator,
   ActionsheetDragIndicatorWrapper,
-  ActionsheetItem,
-  ActionsheetItemText,
 } from "@/components/ui/actionsheet";
-import { Pressable } from "react-native";
+import { Pressable, Share } from "react-native";
+import * as Clipboard from "expo-clipboard";
+import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { ROUTES } from "@/routes";
 
-const PROFILE_TABS = ["image", "video", "audio", "text"] as const;
+const PROFILE_TABS = ["image", "video", "text"] as const;
 
 type ProfileTab = (typeof PROFILE_TABS)[number];
 
@@ -121,6 +122,7 @@ interface ProfileMenuTileProps {
   title: string;
   subtitle: string;
   onPress: () => void;
+  destructive?: boolean;
 }
 
 function ProfileMenuTile({
@@ -130,28 +132,37 @@ function ProfileMenuTile({
   title,
   subtitle,
   onPress,
+  destructive = false,
 }: ProfileMenuTileProps) {
   return (
-    <ActionsheetItem onPress={onPress}>
-      <Pressable
-        onPress={onPress}
-        accessibilityRole="button"
-        accessibilityLabel={title}
-        className="flex-1 border border-secondary bg-card p-4 active:opacity-90"
-      >
-        <View
-          className={`mb-3 h-9 w-9 items-center justify-center rounded-xl ${iconBgClassName}`}
+    <Button
+      variant="ghost"
+      onPress={onPress}
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      className="bg-card/70 items-start justify-start py-4"
+    >
+      <Box className="items-start justify-center">
+        <Box
+          className={`p-2.5 mb-2 items-center justify-center rounded-lg ${iconBgClassName}`}
         >
-          <Icon as={icon} size={"xl"} color={iconColor} />
-        </View>
-        <Text className="text-[14px] font-bold text-foreground">
+          <Icon as={icon} size={"lg"} color={iconColor} />
+        </Box>
+        <Text
+          size="sm"
+          bold
+          className={` ${destructive ? "text-destructive/80" : "text-foreground"}`}
+        >
           {title}
         </Text>
-        <Text className="mt-1 text-[10px] text-muted-foreground">
+        <Text
+          size="xs"
+          className={` ${destructive ? "text-destructive/80" : "text-muted-foreground"}`}
+        >
           {subtitle}
         </Text>
-      </Pressable>
-    </ActionsheetItem>
+      </Box>
+    </Button>
   );
 }
 
@@ -191,11 +202,38 @@ const ListHeader = ({
   const handleClose = () => setShowActionsheet(false);
   const points = useSocialStore((state) => state.points);
   const logout = useAuthStore((state) => state.logout);
+  const toast = useToast();
 
   const handleConfirmLogout = () => {
     setShowLogoutConfirm(false);
     handleClose();
     logout();
+  };
+
+  const handleCopyReferral = async () => {
+    if (!userDetail.referral) return;
+    await Clipboard.setStringAsync(userDetail.referral);
+    toast.show({
+      placement: "top",
+      render: ({ id }) => (
+        <Toast nativeID={`toast-${id}`} action="success" variant="solid">
+          <ToastDescription>
+            {t("profile.referral_copied", { code: userDetail.referral })}
+          </ToastDescription>
+        </Toast>
+      ),
+    });
+  };
+
+  const handleShareReferral = async () => {
+    if (!userDetail.referral) return;
+    try {
+      await Share.share({
+        message: t("profile.share_message", { code: userDetail.referral }),
+      });
+    } catch {
+      // user dismissed the share sheet — nothing to do
+    }
   };
 
   return (
@@ -236,7 +274,7 @@ const ListHeader = ({
                 as={Star}
                 className="text-yellow-500 fill-yellow-500"
               />
-              <Text className="font-semibold text-white">
+              <Text className="font-semibold">
                 {formatCompactNumber(points)}
               </Text>
             </Button>
@@ -256,19 +294,64 @@ const ListHeader = ({
           )}
         </HStack>
       </Box>
-      <Actionsheet isOpen={showActionsheet} onClose={handleClose}>
+      <Actionsheet
+        snapPoints={[80]}
+        isOpen={showActionsheet}
+        onClose={handleClose}
+      >
         <ActionsheetBackdrop />
-        <ActionsheetContent>
+        <ActionsheetContent className="px-4 pb-6 pt-2">
           <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator />
+            <ActionsheetDragIndicator className="bg-muted-foreground mb-4" />
           </ActionsheetDragIndicatorWrapper>
 
-          <ActionsheetItem onPress={() => {}}>
-            <ActionsheetItemText>
-              {userDetail?.referral || t("common.not_available")}
-            </ActionsheetItemText>
-          </ActionsheetItem>
-          <Grid _extra={{ className: "grid-cols-2" }}>
+          <HStack
+            space="md"
+            className="mb-3 w-full items-center rounded-lg bg-card p-4 dark:bg-card/90"
+          >
+            <Box className="p-4 items-center justify-center rounded-2xl bg-theme/15">
+              <Icon as={Gift} size="xl" className="text-theme" />
+            </Box>
+            <VStack className="flex-1">
+              <Text size="sm" bold className="t text-foreground">
+                {t("profile_bottom_sheet.refer_earn")}
+              </Text>
+              <HStack space="xs" className="mt-1 items-center">
+                <Text size="xs" className=" text-muted-foreground">
+                  {t("profile_bottom_sheet.code")}
+                </Text>
+                <Badge
+                  variant="outline"
+                  className="rounded-full border-theme/20 bg-theme/10"
+                >
+                  <BadgeText className="font-bold uppercase tracking-widest text-theme">
+                    {userDetail?.referral || t("common.not_available")}
+                  </BadgeText>
+                </Badge>
+              </HStack>
+            </VStack>
+            <Button
+              variant="secondary"
+              size="icon"
+              onPress={handleCopyReferral}
+              accessibilityRole="button"
+              accessibilityLabel={t("profile_bottom_sheet.copy_code")}
+              className="h-11 w-11 rounded-full"
+            >
+              <ButtonIcon as={Copy} size="lg" />
+            </Button>
+            <Button
+              size="icon"
+              onPress={handleShareReferral}
+              accessibilityRole="button"
+              accessibilityLabel={t("profile_bottom_sheet.share_code")}
+              className="h-11 w-11 rounded-full bg-theme data-[active=true]:bg-theme/80"
+            >
+              <ButtonIcon as={Share2} size="lg" className="text-white" />
+            </Button>
+          </HStack>
+
+          <Grid className="w-full gap-3" _extra={{ className: "grid-cols-2" }}>
             <GridItem _extra={{ className: "col-span-1" }}>
               <ProfileMenuTile
                 icon={User}
@@ -278,7 +361,7 @@ const ListHeader = ({
                 subtitle={t("profile_bottom_sheet.update_name_avatar")}
                 onPress={() => {
                   handleClose();
-                  // router.push(ROUTES.USER.EDIT_PROFILE);
+                  router.push(ROUTES.USER.EDIT_PROFILE);
                 }}
               />
             </GridItem>
@@ -291,20 +374,20 @@ const ListHeader = ({
                 subtitle={t("profile_bottom_sheet.preferences_controls")}
                 onPress={() => {
                   handleClose();
-                  // router.push(ROUTES.USER.SETTINGS);
+                  router.push(ROUTES.USER.SETTINGS);
                 }}
               />
             </GridItem>
             <GridItem _extra={{ className: "col-span-1" }}>
               <ProfileMenuTile
-                icon={Sparkles}
+                icon={Star}
                 iconColor="#F59E0B"
                 iconBgClassName="bg-amber-500/10 dark:bg-amber-500/20"
                 title={t("profile_bottom_sheet.sparks_coins")}
                 subtitle={t("profile_bottom_sheet.view_points_history")}
                 onPress={() => {
                   handleClose();
-                  // router.push(ROUTES.USER.POINTS);
+                  router.push(ROUTES.USER.POINTS);
                 }}
               />
             </GridItem>
@@ -316,6 +399,7 @@ const ListHeader = ({
                 title={t("profile_bottom_sheet.log_out")}
                 subtitle={t("profile_bottom_sheet.sign_out_app")}
                 onPress={() => setShowLogoutConfirm(true)}
+                destructive
               />
             </GridItem>
           </Grid>
@@ -354,14 +438,14 @@ const ListHeader = ({
         {/* Avatar with overlays */}
         <Button
           variant="ghost"
-          //   onPress={() => !isOtherUser && router.push(ROUTES.USER.EDIT_PROFILE)}
+          onPress={() => !isOtherUser && router.push(ROUTES.USER.EDIT_PROFILE)}
           accessibilityRole="button"
           accessibilityLabel={
             isOtherUser ? t("profile.avatar") : t("profile.edit_avatar")
           }
-          className="relative -mt-12 active:opacity-80"
+          className="relative -mt-12 data-[active=true]:bg-transparent"
         >
-          <Box className="h-28 w-28 overflow-hidden rounded-full border-4 border-background bg-background">
+          <Box className="h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-background">
             <Image
               source={{ uri: userDetail.avatar }}
               style={{ width: "100%", height: "100%" }}
@@ -370,7 +454,7 @@ const ListHeader = ({
           </Box>
 
           {!isOtherUser && (
-            <Box className="absolute right-4 bottom-4 h-6 w-6 bg-foreground rounded-full items-center justify-center ring-2 ring-background">
+            <Box className="absolute right-4 bottom-4 h-6 w-6 bg-theme rounded-full items-center justify-center ring-2 ring-background">
               <Icon as={Pencil} className="h-3.5 w-3.5 text-background" />
             </Box>
           )}
@@ -472,16 +556,14 @@ const ListHeader = ({
         className=" justify-between"
         orientation="horizontal"
       >
-        <TabsList className="bg-transparent rounded-none border-t border-border">
+        <TabsList className="bg-transparent rounded-none ">
           <TabsTrigger value="image" className=" flex-1">
             <TabsTriggerIcon as={ImageIcon} className="w-6 h-6" />
           </TabsTrigger>
           <TabsTrigger value="video" className="flex-1">
             <TabsTriggerIcon as={Video} className="w-6 h-6" />
           </TabsTrigger>
-          <TabsTrigger value="audio" className="flex-1">
-            <TabsTriggerIcon as={Music} className="w-6 h-6" />
-          </TabsTrigger>
+
           <TabsTrigger value="text" className="flex-1">
             <TabsTriggerIcon as={FileText} className="w-6 h-6" />
           </TabsTrigger>

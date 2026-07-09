@@ -44,16 +44,34 @@ export interface AchievementItem {
   progress?: number; // 0 to 100
 }
 
+export interface SparkTransactionItem {
+  id: string;
+  /** i18n key under `sparks.*` describing why the points changed */
+  reasonKey: string;
+  amount: number; // positive = earned, negative = spent
+  timestamp: string; // ISO String
+}
+
 interface SocialState {
   posts: PostItem[];
   contests: ContestItem[];
   achievements: AchievementItem[];
   points: number;
+  transactions: SparkTransactionItem[];
   addPost: (post: Omit<PostItem, 'id' | 'likesCount' | 'isLikedByUser' | 'comments' | 'timestamp'>) => void;
   likePost: (postId: string) => void;
   addComment: (postId: string, text: string, username: string) => void;
   joinContest: (contestId: string) => void;
   addPoints: (amount: number) => void;
+}
+
+function createTransaction(reasonKey: string, amount: number): SparkTransactionItem {
+  return {
+    id: `txn_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    reasonKey,
+    amount,
+    timestamp: new Date().toISOString(),
+  };
 }
 
 // Initial mock contests
@@ -124,6 +142,22 @@ const INITIAL_POSTS: PostItem[] = [
   },
 ];
 
+// Initial mock spark transactions — matches the seeded `points: 120`
+const INITIAL_TRANSACTIONS: SparkTransactionItem[] = [
+  {
+    id: 'txn_welcome',
+    reasonKey: 'sparks.txn_welcome',
+    amount: 100,
+    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+  },
+  {
+    id: 'txn_first_post',
+    reasonKey: 'sparks.txn_post',
+    amount: 20,
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+  },
+];
+
 // Initial mock achievements
 const INITIAL_ACHIEVEMENTS: AchievementItem[] = [
   {
@@ -169,6 +203,7 @@ export const useSocialStore = create<SocialState>()(
       contests: INITIAL_CONTESTS,
       achievements: INITIAL_ACHIEVEMENTS,
       points: 120,
+      transactions: INITIAL_TRANSACTIONS,
 
       addPost: (post) =>
         set((state) => {
@@ -205,6 +240,13 @@ export const useSocialStore = create<SocialState>()(
             contests: updatedContests,
             achievements: updatedAchievements,
             points: state.points + bonusPoints,
+            transactions: [
+              createTransaction(
+                post.contestId ? 'sparks.txn_contest_post' : 'sparks.txn_post',
+                bonusPoints,
+              ),
+              ...state.transactions,
+            ],
           };
         }),
 
@@ -255,9 +297,20 @@ export const useSocialStore = create<SocialState>()(
             return c;
           }),
           points: state.points + 10, // minor points for registering interest
+          transactions: [
+            createTransaction('sparks.txn_join_contest', 10),
+            ...state.transactions,
+          ],
         })),
 
-      addPoints: (amount) => set((state) => ({ points: state.points + amount })),
+      addPoints: (amount) =>
+        set((state) => ({
+          points: state.points + amount,
+          transactions: [
+            createTransaction('sparks.txn_activity', amount),
+            ...state.transactions,
+          ],
+        })),
     }),
     {
       name: 'social-storage',

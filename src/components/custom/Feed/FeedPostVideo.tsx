@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 
 import { BlurView } from "expo-blur";
 import { Image } from "expo-image";
@@ -50,7 +50,13 @@ function FeedPostVideo({ id, uri, posterUri }: FeedPostVideoProps) {
     else player.pause();
   }, [isActive, isFocused, player]);
 
-  useEffect(() => {
+  // Pause on unmount. Must be a layout effect: on unmount React runs
+  // layout-effect cleanups before passive-effect cleanups, and
+  // useVideoPlayer releases the native player in a passive cleanup
+  // declared earlier in this component. A plain useEffect here would run
+  // after that release — pause() would throw on the dead object and the
+  // native player could keep playing audio until it's deallocated.
+  useLayoutEffect(() => {
     return () => {
       try {
         player.pause();

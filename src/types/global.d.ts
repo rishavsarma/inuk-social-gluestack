@@ -208,6 +208,18 @@ interface ProfileResponse {
   visibility: string;
 }
 
+interface UpdateProfilePayload {
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  bio?: string;
+  gender?: string;
+  dob?: number;
+  visibility?: string;
+  avatar?: string;
+  coverPhoto?: string;
+}
+
 interface ProfileStatsResponse {
   award: number;
   badge: number;
