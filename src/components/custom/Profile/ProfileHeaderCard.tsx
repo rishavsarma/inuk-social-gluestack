@@ -455,7 +455,7 @@ const ListHeader = ({
 
           {!isOtherUser && (
             <Box className="absolute right-4 bottom-4 h-6 w-6 bg-theme rounded-full items-center justify-center ring-2 ring-background">
-              <Icon as={Pencil} className="h-3.5 w-3.5 text-background" />
+              <Icon as={Pencil} className="h-3.5 w-3.5 text-white" />
             </Box>
           )}
         </Button>

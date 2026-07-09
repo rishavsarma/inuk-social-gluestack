@@ -167,55 +167,63 @@ const FeedScreen = () => {
                         tint={isDark ? "dark" : "light"}
                         style={StyleSheet.absoluteFill}
                       />
+
                       <HStack className="items-center bg-white/40 px-1 dark:bg-black/30">
-                        <Button
-                          variant="ghost"
-                          className="data-[active=true]:bg-transparent"
-                        >
-                          <ButtonIcon
+                        <HStack space="sm" className="items-center px-3 py-2">
+                          <Icon
                             as={Heart}
-                            size="lg"
+                            size="sm"
                             className={
                               isLiked
                                 ? "text-theme fill-theme"
                                 : "text-foreground"
                             }
                           />
-                          <ButtonText className="font-semibold">
-                            {likesCount}
-                          </ButtonText>
-                        </Button>
-                        <View className="h-4 w-px bg-foreground/20" />
-                        <HStack space="xs" className="items-center px-3 py-2">
-                          <Icon
-                            as={MessageCircle}
-                            size="sm"
-                            className="text-foreground"
-                          />
                           <Text
                             size="sm"
                             className="font-semibold text-foreground"
                           >
-                            {commentsCount}
+                            {likesCount}
                           </Text>
                         </HStack>
                         <Divider
                           orientation="vertical"
                           className="h-4 w-px bg-foreground/20"
                         />
-                        <HStack space="xs" className="items-center px-3 py-2">
-                          <Icon
-                            as={Share2}
-                            size="sm"
-                            className="text-foreground"
-                          />
-                          <Text
-                            size="sm"
-                            className=" font-semibold text-foreground"
-                          >
-                            {commentsCount}
-                          </Text>
-                        </HStack>
+                        <Pressable onPress={() => {}}>
+                          <HStack space="sm" className="items-center px-3 py-2">
+                            <Icon
+                              as={MessageCircle}
+                              size="sm"
+                              className="text-foreground"
+                            />
+                            <Text
+                              size="sm"
+                              className="font-semibold text-foreground"
+                            >
+                              {commentsCount}
+                            </Text>
+                          </HStack>
+                        </Pressable>
+                        <Divider
+                          orientation="vertical"
+                          className="h-4 w-px bg-foreground/20"
+                        />
+                        <Pressable onPress={() => {}}>
+                          <HStack space="sm" className="items-center px-3 py-2">
+                            <Icon
+                              as={Share2}
+                              size="sm"
+                              className="text-foreground"
+                            />
+                            <Text
+                              size="sm"
+                              className=" font-semibold text-foreground"
+                            >
+                              {commentsCount}
+                            </Text>
+                          </HStack>
+                        </Pressable>
                       </HStack>
                     </View>
                   </VStack>

@@ -68,8 +68,9 @@ const PostDetailContent = ({ formattedPost }: { formattedPost: any }) => {
   const scrollY = useKeyboardAvoidingScrollViewScrollY();
   const { t } = useTranslation();
   const isVideo = formattedPost.post.type === "video";
-  const [videoControls, setVideoControls] =
-    useState<VideoControlsState | null>(null);
+  const [videoControls, setVideoControls] = useState<VideoControlsState | null>(
+    null,
+  );
 
   const handleControlsReady = useCallback((state: VideoControlsState) => {
     setVideoControls(state);
@@ -511,7 +512,9 @@ const PostDetail = () => {
         style={{ paddingTop: topInset }}
         className="flex-1 bg-background items-center justify-center"
       >
-        <Text className="text-muted-foreground">{t("post_detail.loading")}</Text>
+        <Text className="text-muted-foreground">
+          {t("post_detail.loading")}
+        </Text>
       </View>
     );
   }
@@ -531,9 +534,14 @@ const PostDetail = () => {
 
   return (
     <View className="flex-1">
-      <KeyboardAvoidingScrollView disableTopInset>
+      <KeyboardAvoidingScrollView
+        disableTopInset
+        showBackButton
+        title={formattedPost.post.title || t("post_detail.title")}
+        contentContainerStyle={{ paddingBottom: bottomInset + 40 }}
+      >
         <PostDetailContent formattedPost={formattedPost} />
-        <VStack space="sm" className="bg-background pb-40">
+        <VStack space="sm" className="bg-background">
           <PostCaption post={formattedPost} />
           {formattedPost.camera.cameraExif && (
             <Animated.View entering={FadeInDown.delay(150).duration(400)}>

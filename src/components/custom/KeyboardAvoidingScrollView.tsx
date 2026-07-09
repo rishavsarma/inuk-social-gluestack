@@ -24,7 +24,7 @@ import Animated, {
 import { useAppBottomInset, useAppTopInset } from "@/hooks/useAppInsets";
 
 import { useTabBar } from "./BottomTabs/TabBarContext";
-import { UiHeader } from "./UiHeader";
+import { getHeaderBarHeight, UiHeader } from "./UiHeader";
 
 const AnimatedKeyboardAwareScrollView = Animated.createAnimatedComponent(
   KeyboardAwareScrollView,
@@ -39,9 +39,7 @@ const AnimatedKeyboardAwareScrollView = Animated.createAnimatedComponent(
 export interface KeyboardAvoidingListScrollProps {
   onScroll: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   onScrollEndDrag: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
-  onMomentumScrollEnd: (
-    event: NativeSyntheticEvent<NativeScrollEvent>,
-  ) => void;
+  onMomentumScrollEnd: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   scrollEventThrottle: number;
 }
 
@@ -69,6 +67,9 @@ export interface KeyboardAvoidingScrollViewProps extends Omit<
   title?: string;
   showBackButton?: boolean;
   backAction?: "back" | "home" | (string & {});
+  /** Keep the blurred header bar + title permanently visible instead of only on scroll.
+   * When set, content is padded by default so it doesn't render underneath the bar. */
+  alwaysShowBar?: boolean;
   /**
    * "scroll" (default) renders a `KeyboardAwareScrollView` that owns scrolling itself.
    * "list" renders a non-scrolling, keyboard-avoiding container instead and hands
@@ -102,8 +103,9 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
       showsVerticalScrollIndicator = false,
       disableTabBarHide = false,
       title = "",
-      showBackButton = true,
+      showBackButton = false,
       backAction = "back",
+      alwaysShowBar = false,
       refreshControl,
       variant = "scroll",
       ...rest
@@ -111,6 +113,12 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
       const topInset = useAppTopInset();
       const bottomInset = useAppBottomInset();
       const { tabBarTranslateY, isInsideTabBar } = useTabBar();
+
+      const contentTopPadding = alwaysShowBar
+        ? getHeaderBarHeight(topInset)
+        : disableTopInset
+          ? 0
+          : topInset;
 
       const scrollY = useSharedValue(0);
       const lastY = useSharedValue(0);
@@ -205,6 +213,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
               title={title}
               showBackButton={showBackButton}
               backAction={backAction}
+              alwaysShowBar={alwaysShowBar}
               hideBorder
             />
             <KeyboardAvoidingView
@@ -221,7 +230,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
                     scrollEventThrottle: 16,
                   },
                   scrollY,
-                  topInset: disableTopInset ? 0 : topInset,
+                  topInset: contentTopPadding,
                 })}
               </ScrollYContext.Provider>
             </KeyboardAvoidingView>
@@ -237,6 +246,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
             title={title}
             showBackButton={showBackButton}
             backAction={backAction}
+            alwaysShowBar={alwaysShowBar}
             hideBorder
           />
           <AnimatedKeyboardAwareScrollView
@@ -253,7 +263,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
             contentContainerStyle={[
               {
                 flexGrow: 1,
-                paddingTop: disableTopInset ? 0 : topInset,
+                paddingTop: contentTopPadding,
               },
               contentContainerStyle,
             ]}

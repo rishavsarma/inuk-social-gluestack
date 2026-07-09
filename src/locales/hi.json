@@ -431,6 +431,8 @@
     "select_date": "एक तारीख चुनें",
     "done": "हो गया",
     "cancel": "रद्द करें",
+    "location": "स्थान",
+    "location_placeholder": "अपना शहर या देश जोड़ें",
     "visibility": "दृश्यता",
     "public": "सार्वजनिक",
     "private": "निजी",

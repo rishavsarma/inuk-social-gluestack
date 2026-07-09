@@ -197,6 +197,7 @@ interface ProfileResponse {
   givenName: string;
   id: string;
   lastName: string;
+  location?: string;
   referralCode: string;
   referredBy: string;
   status: string;
@@ -218,6 +219,7 @@ interface UpdateProfilePayload {
   visibility?: string;
   avatar?: string;
   coverPhoto?: string;
+  location?: string;
 }
 
 interface ProfileStatsResponse {

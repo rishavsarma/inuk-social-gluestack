@@ -14,16 +14,23 @@ import {
   Globe,
   IdCard,
   Lock,
+  MapPin,
   MessageSquare,
   Sparkles,
   User,
   VenusAndMars,
+  Save,
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Modal, Platform } from "react-native";
 
 import { Box } from "@/components/ui/box";
-import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
+import {
+  Button,
+  ButtonSpinner,
+  ButtonText,
+  ButtonIcon,
+} from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import {
   FormControl,
@@ -62,7 +69,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
-import { Textarea, TextareaInput } from "@/components/ui/textarea";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
@@ -171,6 +177,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
   );
   const [username, setUsername] = useState(profile.username || "");
   const [bio, setBio] = useState(profile.bio || "");
+  const [location, setLocation] = useState(profile.location || "");
   const [gender, setGender] = useState<string>(profile.gender || "");
   const [dob, setDob] = useState<Date | undefined>(
     profile.dob ? new Date(profile.dob) : undefined,
@@ -261,6 +268,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
         lastName,
         username: cleanedUsername,
         bio: bio.trim(),
+        location: location.trim(),
         gender: gender || undefined,
         dob: dob ? dob.getTime() : undefined,
         visibility,
@@ -287,13 +295,13 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
   return (
     <VStack space="2xl" className="bg-background pb-2">
       {/* Cover + Avatar */}
-      <VStack className="relative mb-12 -mx-4">
+      <VStack className="relative mb-10 -mx-4">
         <Pressable
           onPress={() => handlePickImage("cover")}
           accessibilityRole="button"
           accessibilityLabel={t("edit_profile.change_cover")}
         >
-          <Box className="h-48 w-full overflow-hidden bg-muted">
+          <Box className="h-72 w-full overflow-hidden bg-muted">
             <Image
               source={{ uri: coverUri }}
               style={{ width: "100%", height: "100%" }}
@@ -325,9 +333,9 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
           onPress={() => handlePickImage("avatar")}
           accessibilityRole="button"
           accessibilityLabel={t("profile.edit_avatar")}
-          className="absolute -bottom-12 left-5"
+          className="absolute -bottom-12 left-8"
         >
-          <Box className="h-28 w-28 overflow-hidden rounded-full border-4 border-background bg-muted shadow-lg shadow-black/30">
+          <Box className="h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-muted shadow-lg shadow-black/30">
             <Image
               source={{ uri: avatarUri }}
               style={{ width: "100%", height: "100%" }}
@@ -340,14 +348,14 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
             )}
           </Box>
           <Box className="absolute -right-0.5 -bottom-0.5 h-8 w-8 items-center justify-center rounded-full bg-theme ring-4 ring-background">
-            <Icon as={Camera} size="xs" className="text-background" />
+            <Icon as={Camera} size="xs" className="text-white" />
           </Box>
         </Pressable>
       </VStack>
 
-      <VStack space="lg" className="px-4">
+      <VStack space="lg" className="px-0">
         {/* Basic Information */}
-        <Card className="gap-5 rounded-2xl">
+        <Card className="gap-4 rounded-md shadow-none border-0">
           <SectionHeader
             icon={IdCard}
             title={t("edit_profile.basic_information")}
@@ -361,8 +369,8 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                   {t("edit_profile.name")}
                 </FormControlLabelText>
               </FormControlLabel>
-              <Input className="rounded-xl">
-                <InputSlot className="pl-3">
+              <Input className="">
+                <InputSlot className="">
                   <InputIcon as={User} className="text-muted-foreground" />
                 </InputSlot>
                 <InputField
@@ -391,8 +399,8 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                   {t("edit_profile.username")}
                 </FormControlLabelText>
               </FormControlLabel>
-              <Input className="rounded-xl">
-                <InputSlot className="pl-3">
+              <Input className="">
+                <InputSlot className="">
                   <InputIcon as={AtSign} className="text-muted-foreground" />
                 </InputSlot>
                 <InputField
@@ -402,7 +410,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                   placeholder={t("edit_profile.username_placeholder")}
                   value={username}
                   onChangeText={(val) => {
-                    setUsername(val);
+                    setUsername(val.replace(/\s/g, ""));
                     if (usernameError) setUsernameError(null);
                   }}
                   className="text-base text-foreground"
@@ -429,27 +437,26 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                   {t("edit_profile.bio")}
                 </FormControlLabelText>
               </FormControlLabel>
-              <Box className="relative">
-                <Icon
-                  as={MessageSquare}
-                  size="sm"
-                  className="absolute left-3 top-3 z-10 text-muted-foreground"
-                />
-                <Textarea className="rounded-xl">
-                  <TextareaInput
-                    placeholder={t("edit_profile.bio_placeholder")}
-                    value={bio}
-                    onChangeText={setBio}
-                    className="pl-8 text-base text-foreground"
+              <Input className="">
+                <InputSlot className="">
+                  <InputIcon
+                    as={MessageSquare}
+                    className="text-muted-foreground"
                   />
-                </Textarea>
-              </Box>
+                </InputSlot>
+                <InputField
+                  placeholder={t("edit_profile.bio_placeholder")}
+                  value={bio}
+                  onChangeText={setBio}
+                  className="text-base text-foreground"
+                />
+              </Input>
             </VStack>
           </FormControl>
         </Card>
 
         {/* Personal Details */}
-        <Card className="gap-5 rounded-2xl">
+        <Card className="gap-4 rounded-md shadow-none border-0">
           <SectionHeader
             icon={Sparkles}
             title={t("edit_profile.personal_details")}
@@ -467,7 +474,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                 <SelectTrigger
                   variant="outline"
                   size="lg"
-                  className="justify-between rounded-xl"
+                  className="justify-between "
                 >
                   <SelectIcon
                     as={VenusAndMars}
@@ -512,8 +519,8 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                 accessibilityRole="button"
                 accessibilityLabel={t("edit_profile.select_dob")}
               >
-                <Input className="rounded-xl" pointerEvents="none">
-                  <InputSlot className="pl-3">
+                <Input className="" pointerEvents="none">
+                  <InputSlot className="">
                     <InputIcon
                       as={CalendarDays}
                       className="text-muted-foreground"
@@ -592,10 +599,32 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
               )}
             </VStack>
           </FormControl>
+
+          {/* Location */}
+          <FormControl isDisabled={isPending}>
+            <VStack space="xs">
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm font-semibold">
+                  {t("edit_profile.location")}
+                </FormControlLabelText>
+              </FormControlLabel>
+              <Input className="">
+                <InputSlot className="">
+                  <InputIcon as={MapPin} className="text-muted-foreground" />
+                </InputSlot>
+                <InputField
+                  placeholder={t("edit_profile.location_placeholder")}
+                  value={location}
+                  onChangeText={setLocation}
+                  className="text-base text-foreground"
+                />
+              </Input>
+            </VStack>
+          </FormControl>
         </Card>
 
         {/* Visibility */}
-        <Card className="gap-4 rounded-2xl">
+        <Card className="gap-4 rounded-md shadow-none border-0">
           <SectionHeader
             icon={Lock}
             title={t("edit_profile.profile_visibility")}
@@ -610,14 +639,17 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                       key={item.id}
                       value={item.id}
                       size="md"
-                      className={`w-full flex-row-reverse justify-between rounded-xl border px-4 py-3 ${
+                      className={`w-full flex-row-reverse justify-between rounded-sm border px-4 py-3 ${
                         isSelected
                           ? "border-theme bg-theme/8"
                           : "border-border bg-transparent"
                       }`}
                     >
                       <RadioIndicator>
-                        <RadioIcon as={CircleIcon} />
+                        <RadioIcon
+                          as={CircleIcon}
+                          className="bg-theme fill-theme"
+                        />
                       </RadioIndicator>
                       <HStack space="sm" className="flex-1 items-center">
                         <Box
@@ -673,9 +705,13 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
           onPress={handleSave}
           disabled={isPending}
           accessibilityLabel={t("edit_profile.save_profile")}
-          className="gap-1 rounded-full shadow-md shadow-theme/30"
+          className="gap-2 items-center justify-center mx-4"
         >
-          {isPending && <ButtonSpinner color="white" />}
+          {isPending ? (
+            <ButtonSpinner color="white" />
+          ) : (
+            <ButtonIcon as={Save} size="lg" className="text-white" />
+          )}
           <ButtonText>
             {isPending
               ? t("edit_profile.updating")
@@ -699,8 +735,9 @@ function EditProfileScreen() {
   return (
     <KeyboardAvoidingScrollView
       disableTopInset
+      showBackButton
       title={t("edit_profile.title")}
-      contentContainerStyle={{ paddingBottom: bottomInset + 120 }}
+      contentContainerStyle={{ paddingBottom: bottomInset + 40 }}
     >
       {isLoading || !profileData ? (
         <EditProfileSkeleton />

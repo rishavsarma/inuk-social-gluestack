@@ -388,6 +388,8 @@
     "select_date": "Select a date",
     "done": "Done",
     "cancel": "Cancel",
+    "location": "Location",
+    "location_placeholder": "Add your city or country",
     "visibility": "Visibility",
     "public": "Public",
     "private": "Private",

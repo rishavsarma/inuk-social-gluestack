@@ -136,8 +136,11 @@ function SettingsRow({
 // ─── Uppercase section label ────────────────────────────────────────────
 function SectionHeader({ title }: { title: string }) {
   return (
-    <Box className="px-4 pb-1.5 pt-4">
-      <Text className="text-[11px] font-semibold uppercase tracking-[1.2px] text-muted-foreground">
+    <Box className="px-4 pt-4">
+      <Text
+        size="sm"
+        className="font-semibold capitalize  text-muted-foreground"
+      >
         {title}
       </Text>
     </Box>
@@ -267,16 +270,15 @@ function SettingsScreen() {
 
   return (
     <KeyboardAvoidingScrollView
+      showBackButton
+      alwaysShowBar
       title={t("settings.title")}
-      showBackButton={false}
       contentContainerStyle={{ paddingBottom: 120 }}
     >
       <VStack
         space="sm"
         className="min-h-full bg-muted/40 pt-2 dark:bg-background"
       >
-        <ProfileSummary />
-
         {/* Account */}
         <VStack space="xs" className=" bg-card">
           <SectionHeader title={t("settings.account")} />
