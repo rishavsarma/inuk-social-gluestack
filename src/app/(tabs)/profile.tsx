@@ -2,10 +2,9 @@ import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoiding
 import ListHeader, {
   SwipeableTabContent,
 } from "@/components/custom/Profile/ProfileHeaderCard";
+import { ProfileEmptyState } from "@/components/custom/Profile/ProfileEmptyState";
+import ProfileHeaderSkeleton from "@/components/custom/Profile/ProfileHeaderSkeleton";
 import ProfileGridItem from "@/components/custom/Profile/ProfilePostList";
-import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
-import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 import { useGetPhotoPosts, useGetVideoPosts } from "@/hooks/usePosts";
 import { ROUTES } from "@/routes";
 
@@ -55,7 +54,6 @@ const ProfileScreen = () => {
   const renderItem = useCallback(
     ({ item }: { item: ProfileMediaItem }) => {
       const typeStr = activeTab;
-      console.log("activeTab", activeTab);
       return (
         <ProfileGridItem
           key={item.id}
@@ -83,13 +81,12 @@ const ProfileScreen = () => {
     refetchPhotoPosts();
   }, [refetch, refetchPhotoPosts]);
 
-  if (
-    isLoadingProfile ||
-    (activeTab === "image" && isLoadingPhotoPosts) ||
-    (activeTab === "video" && isLoadingVideoPosts) ||
-    !profileData
-  ) {
-    return null;
+  if (isLoadingProfile || !profileData) {
+    return (
+      <KeyboardAvoidingScrollView disableTopInset>
+        <ProfileHeaderSkeleton />
+      </KeyboardAvoidingScrollView>
+    );
   }
 
   const posts =
@@ -98,6 +95,13 @@ const ProfileScreen = () => {
       : activeTab === "video"
         ? postsVideoData?.pages?.[0] || []
         : [];
+
+  const isLoadingActiveTabPosts =
+    activeTab === "image"
+      ? isLoadingPhotoPosts
+      : activeTab === "video"
+        ? isLoadingVideoPosts
+        : false;
 
   return (
     <KeyboardAvoidingScrollView
@@ -128,17 +132,11 @@ const ProfileScreen = () => {
               </>
             }
             ListEmptyComponent={
-              <Box className="w-full gap-4 p-3">
-                <Skeleton variant="sharp" className="h-[100px]" />
-                <SkeletonText _lines={3} className="h-2" />
-                <HStack space="xs" className="align-middle">
-                  <Skeleton
-                    variant="circular"
-                    className="h-[24px] w-[28px] mr-2"
-                  />
-                  <SkeletonText _lines={2} gap={1} className="h-2 w-2/5" />
-                </HStack>
-              </Box>
+              <ProfileEmptyState
+                isLoadingPosts={isLoadingActiveTabPosts}
+                activeTab={activeTab}
+                imageSize={width / 3}
+              />
             }
             showsVerticalScrollIndicator={false}
             removeClippedSubviews={true}

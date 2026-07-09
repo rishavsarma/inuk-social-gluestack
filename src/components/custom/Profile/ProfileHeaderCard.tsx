@@ -4,9 +4,12 @@ import {
   ArrowLeftIcon,
   FileText,
   ImageIcon,
+  LogOut,
   MoreHorizontal,
   Music,
   Pencil,
+  Settings,
+  Sparkles,
   Star,
   User,
   Video,
@@ -15,6 +18,14 @@ import {
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-worklets";
 
+import {
+  AlertDialog,
+  AlertDialogBackdrop,
+  AlertDialogBody,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+} from "@/components/ui/alert-dialog";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Grid, GridItem } from "@/components/ui/grid";
@@ -33,6 +44,9 @@ import {
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAppTopInset } from "@/hooks/useAppInsets";
+import { useAuthStore } from "@/stores/auth.store";
+import { useSocialStore } from "@/stores/social.store";
+import { formatCompactNumber } from "@/utils/formatNumber";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -99,6 +113,48 @@ export function SwipeableTabContent({
   return <GestureDetector gesture={pan}>{children as any}</GestureDetector>;
 }
 
+// ─── Account menu tile — one entry in the profile actionsheet grid ─────
+interface ProfileMenuTileProps {
+  icon: React.ComponentType<any>;
+  iconColor: string;
+  iconBgClassName: string;
+  title: string;
+  subtitle: string;
+  onPress: () => void;
+}
+
+function ProfileMenuTile({
+  icon,
+  iconColor,
+  iconBgClassName,
+  title,
+  subtitle,
+  onPress,
+}: ProfileMenuTileProps) {
+  return (
+    <ActionsheetItem onPress={onPress}>
+      <Pressable
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityLabel={title}
+        className="flex-1 border border-secondary bg-card p-4 active:opacity-90"
+      >
+        <View
+          className={`mb-3 h-9 w-9 items-center justify-center rounded-xl ${iconBgClassName}`}
+        >
+          <Icon as={icon} size={"xl"} color={iconColor} />
+        </View>
+        <Text className="text-[14px] font-bold text-foreground">
+          {title}
+        </Text>
+        <Text className="mt-1 text-[10px] text-muted-foreground">
+          {subtitle}
+        </Text>
+      </Pressable>
+    </ActionsheetItem>
+  );
+}
+
 // ─── ListHeader ───────────────────────────────────────────────────────
 export interface ListHeaderProps {
   profile: ProfileResponse;
@@ -131,7 +187,16 @@ const ListHeader = ({
   const { t } = useTranslation();
   const topInset = useAppTopInset();
   const [showActionsheet, setShowActionsheet] = useState(false);
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const handleClose = () => setShowActionsheet(false);
+  const points = useSocialStore((state) => state.points);
+  const logout = useAuthStore((state) => state.logout);
+
+  const handleConfirmLogout = () => {
+    setShowLogoutConfirm(false);
+    handleClose();
+    logout();
+  };
 
   return (
     <VStack space="sm">
@@ -151,17 +216,29 @@ const ListHeader = ({
               onPress={() => router.back()}
               variant="secondary"
               size="icon"
+              accessibilityRole="button"
+              accessibilityLabel={t("common.go_back")}
               className="rounded-full h-12 w-12 opacity-80 "
             >
               <Icon as={ArrowLeftIcon} className="size-5 text-white" />
             </Button>
           ) : (
-            <Button variant="secondary" className="rounded-full opacity-70">
+            <Button
+              variant="secondary"
+              accessibilityRole="button"
+              accessibilityLabel={t("profile.sparks_balance", {
+                count: points,
+              })}
+              onPress={() => setShowActionsheet(true)}
+              className="rounded-full opacity-70"
+            >
               <ButtonIcon
                 as={Star}
                 className="text-yellow-500 fill-yellow-500"
               />
-              <Text className="font-semibold">2,450</Text>
+              <Text className="font-semibold text-white">
+                {formatCompactNumber(points)}
+              </Text>
             </Button>
           )}
 
@@ -193,53 +270,86 @@ const ListHeader = ({
           </ActionsheetItem>
           <Grid _extra={{ className: "grid-cols-2" }}>
             <GridItem _extra={{ className: "col-span-1" }}>
-              <ActionsheetItem onPress={() => {}}>
-                <Pressable
-                  onPress={() => {
-                    // bottomSheetRef.current?.dismiss();
-                    // router.push(ROUTES.USER.EDIT_PROFILE);
-                  }}
-                  className="flex-1 border border-secondary bg-card p-4 active:opacity-90"
-                >
-                  <View className="mb-3 h-9 w-9 items-center justify-center rounded-xl bg-blue-500/10 dark:bg-blue-500/20">
-                    <Icon as={User} size={"xl"} color="#3B82F6" />
-                  </View>
-                  <Text className="text-[14px] font-bold text-foreground">
-                    {t("profile_bottom_sheet.edit_profile")}
-                  </Text>
-                  <Text className="mt-1 text-[10px] text-muted-foreground">
-                    {t("profile_bottom_sheet.update_name_avatar")}
-                  </Text>
-                </Pressable>
-              </ActionsheetItem>
+              <ProfileMenuTile
+                icon={User}
+                iconColor="#3B82F6"
+                iconBgClassName="bg-blue-500/10 dark:bg-blue-500/20"
+                title={t("profile_bottom_sheet.edit_profile")}
+                subtitle={t("profile_bottom_sheet.update_name_avatar")}
+                onPress={() => {
+                  handleClose();
+                  // router.push(ROUTES.USER.EDIT_PROFILE);
+                }}
+              />
             </GridItem>
-            <GridItem
-              className=" bg-red-500"
-              _extra={{ className: "col-span-1" }}
-            >
-              <ActionsheetItem onPress={() => {}}>
-                <ActionsheetItemText>A</ActionsheetItemText>
-              </ActionsheetItem>
+            <GridItem _extra={{ className: "col-span-1" }}>
+              <ProfileMenuTile
+                icon={Settings}
+                iconColor="#64748B"
+                iconBgClassName="bg-slate-500/10 dark:bg-slate-500/20"
+                title={t("profile_bottom_sheet.settings")}
+                subtitle={t("profile_bottom_sheet.preferences_controls")}
+                onPress={() => {
+                  handleClose();
+                  // router.push(ROUTES.USER.SETTINGS);
+                }}
+              />
             </GridItem>
-            <GridItem
-              className=" bg-green-500"
-              _extra={{ className: "col-span-1" }}
-            >
-              <ActionsheetItem onPress={() => {}}>
-                <ActionsheetItemText>A</ActionsheetItemText>
-              </ActionsheetItem>
+            <GridItem _extra={{ className: "col-span-1" }}>
+              <ProfileMenuTile
+                icon={Sparkles}
+                iconColor="#F59E0B"
+                iconBgClassName="bg-amber-500/10 dark:bg-amber-500/20"
+                title={t("profile_bottom_sheet.sparks_coins")}
+                subtitle={t("profile_bottom_sheet.view_points_history")}
+                onPress={() => {
+                  handleClose();
+                  // router.push(ROUTES.USER.POINTS);
+                }}
+              />
             </GridItem>
-            <GridItem
-              className=" bg-yellow-500"
-              _extra={{ className: "col-span-1" }}
-            >
-              <ActionsheetItem onPress={() => {}}>
-                <ActionsheetItemText>A</ActionsheetItemText>
-              </ActionsheetItem>
+            <GridItem _extra={{ className: "col-span-1" }}>
+              <ProfileMenuTile
+                icon={LogOut}
+                iconColor="#EF4444"
+                iconBgClassName="bg-red-500/10 dark:bg-red-500/20"
+                title={t("profile_bottom_sheet.log_out")}
+                subtitle={t("profile_bottom_sheet.sign_out_app")}
+                onPress={() => setShowLogoutConfirm(true)}
+              />
             </GridItem>
           </Grid>
         </ActionsheetContent>
       </Actionsheet>
+      <AlertDialog
+        isOpen={showLogoutConfirm}
+        onClose={() => setShowLogoutConfirm(false)}
+      >
+        <AlertDialogBackdrop />
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <Heading size="md" className="text-foreground">
+              {t("profile_bottom_sheet.log_out")}
+            </Heading>
+          </AlertDialogHeader>
+          <AlertDialogBody>
+            <Text className="text-muted-foreground">
+              {t("profile_bottom_sheet.confirm_logout")}
+            </Text>
+          </AlertDialogBody>
+          <AlertDialogFooter>
+            <Button
+              variant="outline"
+              onPress={() => setShowLogoutConfirm(false)}
+            >
+              <ButtonText>{t("profile_bottom_sheet.cancel")}</ButtonText>
+            </Button>
+            <Button variant="destructive" onPress={handleConfirmLogout}>
+              <ButtonText>{t("profile_bottom_sheet.log_out")}</ButtonText>
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <HStack className="">
         {/* Avatar with overlays */}
         <Button
@@ -274,6 +384,10 @@ const ListHeader = ({
           <GridItem _extra={{ className: "col-span-1" }}>
             <Button
               variant="ghost"
+              accessibilityRole="button"
+              accessibilityLabel={t("profile.posts_count", {
+                count: userDetail?.post || 0,
+              })}
               // onPress={() =>
               //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=followers` as any)
               // }
@@ -293,6 +407,10 @@ const ListHeader = ({
           >
             <Button
               variant="ghost"
+              accessibilityRole="button"
+              accessibilityLabel={t("profile.followers_count", {
+                count: userDetail?.followers || 0,
+              })}
               // onPress={() =>
               //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=followers` as any)
               // }
@@ -315,6 +433,10 @@ const ListHeader = ({
               //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=following` as any)
               // }
               variant="ghost"
+              accessibilityRole="button"
+              accessibilityLabel={t("profile.following_count", {
+                count: userDetail?.following || 0,
+              })}
               className="items-center active:opacity-70"
             >
               <VStack className="items-center">
@@ -350,7 +472,7 @@ const ListHeader = ({
         className=" justify-between"
         orientation="horizontal"
       >
-        <TabsList className=" bg-transparent rounded-none  ">
+        <TabsList className="bg-transparent rounded-none border-t border-border">
           <TabsTrigger value="image" className=" flex-1">
             <TabsTriggerIcon as={ImageIcon} className="w-6 h-6" />
           </TabsTrigger>

@@ -281,12 +281,33 @@
     "edit_avatar": "प्रोफ़ाइल अवतार संपादित करें",
     "view_post": "{{type}} पोस्ट देखें",
     "text_post_fallback": "टेक्स्ट पोस्ट",
-    "create_post_a11y": "नई {{type}} पोस्ट बनाएं"
+    "create_post_a11y": "नई {{type}} पोस्ट बनाएं",
+    "sparks_balance": "{{count}} स्पार्क्स",
+    "posts_count": "{{count}} पोस्ट",
+    "followers_count": "{{count}} फ़ॉलोअर्स",
+    "following_count": "{{count}} फ़ॉलोइंग"
+  },
+  "profile_bottom_sheet": {
+    "account_menu": "खाता मेनू",
+    "manage_profile": "अपनी प्रोफ़ाइल, रिवॉर्ड्स और सेटिंग्स प्रबंधित करें",
+    "refer_earn": "रेफ़र करें और रिवॉर्ड्स कमाएं",
+    "code": "कोड:",
+    "edit_profile": "प्रोफ़ाइल संपादित करें",
+    "update_name_avatar": "नाम और अवतार अपडेट करें",
+    "settings": "सेटिंग्स",
+    "preferences_controls": "प्राथमिकताएं और नियंत्रण",
+    "sparks_coins": "स्पार्क्स",
+    "view_points_history": "पॉइंट्स इतिहास देखें",
+    "log_out": "लॉग आउट",
+    "sign_out_app": "ऐप से साइन आउट करें",
+    "confirm_logout": "क्या आप वाकई लॉग आउट करना चाहते हैं?",
+    "cancel": "रद्द करें"
   },
   "common": {
     "error_loading": "कुछ गलत हो गया। कृपया पुनः प्रयास करें。",
     "not_available": "लागू नहीं",
-    "user": "उपयोगकर्ता"
+    "user": "उपयोगकर्ता",
+    "go_back": "वापस जाएं"
   },
   "post_detail": {
     "loading": "लोड हो रहा है…",

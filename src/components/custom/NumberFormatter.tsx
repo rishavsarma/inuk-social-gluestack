@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatCompactNumber } from "@/utils/formatNumber";
 import { Text } from "../ui/text";
 
 export function AnimatedStatNumber({ value }: { value: number }) {
@@ -18,12 +19,9 @@ export function AnimatedStatNumber({ value }: { value: number }) {
     requestAnimationFrame(step);
   }, [value]);
 
-  const display =
-    displayed >= 1000
-      ? `${(displayed / 1000).toFixed(1).replace(".0", "")}k`
-      : String(displayed);
-
   return (
-    <Text className="text-[17px] font-bold text-foreground">{display}</Text>
+    <Text className="text-[17px] font-bold text-foreground">
+      {formatCompactNumber(displayed)}
+    </Text>
   );
 }

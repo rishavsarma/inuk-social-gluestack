@@ -412,7 +412,11 @@
     "edit_avatar": "Edit profile avatar",
     "view_post": "View {{type}} post",
     "text_post_fallback": "Text Post",
-    "create_post_a11y": "Create new {{type}} post"
+    "create_post_a11y": "Create new {{type}} post",
+    "sparks_balance": "{{count}} sparks",
+    "posts_count": "{{count}} posts",
+    "followers_count": "{{count}} followers",
+    "following_count": "{{count}} following"
   },
   "awards": {
     "title": "Spotlight & Awards",
@@ -504,7 +508,8 @@
   "common": {
     "error_loading": "Something went wrong. Please try again.",
     "not_available": "N/A",
-    "user": "User"
+    "user": "User",
+    "go_back": "Go back"
   },
   "post_detail": {
     "loading": "Loading…",
