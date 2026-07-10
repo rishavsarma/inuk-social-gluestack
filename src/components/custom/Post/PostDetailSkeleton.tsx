@@ -1,4 +1,5 @@
 import { PostAwardsSkeleton } from "@/components/custom/Post/PostAwardsCard";
+import { PostBadgesSkeleton } from "@/components/custom/Post/PostBadgesCard";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import { HStack } from "@/components/ui/hstack";
@@ -99,6 +100,9 @@ export function PostDetailSkeleton() {
 
         {/* Awards */}
         <PostAwardsSkeleton />
+
+        {/* Badges */}
+        <PostBadgesSkeleton />
       </VStack>
     </View>
   );

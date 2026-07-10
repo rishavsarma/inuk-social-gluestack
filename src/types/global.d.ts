@@ -371,3 +371,51 @@ interface PostDetail {
     place?: string;
   };
 }
+
+interface NetworkProfileItem {
+  id: string;
+  avatar?: string;
+  firstName?: string;
+  lastName?: string;
+  username?: string;
+  bio?: string;
+  isFollowing?: boolean;
+}
+
+interface PaginatedListResponse<T> {
+  data: T[];
+  total?: number;
+  offset?: number;
+  limit?: number;
+}
+
+interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+}
+
+interface ChangePasswordResponse {
+  status?: string;
+  data?: any;
+}
+
+interface NotificationItem {
+  id: string;
+  type?: string;
+  title?: string;
+  message?: string;
+  body?: string;
+  actor?: {
+    id?: string;
+    name?: string;
+    username?: string;
+    avatar?: string;
+  };
+  isRead?: boolean;
+  read?: boolean;
+  createdAt?: string | number;
+  dateCreated?: string | number;
+  postId?: string;
+  mediaId?: string;
+}

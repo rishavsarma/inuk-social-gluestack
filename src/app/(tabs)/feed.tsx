@@ -4,6 +4,7 @@ import FeedHeader from "@/components/custom/Feed/FeedHeader";
 import { FeedPostVideo } from "@/components/custom/Feed/FeedPostVideo";
 import { PostSkeleton } from "@/components/custom/Feed/PostSkeleton";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
+import { PostOptionsActionsheet } from "@/components/custom/Post/PostOptionsActionsheet";
 import { ThemeSwitcher } from "@/components/custom/ThemeSwitcher";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
@@ -14,6 +15,7 @@ import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
+import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 import { useGetFeedPosts, useLikeFeedPostMutation } from "@/hooks/usePosts";
 import { ROUTES } from "@/routes";
@@ -33,9 +35,10 @@ import {
   ImageOff,
   MessageCircle,
   MoreHorizontal,
+  UserPlus,
   Share2,
 } from "lucide-react-native";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Platform, Pressable, Share, StyleSheet, View } from "react-native";
 
@@ -43,6 +46,7 @@ const FeedScreen = () => {
   const { t } = useTranslation();
   const { theme } = useSettingStore();
   const isDark = theme === "dark";
+  const toast = useToast();
 
   const {
     data: postsData,
@@ -54,12 +58,93 @@ const FeedScreen = () => {
     isFetchingNextPage,
   } = useGetFeedPosts();
   const likeMutation = useLikeFeedPostMutation();
-
   const feedPosts = useMemo(
     () => postsData?.pages?.flatMap((page: any) => page?.data ?? []) ?? [],
     [postsData],
   );
-  const posts = useMemo(() => feedPosts, [feedPosts]);
+
+  const [hiddenPostIds, setHiddenPostIds] = useState<Set<string>>(new Set());
+  const [savedPostIds, setSavedPostIds] = useState<Set<string>>(new Set());
+  const [activeOptionsPost, setActiveOptionsPost] = useState<{
+    postId: string;
+    authorId: string | number | undefined;
+  } | null>(null);
+
+  const posts = useMemo(
+    () => feedPosts.filter((post: any) => !hiddenPostIds.has(String(post.id))),
+    [feedPosts, hiddenPostIds],
+  );
+
+  const showFeedbackToast = useCallback(
+    (message: string) => {
+      toast.show({
+        placement: "bottom",
+        render: ({ id }) => (
+          <Toast nativeID={`toast-${id}`} action="success" variant="solid">
+            <ToastDescription>{message}</ToastDescription>
+          </Toast>
+        ),
+      });
+    },
+    [toast],
+  );
+
+  const handleOptionsPress = useCallback(
+    (postId: string, authorId: string | number | undefined) => {
+      setActiveOptionsPost({ postId, authorId });
+    },
+    [],
+  );
+
+  const handleCloseOptions = useCallback(() => {
+    setActiveOptionsPost(null);
+  }, []);
+
+  const handleSavePost = useCallback(() => {
+    if (!activeOptionsPost) return;
+    const { postId } = activeOptionsPost;
+    setSavedPostIds((prev) => {
+      const next = new Set(prev);
+      const wasSaved = next.has(postId);
+      if (wasSaved) {
+        next.delete(postId);
+      } else {
+        next.add(postId);
+      }
+      showFeedbackToast(
+        wasSaved ? t("post_options.unsaved") : t("post_options.saved"),
+      );
+      return next;
+    });
+  }, [activeOptionsPost, showFeedbackToast, t]);
+
+  const handleAboutAccount = useCallback(() => {
+    if (!activeOptionsPost?.authorId) return;
+    router.push(ROUTES.USER.PROFILE(activeOptionsPost.authorId) as Href);
+  }, [activeOptionsPost]);
+
+  const handleWhySeeingThis = useCallback(() => {
+    showFeedbackToast(t("post_options.why_seeing_this_post"));
+  }, [showFeedbackToast, t]);
+
+  const handleInterested = useCallback(() => {
+    showFeedbackToast(t("post_options.marked_interested"));
+  }, [showFeedbackToast, t]);
+
+  const handleNotInterested = useCallback(() => {
+    showFeedbackToast(t("post_options.marked_not_interested"));
+  }, [showFeedbackToast, t]);
+
+  const handleHidePost = useCallback(() => {
+    if (!activeOptionsPost) return;
+    const { postId } = activeOptionsPost;
+    setHiddenPostIds((prev) => new Set(prev).add(postId));
+    showFeedbackToast(t("post_options.hidden"));
+  }, [activeOptionsPost, showFeedbackToast, t]);
+
+  const handleReportPost = useCallback(() => {
+    showFeedbackToast(t("post_options.reported"));
+  }, [showFeedbackToast, t]);
 
   const setActiveVideoId = useFeedVideoStore((s) => s.setActiveVideoId);
   const viewabilityConfig = useMemo(
@@ -119,6 +204,11 @@ const FeedScreen = () => {
         likeMutation.mutate({ postId: String(item.id), isLiked });
       };
 
+      const handleMorePress = () => {
+        if (!item.id) return;
+        handleOptionsPress(String(item.id), item.author?.id);
+      };
+
       const handleSharePress = async () => {
         try {
           await Share.share({
@@ -138,9 +228,9 @@ const FeedScreen = () => {
             accessibilityLabel={t("feed.view_post_a11y")}
           >
             <VStack space="sm">
-              <HStack space="lg" className="justify-between px-4">
+              <HStack space="lg" className="justify-between items-center px-4">
                 <HStack space="sm" className="flex-1 items-center ">
-                  <Avatar className="h-10 w-10">
+                  <Avatar className="h-12 w-12">
                     <AvatarImage
                       source={{ uri: avatarUrl }}
                       alt="avatar"
@@ -160,8 +250,22 @@ const FeedScreen = () => {
                   </VStack>
                 </HStack>
                 <Button
+                  variant="ghost"
+                  size="sm"
+                  onPress={handleMorePress}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("post_options.menu_a11y")}
+                  className="border border-border/40"
+                >
+                  {/* <ButtonIcon as={UserPlus} className="" /> */}
+                  <ButtonText className="">Follow</ButtonText>
+                </Button>
+                <Button
                   size="default"
                   variant="ghost"
+                  onPress={handleMorePress}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("post_options.menu_a11y")}
                   className="rounded-full p-0 data-[active=true]:bg-transparent"
                 >
                   <ButtonIcon as={MoreHorizontal} size="lg" className="" />
@@ -283,61 +387,76 @@ const FeedScreen = () => {
         </Card>
       );
     },
-    [isDark, t, likeMutation],
+    [isDark, t, likeMutation, handleOptionsPress],
   );
 
   return (
-    <KeyboardAvoidingScrollView variant="list">
-      {({ scrollProps, topInset }) => (
-        <FlashList
-          data={posts}
-          keyExtractor={(item: any) => String(item.id)}
-          renderItem={renderItem}
-          {...scrollProps}
-          viewabilityConfig={viewabilityConfig}
-          onViewableItemsChanged={handleViewableItemsChanged}
-          drawDistance={800}
-          showsVerticalScrollIndicator={false}
-          progressViewOffset={topInset + 20}
-          contentContainerStyle={{ paddingTop: topInset, paddingBottom: 160 }}
-          ListHeaderComponent={
-            <>
-              <FeedHeader />
-              {/* <ThemeSwitcher /> */}
-              <FeedCategories />
-            </>
-          }
-          ItemSeparatorComponent={() => <Box className="h-4" />}
-          ListEmptyComponent={
-            isLoading ? (
-              <VStack space="lg" className="pt-4">
-                <PostSkeleton />
-                <PostSkeleton />
-              </VStack>
-            ) : (
-              <EmptyState
-                icon={ImageOff}
-                title={t("feed.empty")}
-                description={t("feed.placeholder")}
-              />
-            )
-          }
-          refreshing={isRefetching}
-          onRefresh={refetch}
-          onEndReached={() => {
-            if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-          }}
-          onEndReachedThreshold={0.5}
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <Box className="items-center py-6">
-                <Spinner />
-              </Box>
-            ) : null
-          }
-        />
-      )}
-    </KeyboardAvoidingScrollView>
+    <>
+      <KeyboardAvoidingScrollView variant="list">
+        {({ scrollProps, topInset }) => (
+          <FlashList
+            data={posts}
+            keyExtractor={(item: any) => String(item.id)}
+            renderItem={renderItem}
+            {...scrollProps}
+            viewabilityConfig={viewabilityConfig}
+            onViewableItemsChanged={handleViewableItemsChanged}
+            drawDistance={800}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingTop: topInset, paddingBottom: 160 }}
+            ListHeaderComponent={
+              <>
+                <FeedHeader />
+                {/* <ThemeSwitcher /> */}
+                <FeedCategories />
+              </>
+            }
+            ItemSeparatorComponent={() => <Box className="h-4" />}
+            ListEmptyComponent={
+              isLoading ? (
+                <VStack space="lg" className="pt-4">
+                  <PostSkeleton />
+                  <PostSkeleton />
+                </VStack>
+              ) : (
+                <EmptyState
+                  icon={ImageOff}
+                  title={t("feed.empty")}
+                  description={t("feed.placeholder")}
+                />
+              )
+            }
+            // refreshing={isRefetching}
+            onRefresh={refetch}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+            }}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              isFetchingNextPage ? (
+                <Box className="items-center py-6">
+                  <Spinner />
+                </Box>
+              ) : null
+            }
+          />
+        )}
+      </KeyboardAvoidingScrollView>
+      <PostOptionsActionsheet
+        isOpen={!!activeOptionsPost}
+        onClose={handleCloseOptions}
+        isSaved={
+          !!activeOptionsPost && savedPostIds.has(activeOptionsPost.postId)
+        }
+        onSave={handleSavePost}
+        onAboutAccount={handleAboutAccount}
+        onWhySeeingThis={handleWhySeeingThis}
+        onInterested={handleInterested}
+        onNotInterested={handleNotInterested}
+        onHide={handleHidePost}
+        onReport={handleReportPost}
+      />
+    </>
   );
 };
 

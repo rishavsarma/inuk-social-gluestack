@@ -1,32 +1,18 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 
 import {
   ArrowLeftIcon,
-  Copy,
   FileText,
-  Gift,
   ImageIcon,
-  LogOut,
   MoreHorizontal,
   Music,
   Pencil,
-  Settings,
-  Share2,
   Star,
-  User,
   Video,
 } from "lucide-react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-worklets";
 
-import {
-  AlertDialog,
-  AlertDialogBackdrop,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-} from "@/components/ui/alert-dialog";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Grid, GridItem } from "@/components/ui/grid";
@@ -45,23 +31,12 @@ import {
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useAppTopInset } from "@/hooks/useAppInsets";
-import { useAuthStore } from "@/stores/auth.store";
 import { useSocialStore } from "@/stores/social.store";
 import { formatCompactNumber } from "@/utils/formatNumber";
 import { Image } from "expo-image";
-import { router } from "expo-router";
+import { Href, router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { AnimatedStatNumber } from "../NumberFormatter";
-import {
-  Actionsheet,
-  ActionsheetBackdrop,
-  ActionsheetContent,
-  ActionsheetDragIndicator,
-  ActionsheetDragIndicatorWrapper,
-} from "@/components/ui/actionsheet";
-import { Pressable, Share } from "react-native";
-import * as Clipboard from "expo-clipboard";
-import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { ROUTES } from "@/routes";
 
 const PROFILE_TABS = ["image", "video", "text"] as const;
@@ -114,58 +89,6 @@ export function SwipeableTabContent({
   return <GestureDetector gesture={pan}>{children as any}</GestureDetector>;
 }
 
-// ─── Account menu tile — one entry in the profile actionsheet grid ─────
-interface ProfileMenuTileProps {
-  icon: React.ComponentType<any>;
-  iconColor: string;
-  iconBgClassName: string;
-  title: string;
-  subtitle: string;
-  onPress: () => void;
-  destructive?: boolean;
-}
-
-function ProfileMenuTile({
-  icon,
-  iconColor,
-  iconBgClassName,
-  title,
-  subtitle,
-  onPress,
-  destructive = false,
-}: ProfileMenuTileProps) {
-  return (
-    <Button
-      variant="ghost"
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityLabel={title}
-      className="bg-card/70 items-start justify-start py-4"
-    >
-      <Box className="items-start justify-center">
-        <Box
-          className={`p-2.5 mb-2 items-center justify-center rounded-lg ${iconBgClassName}`}
-        >
-          <Icon as={icon} size={"lg"} color={iconColor} />
-        </Box>
-        <Text
-          size="sm"
-          bold
-          className={` ${destructive ? "text-destructive/80" : "text-foreground"}`}
-        >
-          {title}
-        </Text>
-        <Text
-          size="xs"
-          className={` ${destructive ? "text-destructive/80" : "text-muted-foreground"}`}
-        >
-          {subtitle}
-        </Text>
-      </Box>
-    </Button>
-  );
-}
-
 // ─── ListHeader ───────────────────────────────────────────────────────
 export interface ListHeaderProps {
   profile: ProfileResponse;
@@ -186,7 +109,6 @@ const ListHeader = ({
 }: ListHeaderProps) => {
   const userDetail = {
     name: profile.firstName + " " + profile.lastName,
-    referral: profile.referralCode,
     cover: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.coverPhoto}/jpeg/720`,
     avatar: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.avatar}/jpeg/720`,
     username: profile.username,
@@ -197,44 +119,7 @@ const ListHeader = ({
   };
   const { t } = useTranslation();
   const topInset = useAppTopInset();
-  const [showActionsheet, setShowActionsheet] = useState(false);
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
-  const handleClose = () => setShowActionsheet(false);
   const points = useSocialStore((state) => state.points);
-  const logout = useAuthStore((state) => state.logout);
-  const toast = useToast();
-
-  const handleConfirmLogout = () => {
-    setShowLogoutConfirm(false);
-    handleClose();
-    logout();
-  };
-
-  const handleCopyReferral = async () => {
-    if (!userDetail.referral) return;
-    await Clipboard.setStringAsync(userDetail.referral);
-    toast.show({
-      placement: "top",
-      render: ({ id }) => (
-        <Toast nativeID={`toast-${id}`} action="success" variant="solid">
-          <ToastDescription>
-            {t("profile.referral_copied", { code: userDetail.referral })}
-          </ToastDescription>
-        </Toast>
-      ),
-    });
-  };
-
-  const handleShareReferral = async () => {
-    if (!userDetail.referral) return;
-    try {
-      await Share.share({
-        message: t("profile.share_message", { code: userDetail.referral }),
-      });
-    } catch {
-      // user dismissed the share sheet — nothing to do
-    }
-  };
 
   return (
     <VStack space="sm" className="">
@@ -267,7 +152,7 @@ const ListHeader = ({
               accessibilityLabel={t("profile.sparks_balance", {
                 count: points,
               })}
-              onPress={() => setShowActionsheet(true)}
+              onPress={() => router.push(ROUTES.USER.POINTS)}
               className="rounded-full opacity-70"
             >
               <ButtonIcon
@@ -286,7 +171,7 @@ const ListHeader = ({
               accessibilityRole="button"
               accessibilityLabel={t("profile.open_menu")}
               size="icon"
-              onPress={() => setShowActionsheet(true)}
+              onPress={() => router.push(ROUTES.USER.MENU)}
               className="rounded-full h-12 w-12 opacity-80"
             >
               <ButtonIcon size="lg" as={MoreHorizontal} />
@@ -356,9 +241,9 @@ const ListHeader = ({
               accessibilityLabel={t("profile.followers_count", {
                 count: userDetail?.followers || 0,
               })}
-              // onPress={() =>
-              //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=followers` as any)
-              // }
+              onPress={() =>
+                router.push(ROUTES.USER.NETWORK(profile.id, "followers") as Href)
+              }
               className="items-center active:opacity-70"
             >
               <VStack className="items-center">
@@ -374,9 +259,9 @@ const ListHeader = ({
             _extra={{ className: "col-span-1" }}
           >
             <Button
-              // onPress={() =>
-              //   router.push(`${ROUTES.USER.NETWORK}?userId=${targetId}&tab=following` as any)
-              // }
+              onPress={() =>
+                router.push(ROUTES.USER.NETWORK(profile.id, "following") as Href)
+              }
               variant="ghost"
               accessibilityRole="button"
               accessibilityLabel={t("profile.following_count", {
@@ -431,147 +316,6 @@ const ListHeader = ({
           <TabsIndicator className="border-b" />
         </TabsList>
       </Tabs>
-
-      <Actionsheet
-        snapPoints={[80]}
-        isOpen={showActionsheet}
-        onClose={handleClose}
-      >
-        <ActionsheetBackdrop />
-        <ActionsheetContent className="px-4 pb-6 pt-2">
-          <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator className="bg-muted-foreground mb-4" />
-          </ActionsheetDragIndicatorWrapper>
-
-          <HStack
-            space="md"
-            className="mb-3 w-full items-center rounded-lg bg-card p-4 dark:bg-card/90"
-          >
-            <Box className="p-4 items-center justify-center rounded-2xl bg-theme/15">
-              <Icon as={Gift} size="xl" className="text-theme" />
-            </Box>
-            <VStack className="flex-1">
-              <Text size="sm" bold className="t text-foreground">
-                {t("profile_bottom_sheet.refer_earn")}
-              </Text>
-              <HStack space="xs" className="mt-1 items-center">
-                <Text size="xs" className=" text-muted-foreground">
-                  {t("profile_bottom_sheet.code")}
-                </Text>
-                <Badge
-                  variant="outline"
-                  className="rounded-full border-theme/20 bg-theme/10"
-                >
-                  <BadgeText className="font-bold uppercase tracking-widest text-theme">
-                    {userDetail?.referral || t("common.not_available")}
-                  </BadgeText>
-                </Badge>
-              </HStack>
-            </VStack>
-            <Button
-              variant="secondary"
-              size="icon"
-              onPress={handleCopyReferral}
-              accessibilityRole="button"
-              accessibilityLabel={t("profile_bottom_sheet.copy_code")}
-              className="h-11 w-11 rounded-full"
-            >
-              <ButtonIcon as={Copy} size="lg" />
-            </Button>
-            <Button
-              size="icon"
-              onPress={handleShareReferral}
-              accessibilityRole="button"
-              accessibilityLabel={t("profile_bottom_sheet.share_code")}
-              className="h-11 w-11 rounded-full bg-theme data-[active=true]:bg-theme/80"
-            >
-              <ButtonIcon as={Share2} size="lg" className="text-white" />
-            </Button>
-          </HStack>
-
-          <Grid className="w-full gap-3" _extra={{ className: "grid-cols-2" }}>
-            <GridItem _extra={{ className: "col-span-1" }}>
-              <ProfileMenuTile
-                icon={User}
-                iconColor="#3B82F6"
-                iconBgClassName="bg-blue-500/10 dark:bg-blue-500/20"
-                title={t("profile_bottom_sheet.edit_profile")}
-                subtitle={t("profile_bottom_sheet.update_name_avatar")}
-                onPress={() => {
-                  handleClose();
-                  router.push(ROUTES.USER.EDIT_PROFILE);
-                }}
-              />
-            </GridItem>
-            <GridItem _extra={{ className: "col-span-1" }}>
-              <ProfileMenuTile
-                icon={Settings}
-                iconColor="#64748B"
-                iconBgClassName="bg-slate-500/10 dark:bg-slate-500/20"
-                title={t("profile_bottom_sheet.settings")}
-                subtitle={t("profile_bottom_sheet.preferences_controls")}
-                onPress={() => {
-                  handleClose();
-                  router.push(ROUTES.USER.SETTINGS);
-                }}
-              />
-            </GridItem>
-            <GridItem _extra={{ className: "col-span-1" }}>
-              <ProfileMenuTile
-                icon={Star}
-                iconColor="#F59E0B"
-                iconBgClassName="bg-amber-500/10 dark:bg-amber-500/20"
-                title={t("profile_bottom_sheet.sparks_coins")}
-                subtitle={t("profile_bottom_sheet.view_points_history")}
-                onPress={() => {
-                  handleClose();
-                  router.push(ROUTES.USER.POINTS);
-                }}
-              />
-            </GridItem>
-            <GridItem _extra={{ className: "col-span-1" }}>
-              <ProfileMenuTile
-                icon={LogOut}
-                iconColor="#EF4444"
-                iconBgClassName="bg-red-500/10 dark:bg-red-500/20"
-                title={t("profile_bottom_sheet.log_out")}
-                subtitle={t("profile_bottom_sheet.sign_out_app")}
-                onPress={() => setShowLogoutConfirm(true)}
-                destructive
-              />
-            </GridItem>
-          </Grid>
-        </ActionsheetContent>
-      </Actionsheet>
-      <AlertDialog
-        isOpen={showLogoutConfirm}
-        onClose={() => setShowLogoutConfirm(false)}
-      >
-        <AlertDialogBackdrop />
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <Heading size="md" className="text-foreground">
-              {t("profile_bottom_sheet.log_out")}
-            </Heading>
-          </AlertDialogHeader>
-          <AlertDialogBody>
-            <Text className="text-muted-foreground">
-              {t("profile_bottom_sheet.confirm_logout")}
-            </Text>
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button
-              variant="outline"
-              onPress={() => setShowLogoutConfirm(false)}
-            >
-              <ButtonText>{t("profile_bottom_sheet.cancel")}</ButtonText>
-            </Button>
-            <Button variant="destructive" onPress={handleConfirmLogout}>
-              <ButtonText>{t("profile_bottom_sheet.log_out")}</ButtonText>
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </VStack>
   );
 };

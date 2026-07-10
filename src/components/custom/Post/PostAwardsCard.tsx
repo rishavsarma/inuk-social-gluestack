@@ -1,11 +1,6 @@
 import { AwardBadge } from "@/components/custom/Post/AwardBadge";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
@@ -42,17 +37,23 @@ export const PostAwardsSkeleton = React.memo(function PostAwardsSkeleton() {
 
 // ─── Award Item ────────────────────────────────────────────────────────────
 
-interface AwardItemProps {
+export interface AwardItemProps {
   item: Award;
+  /** i18n key for the accessibility label — lets callers (e.g. badges) reuse
+   * this same item layout with their own wording. */
+  a11yKey?: string;
 }
 
-const AwardItem = React.memo(function AwardItem({ item }: AwardItemProps) {
+export const AwardItem = React.memo(function AwardItem({
+  item,
+  a11yKey = "post_detail.award_a11y",
+}: AwardItemProps) {
   const { t } = useTranslation();
 
   return (
     <Pressable
       accessible
-      accessibilityLabel={t("post_detail.award_a11y", {
+      accessibilityLabel={t(a11yKey, {
         label: item.label,
         value: item.value,
       })}

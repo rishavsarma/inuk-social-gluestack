@@ -1,7 +1,9 @@
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
+import { useAuthStore } from "@/stores/auth.store";
 import { useSettingStore } from "@/stores/setting.store";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import * as Haptics from "expo-haptics";
@@ -88,7 +90,13 @@ function TabItem({
   };
 
   const isCreate = tab.name === "create";
+  const isProfile = tab.name === "profile";
   const label = t(`tabs.${tab.name}`);
+
+  const avatarPath = useAuthStore((state) => state.user?.avatar);
+  const avatarUrl = avatarPath
+    ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${avatarPath}/jpeg/150`
+    : null;
 
   if (isCreate) {
     return (
@@ -124,16 +132,45 @@ function TabItem({
         className="items-center gap-1 justify-center"
       >
         <View className="h-5.5 w-5.5">
-          <Animated.View style={inactiveIconStyle} className="absolute inset-0">
-            <Icon as={tab.icon} size="xl" className="text-foreground/60" />
-          </Animated.View>
-          <Animated.View style={activeIconStyle} className="absolute inset-0">
-            <Icon as={tab.icon} size="xl" className="text-theme" />
-          </Animated.View>
+          {isProfile && avatarUrl ? (
+            <>
+              <Animated.View
+                style={inactiveIconStyle}
+                className="absolute inset-0 items-center justify-center"
+              >
+                <Avatar className="h-10 w-10">
+                  <AvatarImage source={{ uri: avatarUrl }} alt={label} />
+                </Avatar>
+              </Animated.View>
+              <Animated.View
+                style={activeIconStyle}
+                className="absolute inset-0 rounded-full items-center justify-center"
+              >
+                <Avatar className="h-10 w-10">
+                  <AvatarImage source={{ uri: avatarUrl }} alt={label} />
+                </Avatar>
+              </Animated.View>
+            </>
+          ) : (
+            <>
+              <Animated.View
+                style={inactiveIconStyle}
+                className="absolute inset-0 items-center justify-center"
+              >
+                <Icon as={tab.icon} className="text-foreground/60 h-7 w-7" />
+              </Animated.View>
+              <Animated.View
+                style={activeIconStyle}
+                className="absolute inset-0 items-center justify-center"
+              >
+                <Icon as={tab.icon} className="h-7  w-7 text-theme" />
+              </Animated.View>
+            </>
+          )}
         </View>
 
         {/* Label */}
-        <Text
+        {/* <Text
           size="xs"
           className={cn(
             " pt-1.5 leading-3 tracking-wide",
@@ -143,7 +180,7 @@ function TabItem({
           )}
         >
           {tab.label ? label : ""}
-        </Text>
+        </Text> */}
       </Animated.View>
     </Pressable>
   );

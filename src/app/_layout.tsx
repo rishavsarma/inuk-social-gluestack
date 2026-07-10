@@ -52,10 +52,6 @@ export default function RootLayout() {
     }
   }, [language, i18n]);
 
-  useEffect(() => {
-    SplashScreen.hideAsync();
-  }, []);
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryClientProvider client={queryClient}>

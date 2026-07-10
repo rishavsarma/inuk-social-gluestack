@@ -1,26 +1,16 @@
-import { View, Text, useColorScheme } from "react-native";
+import { View } from "react-native";
 import React from "react";
-import { Image } from "expo-image";
 import { Button } from "@/components/ui/button";
 import { router } from "expo-router";
 import { ROUTES } from "@/routes";
 import { BellIcon, Icon } from "@/components/ui/icon";
 import { SearchIcon } from "lucide-react-native";
+import Logo from "@/components/custom/Logo";
 
 const FeedHeader = () => {
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
   return (
     <View className="flex-row  items-center justify-between px-2 py-2">
-      <Image
-        source={
-          isDark
-            ? require("@/assets/images/splash-dark.png")
-            : require("@/assets/images/splash.png")
-        }
-        style={{ width: 140, height: 40 }}
-        contentFit="contain"
-      />
+      <Logo size={34} />
 
       <View className="flex-row items-center gap-3">
         <Button

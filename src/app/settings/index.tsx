@@ -273,13 +273,37 @@ function SettingsScreen() {
       showBackButton
       alwaysShowBar
       title={t("settings.title")}
-      contentContainerStyle={{ paddingBottom: 120 }}
+      contentContainerStyle={{ paddingBottom: 100 }}
     >
-      <VStack
-        space="sm"
-        className="min-h-full bg-muted/40 pt-2 dark:bg-background"
-      >
+      <VStack space="sm" className=" bg-background">
         {/* Account */}
+        <VStack space="xs" className=" bg-card">
+          <SectionHeader title={t("settings.account")} />
+          <SettingsRow
+            icon={Shield}
+            iconColor="#22C55E"
+            iconBgClassName="bg-green-500/10 dark:bg-green-500/20"
+            title={t("settings.privacy")}
+            subtitle={t("settings.privacy_sub")}
+            onPress={() => router.push(ROUTES.USER.EDIT_PROFILE)}
+          />
+          <SettingsRow
+            icon={Eye}
+            iconColor="#6366F1"
+            iconBgClassName="bg-indigo-500/10 dark:bg-indigo-500/20"
+            title={t("settings.public_profile")}
+            subtitle={t("settings.public_profile_sub")}
+            rightElement={
+              <Switch
+                value={isPublicProfile}
+                onValueChange={handleTogglePublicProfile}
+                trackColor={switchColors}
+                accessibilityRole="switch"
+                accessibilityLabel={t("settings.public_profile")}
+              />
+            }
+          />
+        </VStack>
         <VStack space="xs" className=" bg-card">
           <SectionHeader title={t("settings.account")} />
           <SettingsRow

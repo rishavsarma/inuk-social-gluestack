@@ -7,6 +7,7 @@ import PostCaption from "@/components/custom/Post/PostCaption";
 import { PostEnvironmentCard } from "@/components/custom/Post/PostEnvironmentCard";
 import PostAuthorHeader from "@/components/custom/Post/PostAuthorHeader";
 import { PostAwardsCard } from "@/components/custom/Post/PostAwardsCard";
+import { PostBadgesCard } from "@/components/custom/Post/PostBadgesCard";
 import { PostCommentsModal } from "@/components/custom/Post/PostCommentsModal";
 import { PostDetailSkeleton } from "@/components/custom/Post/PostDetailSkeleton";
 import { PostFloatingActions } from "@/components/custom/Post/PostFloatingActions";
@@ -263,15 +264,21 @@ const PostDetailContent = ({ formattedPost }: { formattedPost: any }) => {
 };
 
 const PostDetail = () => {
-  const { mediaId, postId, id, profile_id, type, comments: openComments } =
-    useLocalSearchParams<{
-      mediaId: string;
-      postId: string;
-      id: string;
-      profile_id: string;
-      type: string;
-      comments?: string;
-    }>();
+  const {
+    mediaId,
+    postId,
+    id,
+    profile_id,
+    type,
+    comments: openComments,
+  } = useLocalSearchParams<{
+    mediaId: string;
+    postId: string;
+    id: string;
+    profile_id: string;
+    type: string;
+    comments?: string;
+  }>();
 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -294,7 +301,8 @@ const PostDetail = () => {
   const addCommentMutation = useAddCommentMutation(postId);
 
   const comments = useMemo<PostComment[]>(
-    () => commentsQuery.data?.pages.flatMap((page: any) => page?.data ?? []) ?? [],
+    () =>
+      commentsQuery.data?.pages.flatMap((page: any) => page?.data ?? []) ?? [],
     [commentsQuery.data],
   );
 
@@ -538,9 +546,7 @@ const PostDetail = () => {
           placement: "top",
           render: ({ id }) => (
             <Toast nativeID={`toast-${id}`} action="error" variant="solid">
-              <ToastDescription>
-                {t("post_detail.like_error")}
-              </ToastDescription>
+              <ToastDescription>{t("post_detail.like_error")}</ToastDescription>
             </Toast>
           ),
         });
@@ -614,12 +620,6 @@ const PostDetail = () => {
         <PostDetailContent formattedPost={formattedPost} />
         <VStack space="sm" className="bg-background">
           <PostCaption post={formattedPost} />
-          {formattedPost.camera.cameraExif && (
-            <Animated.View entering={FadeInDown.delay(150).duration(400)}>
-              <PostCameraCard cameraExif={formattedPost.camera.cameraExif} />
-            </Animated.View>
-          )}
-          <PostEnvironmentCard post={formattedPost} />
           <PostPerformanceCard
             likesCount={formattedPost.post.likes_count}
             commentsCount={formattedPost.post.comments_count}
@@ -628,7 +628,14 @@ const PostDetail = () => {
             awardsCount={0}
             score={0}
           />
+          {formattedPost.camera.cameraExif && (
+            <Animated.View entering={FadeInDown.delay(150).duration(400)}>
+              <PostCameraCard cameraExif={formattedPost.camera.cameraExif} />
+            </Animated.View>
+          )}
+          <PostEnvironmentCard post={formattedPost} />
           <PostAwardsCard />
+          <PostBadgesCard />
         </VStack>
       </KeyboardAvoidingScrollView>
       <PostFloatingActions

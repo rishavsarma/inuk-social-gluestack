@@ -57,14 +57,14 @@ const StatItem = React.memo(function StatItem({
     <HStack className="flex-1 flex-row items-center gap-3">
       <Box
         className={cn(
-          "p-4 items-center justify-center rounded-2xl",
+          "p-2.5 items-center justify-center rounded-lg",
           iconBgClassName,
         )}
       >
-        <Icon as={icon} size="lg" className={iconClassName} />
+        <Icon as={icon} size="sm" className={iconClassName} />
       </Box>
 
-      <VStack space="xs" className="">
+      <VStack className="">
         <Text className="text-xs text-foreground/50">{label}</Text>
         <Text className="text-base font-bold text-foreground">{value}</Text>
       </VStack>
@@ -138,7 +138,10 @@ export const PostPerformanceCard = React.memo(function PostPerformanceCard({
   return (
     <Card className="rounded-none shadow-none border-0">
       <VStack>
-        <Text className="text-app-text mb-4 text-sm font-bold uppercase tracking-wide opacity-50 dark:text-white">
+        <Text
+          size="xs"
+          className="text-app-text mb-4 font-bold uppercase tracking-wide opacity-50 dark:text-white"
+        >
           {t("post_detail.performance")}
         </Text>
         <Box className="gap-4">

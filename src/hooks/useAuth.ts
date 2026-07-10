@@ -59,3 +59,10 @@ export const useResetPasswordUpdate = () => {
       authService.resetPasswordUpdate(payload),
   });
 };
+
+export const useChangePassword = () => {
+  return useMutation({
+    mutationFn: (payload: ChangePasswordPayload) =>
+      authService.changePassword(payload),
+  });
+};

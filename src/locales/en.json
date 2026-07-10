@@ -298,6 +298,22 @@
     "unmute_video": "Unmute video",
     "view_post_a11y": "View post"
   },
+  "post_options": {
+    "menu_a11y": "More options",
+    "save": "Save",
+    "saved": "Post saved",
+    "unsaved": "Removed from saved",
+    "about_account": "About this account",
+    "why_seeing_this_post": "Why you're seeing this post",
+    "interested": "Interested",
+    "marked_interested": "Thanks! We'll show you more like this",
+    "not_interested": "Not interested",
+    "marked_not_interested": "Got it, we'll show you less like this",
+    "hide": "Hide",
+    "hidden": "Post hidden",
+    "report": "Report",
+    "reported": "Post reported. Thanks for letting us know."
+  },
   "contest_tab": {
     "title": "Contests",
     "placeholder": "Active contests and challenges will appear here.",
@@ -365,7 +381,9 @@
     "confirm_logout": "Are you sure you want to log out?",
     "cancel": "Cancel",
     "copy_code": "Copy referral code",
-    "share_code": "Share referral code"
+    "share_code": "Share referral code",
+    "change_password": "Change Password",
+    "change_password_sub": "Update your account password"
   },
   "edit_profile": {
     "title": "Edit Profile",
@@ -464,7 +482,37 @@
     "no_followers_yet": "No followers yet",
     "not_following_anyone": "Not following anyone",
     "followers_description": "When people follow this profile, they will show up here.",
-    "following_description": "Accounts this profile follows will show up here."
+    "following_description": "Accounts this profile follows will show up here.",
+    "follow": "Follow",
+    "following_btn": "Following",
+    "follow_a11y": "Follow {{name}}",
+    "unfollow_a11y": "Unfollow {{name}}"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search for people",
+    "clear": "Clear search",
+    "start_typing": "Find people",
+    "start_typing_sub": "Search by name or username to discover creators.",
+    "no_results": "No results found",
+    "no_results_sub": "We couldn't find anyone matching \"{{query}}\"."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "unread": "Unread",
+    "empty": "No notifications yet",
+    "empty_sub": "Likes, comments, and follows will show up here."
+  },
+  "change_password": {
+    "title": "Change Password",
+    "subtitle": "Enter your current password and choose a new one to secure your account.",
+    "current_password_label": "Current Password",
+    "current_password_placeholder": "Enter your current password",
+    "current_password_incorrect": "Current password is incorrect",
+    "same_as_current_error": "New password must be different from your current password",
+    "strength_label": "Password Strength:",
+    "submit_button": "Update Password",
+    "success": "Password updated successfully"
   },
   "legal": {
     "terms": {
@@ -585,6 +633,26 @@
       "period": "WEEK 24",
       "value": "Most Loved Post",
       "description": "Awarded for receiving the highest number of comments and community interactions in a single week."
+    },
+    "badges_highlights": "Badges",
+    "badge_a11y": "Badge: {{label}} – {{value}}. Double tap to view details.",
+    "badge_verified": {
+      "label": "VERIFIED",
+      "period": "CREATOR",
+      "value": "Verified Creator",
+      "description": "Confirmed as an authentic, verified creator on the platform."
+    },
+    "badge_century": {
+      "label": "CENTURY",
+      "period": "POSTS",
+      "value": "100 Posts Milestone",
+      "description": "Published 100 posts, joining the Century Club of active creators."
+    },
+    "badge_community": {
+      "label": "LOVED",
+      "period": "BADGE",
+      "value": "Community Favorite",
+      "description": "Recognized by the community as a consistently loved and engaging creator."
     },
     "follow": "Follow",
     "unlike_post": "Unlike post",

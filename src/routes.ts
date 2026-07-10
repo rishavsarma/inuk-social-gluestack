@@ -30,9 +30,12 @@ export const ROUTES = {
   },
   USER: {
     PROFILE: (id: string | number) => `/profile/${id}` as const,
-    NETWORK: "/profile/network" as const,
+    NETWORK: (userId: string | number, tab: "followers" | "following") =>
+      `/profile/network?userId=${userId}&tab=${tab}` as const,
+    MENU: "/profile-menu" as const,
     SETTINGS: "/settings" as const,
     EDIT_PROFILE: "/settings/edit-profile" as const,
+    CHANGE_PASSWORD: "/settings/change-password" as const,
     POINTS: "/settings/points" as const,
     MY_POSTS: "/my-posts" as const,
   },

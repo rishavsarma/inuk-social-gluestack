@@ -73,14 +73,10 @@ function SparksHeader({ points, hasTransactions }: SparksHeaderProps) {
   const { t } = useTranslation();
 
   return (
-    <VStack space="lg" className="px-4 pb-4 pt-4">
-      <Heading size="2xl" className="text-foreground">
-        {t("sparks.title")}
-      </Heading>
-
+    <VStack space="lg" className="px-4 pb-4">
       <Card
         accessibilityLabel={t("profile.sparks_balance", { count: points })}
-        className="items-center gap-2 border border-border p-6"
+        className="items-center gap-2 border border-border p-6 shadow-none"
       >
         <Box className="h-14 w-14 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/20">
           <Icon as={Sparkles} size="xl" className="text-amber-500" />
@@ -148,7 +144,12 @@ function SparksScreen() {
   );
 
   return (
-    <KeyboardAvoidingScrollView title={t("sparks.title")} variant="list">
+    <KeyboardAvoidingScrollView
+      showBackButton
+      alwaysShowBar
+      title={t("sparks.title")}
+      variant="list"
+    >
       {({ scrollProps, topInset }) => (
         <FlashList
           data={sortedTransactions}

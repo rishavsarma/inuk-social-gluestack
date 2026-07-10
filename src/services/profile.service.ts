@@ -34,23 +34,26 @@ export const profileService = {
   },
 
   getFollowers: async (userId: string, offset: number, limit: number = 15) => {
-    const { data } = await api.get("/iam/followers", {
-      params: { profileId: userId, offset, limit },
-    });
+    const { data } = await api.get<PaginatedListResponse<NetworkProfileItem>>(
+      "/iam/followers",
+      { params: { profileId: userId, offset, limit } },
+    );
     return data;
   },
 
   getFollowing: async (userId: string, offset: number, limit: number = 15) => {
-    const { data } = await api.get("/iam/following", {
-      params: { profileId: userId, offset, limit },
-    });
+    const { data } = await api.get<PaginatedListResponse<NetworkProfileItem>>(
+      "/iam/following",
+      { params: { profileId: userId, offset, limit } },
+    );
     return data;
   },
 
   searchProfiles: async (query: string, offset: number, limit: number = 15) => {
-    const { data } = await api.get("/iam/profile/search", {
-      params: { search: query, offset, limit },
-    });
+    const { data } = await api.get<PaginatedListResponse<NetworkProfileItem>>(
+      "/iam/profile/search",
+      { params: { search: query, offset, limit } },
+    );
     return data;
   },
 };
