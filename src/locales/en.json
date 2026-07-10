@@ -593,6 +593,7 @@
     "comments_hint": "Opens the comments section for this post",
     "share_post": "Share post",
     "share_hint": "Opens the share menu to send this post to others",
+    "like_error": "Couldn't update your like. Please try again.",
     "play_video": "Play video",
     "pause_video": "Pause video",
     "fullscreen_video": "Enter fullscreen",
@@ -603,7 +604,10 @@
       "empty": "No comments yet. Be the first to comment!",
       "placeholder": "Add a comment...",
       "replies_count_one": "{{count}} reply",
-      "replies_count_other": "{{count}} replies"
+      "replies_count_other": "{{count}} replies",
+      "close": "Close comments",
+      "send": "Post comment",
+      "post_error": "Couldn't post your comment. Please try again."
     }
   }
 }

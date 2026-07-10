@@ -7,6 +7,8 @@ import PostCaption from "@/components/custom/Post/PostCaption";
 import { PostEnvironmentCard } from "@/components/custom/Post/PostEnvironmentCard";
 import PostAuthorHeader from "@/components/custom/Post/PostAuthorHeader";
 import { PostAwardsCard } from "@/components/custom/Post/PostAwardsCard";
+import { PostCommentsModal } from "@/components/custom/Post/PostCommentsModal";
+import { PostDetailSkeleton } from "@/components/custom/Post/PostDetailSkeleton";
 import { PostFloatingActions } from "@/components/custom/Post/PostFloatingActions";
 import { PostPerformanceCard } from "@/components/custom/Post/PostPerformanceCard";
 import PostPhotoGallery from "@/components/custom/Post/PostPhotoGallery";
@@ -16,10 +18,14 @@ import PostVideoHero, {
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
+import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 import { POST_CONSTANTS } from "@/constants";
 import { useAppBottomInset, useAppTopInset } from "@/hooks/useAppInsets";
 import {
+  useAddCommentMutation,
+  useCommentsQuery,
+  useLikePostMutation,
   usePostPhotoDetailsQuery,
   usePostVideoDetailsQuery,
 } from "@/hooks/usePosts";
@@ -46,6 +52,7 @@ import { useTranslation } from "react-i18next";
 import {
   Platform,
   Pressable,
+  Share,
   StyleSheet,
   useColorScheme,
   View,
@@ -256,13 +263,15 @@ const PostDetailContent = ({ formattedPost }: { formattedPost: any }) => {
 };
 
 const PostDetail = () => {
-  const { mediaId, postId, id, profile_id, type } = useLocalSearchParams<{
-    mediaId: string;
-    postId: string;
-    id: string;
-    profile_id: string;
-    type: string;
-  }>();
+  const { mediaId, postId, id, profile_id, type, comments: openComments } =
+    useLocalSearchParams<{
+      mediaId: string;
+      postId: string;
+      id: string;
+      profile_id: string;
+      type: string;
+      comments?: string;
+    }>();
 
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -271,8 +280,23 @@ const PostDetail = () => {
   const bottomInset = useAppBottomInset();
   const topInset = useAppTopInset();
   const { t } = useTranslation();
+  const toast = useToast();
 
   const isVideoPost = type === "video";
+
+  const [showComments, setShowComments] = useState(
+    () => openComments === "true",
+  );
+  const [commentText, setCommentText] = useState("");
+
+  const likeMutation = useLikePostMutation(postId, mediaId);
+  const commentsQuery = useCommentsQuery(postId, showComments);
+  const addCommentMutation = useAddCommentMutation(postId);
+
+  const comments = useMemo<PostComment[]>(
+    () => commentsQuery.data?.pages.flatMap((page: any) => page?.data ?? []) ?? [],
+    [commentsQuery.data],
+  );
 
   const { data: photoDetails, isLoading: isLoadingPhoto } =
     usePostPhotoDetailsQuery(
@@ -506,16 +530,63 @@ const PostDetail = () => {
     };
   }, [postDetails, id, type, isVideoPost, my_profile_id, t]);
 
+  const handleLike = useCallback(() => {
+    if (!formattedPost) return;
+    likeMutation.mutate(formattedPost.post.is_liked, {
+      onError: () => {
+        toast.show({
+          placement: "top",
+          render: ({ id }) => (
+            <Toast nativeID={`toast-${id}`} action="error" variant="solid">
+              <ToastDescription>
+                {t("post_detail.like_error")}
+              </ToastDescription>
+            </Toast>
+          ),
+        });
+      },
+    });
+  }, [formattedPost, likeMutation, t, toast]);
+
+  const handleShare = useCallback(async () => {
+    if (!formattedPost) return;
+    try {
+      await Share.share({
+        message: formattedPost.post.caption || formattedPost.post.title || "",
+        ...(formattedPost.post.media?.[0]?.url
+          ? { url: formattedPost.post.media[0].url }
+          : {}),
+      });
+    } catch {
+      // user dismissed the share sheet — nothing to do
+    }
+  }, [formattedPost]);
+
+  const handleSubmitComment = useCallback(() => {
+    const text = commentText.trim();
+    if (!text) return;
+    addCommentMutation.mutate(text, {
+      onSuccess: () => setCommentText(""),
+      onError: () => {
+        toast.show({
+          placement: "top",
+          render: ({ id }) => (
+            <Toast nativeID={`toast-${id}`} action="error" variant="solid">
+              <ToastDescription>
+                {t("post_detail.comments_modal.post_error")}
+              </ToastDescription>
+            </Toast>
+          ),
+        });
+      },
+    });
+  }, [addCommentMutation, commentText, t, toast]);
+
   if (isLoading) {
     return (
-      <View
-        style={{ paddingTop: topInset }}
-        className="flex-1 bg-background items-center justify-center"
-      >
-        <Text className="text-muted-foreground">
-          {t("post_detail.loading")}
-        </Text>
-      </View>
+      <KeyboardAvoidingScrollView disableTopInset showBackButton>
+        <PostDetailSkeleton />
+      </KeyboardAvoidingScrollView>
     );
   }
 
@@ -564,8 +635,33 @@ const PostDetail = () => {
         likesCount={formattedPost.post.likes_count}
         commentsCount={formattedPost.post.comments_count}
         isLiked={formattedPost.post.is_liked}
-        // isDark={isDark}
+        isDark={isDark}
         bottomInset={bottomInset}
+        onLike={handleLike}
+        onShare={handleShare}
+        onComment={() => setShowComments(true)}
+      />
+      <PostCommentsModal
+        isOpen={showComments}
+        onClose={() => setShowComments(false)}
+        comments={comments}
+        totalComments={
+          commentsQuery.data?.pages[0]?.total ??
+          formattedPost.post.comments_count
+        }
+        isLoading={commentsQuery.isLoading}
+        isFetchingNextPage={commentsQuery.isFetchingNextPage}
+        isRefetching={commentsQuery.isRefetching}
+        onEndReached={() => {
+          if (commentsQuery.hasNextPage && !commentsQuery.isFetchingNextPage) {
+            commentsQuery.fetchNextPage();
+          }
+        }}
+        onRefresh={() => commentsQuery.refetch()}
+        commentText={commentText}
+        onChangeCommentText={setCommentText}
+        onSubmitComment={handleSubmitComment}
+        isSubmitting={addCommentMutation.isPending}
       />
     </View>
   );

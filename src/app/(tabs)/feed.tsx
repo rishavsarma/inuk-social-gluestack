@@ -15,7 +15,7 @@ import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useGetFeedPosts } from "@/hooks/usePosts";
+import { useGetFeedPosts, useLikeFeedPostMutation } from "@/hooks/usePosts";
 import { ROUTES } from "@/routes";
 import { useFeedVideoStore } from "@/stores/feed-video.store";
 import { useSettingStore } from "@/stores/setting.store";
@@ -37,7 +37,7 @@ import {
 } from "lucide-react-native";
 import { useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { Platform, Pressable, StyleSheet, View } from "react-native";
+import { Platform, Pressable, Share, StyleSheet, View } from "react-native";
 
 const FeedScreen = () => {
   const { t } = useTranslation();
@@ -53,6 +53,7 @@ const FeedScreen = () => {
     fetchNextPage,
     isFetchingNextPage,
   } = useGetFeedPosts();
+  const likeMutation = useLikeFeedPostMutation();
 
   const feedPosts = useMemo(
     () => postsData?.pages?.flatMap((page: any) => page?.data ?? []) ?? [],
@@ -90,6 +91,7 @@ const FeedScreen = () => {
       const isLiked = !!item.is_liked;
       const likesCount = item.likes_count ?? 0;
       const commentsCount = item.comments_count ?? 0;
+      const sharesCount = item.shares_count ?? 0;
       const postMediaId = mediaItem?.id;
 
       const handlePress = () => {
@@ -100,6 +102,32 @@ const FeedScreen = () => {
             item.id,
           )}?id=${postMediaId}&profile_id=${item.author?.id}&type=${type}` as Href,
         );
+      };
+
+      const handleCommentPress = () => {
+        if (!postMediaId || !item.id) return;
+        router.push(
+          `${ROUTES.CONTENT.POST_DETAILS(
+            postMediaId,
+            item.id,
+          )}?id=${postMediaId}&profile_id=${item.author?.id}&type=${type}&comments=true` as Href,
+        );
+      };
+
+      const handleLikePress = () => {
+        if (!item.id) return;
+        likeMutation.mutate({ postId: String(item.id), isLiked });
+      };
+
+      const handleSharePress = async () => {
+        try {
+          await Share.share({
+            message: caption || "",
+            ...(mediaUrl ? { url: mediaUrl } : {}),
+          });
+        } catch {
+          // user dismissed the share sheet — nothing to do
+        }
       };
 
       return (
@@ -169,28 +197,44 @@ const FeedScreen = () => {
                       />
 
                       <HStack className="items-center bg-white/40 px-1 dark:bg-black/30">
-                        <HStack space="sm" className="items-center px-3 py-2">
-                          <Icon
-                            as={Heart}
-                            size="sm"
-                            className={
-                              isLiked
-                                ? "text-theme fill-theme"
-                                : "text-foreground"
-                            }
-                          />
-                          <Text
-                            size="sm"
-                            className="font-semibold text-foreground"
-                          >
-                            {likesCount}
-                          </Text>
-                        </HStack>
+                        <Pressable
+                          onPress={handleLikePress}
+                          hitSlop={8}
+                          accessibilityRole="button"
+                          accessibilityLabel={
+                            isLiked
+                              ? t("post_detail.unlike_post")
+                              : t("post_detail.like_post")
+                          }
+                        >
+                          <HStack space="sm" className="items-center px-3 py-2">
+                            <Icon
+                              as={Heart}
+                              size="sm"
+                              className={
+                                isLiked
+                                  ? "text-theme fill-theme"
+                                  : "text-foreground"
+                              }
+                            />
+                            <Text
+                              size="sm"
+                              className="font-semibold text-foreground"
+                            >
+                              {likesCount}
+                            </Text>
+                          </HStack>
+                        </Pressable>
                         <Divider
                           orientation="vertical"
                           className="h-4 w-px bg-foreground/20"
                         />
-                        <Pressable onPress={() => {}}>
+                        <Pressable
+                          onPress={handleCommentPress}
+                          hitSlop={8}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("post_detail.comments")}
+                        >
                           <HStack space="sm" className="items-center px-3 py-2">
                             <Icon
                               as={MessageCircle}
@@ -209,7 +253,12 @@ const FeedScreen = () => {
                           orientation="vertical"
                           className="h-4 w-px bg-foreground/20"
                         />
-                        <Pressable onPress={() => {}}>
+                        <Pressable
+                          onPress={handleSharePress}
+                          hitSlop={8}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("post_detail.share_post")}
+                        >
                           <HStack space="sm" className="items-center px-3 py-2">
                             <Icon
                               as={Share2}
@@ -220,7 +269,7 @@ const FeedScreen = () => {
                               size="sm"
                               className=" font-semibold text-foreground"
                             >
-                              {commentsCount}
+                              {sharesCount}
                             </Text>
                           </HStack>
                         </Pressable>
@@ -234,7 +283,7 @@ const FeedScreen = () => {
         </Card>
       );
     },
-    [isDark, t],
+    [isDark, t, likeMutation],
   );
 
   return (

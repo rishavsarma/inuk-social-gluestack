@@ -4,7 +4,12 @@ import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import { HeartIcon, MessageCircleIcon, Share2Icon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
-import Animated from "react-native-reanimated";
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from "react-native-reanimated";
 
 function fmt(n: number) {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(".0", "")}M`;
@@ -36,17 +41,29 @@ export function PostFloatingActions({
   onComment,
 }: PostFloatingActionsProps) {
   const { t } = useTranslation();
+  const likeScale = useSharedValue(1);
+  const bounceAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: likeScale.value }],
+  }));
+
+  const handleLikePress = () => {
+    likeScale.value = withSequence(
+      withTiming(1.3, { duration: 100 }),
+      withTiming(1, { duration: 120 }),
+    );
+    onLike?.();
+  };
 
   return (
     <View
       style={{ paddingBottom: Math.max(bottomInset, 16) }}
       className="pointer-events-box-none absolute bottom-0 left-0 right-0 items-center justify-end px-6 z-10"
     >
-      <View className="w-full max-w-55 flex-row items-center justify-between rounded-full border border-background/5 bg-card/90 px-5 py-2 backdrop-blur-3xl dark:border-white/10 dark:bg-[#1a1a1a]/85">
+      <View className="w-full max-w-55 flex-row items-center justify-between rounded-full border border-background/5 bg-card/90 px-5 py-3.5 backdrop-blur-3xl dark:border-white/10 dark:bg-[#1a1a1a]/85">
         {/* Like */}
-        <Animated.View style={likeAnimStyle}>
+        <Animated.View style={[likeAnimStyle, bounceAnimStyle]}>
           <Pressable
-            onPress={onLike}
+            onPress={handleLikePress}
             hitSlop={12}
             className="flex-row items-center gap-1.5"
             accessibilityRole="button"
@@ -105,12 +122,6 @@ export function PostFloatingActions({
           className="flex-row items-center gap-1.5"
         >
           <Icon size="sm" as={Share2Icon} className="text-foreground/80" />
-          <Text
-            size="sm"
-            className=" font-medium tracking-wide text-foreground"
-          >
-            {fmt(commentsCount)}
-          </Text>
         </Pressable>
       </View>
     </View>

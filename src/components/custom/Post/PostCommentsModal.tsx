@@ -1,200 +1,208 @@
-import BottomSheet, { BottomSheetFlatList, BottomSheetTextInput } from '@gorhom/bottom-sheet';
-import { Image } from 'expo-image';
-import { ArrowUp, HeartIcon, X } from 'lucide-react-native';
-import React, { useCallback, useMemo, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Keyboard, Pressable, Text, View, ActivityIndicator } from 'react-native';
+import {
+  Actionsheet,
+  ActionsheetBackdrop,
+  ActionsheetContent,
+  ActionsheetDragIndicator,
+  ActionsheetDragIndicatorWrapper,
+} from "@/components/ui/actionsheet";
+import {
+  Avatar,
+  AvatarFallbackText,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import { Badge, BadgeText } from "@/components/ui/badge";
+import { Box } from "@/components/ui/box";
+import { Button, ButtonIcon } from "@/components/ui/button";
+import { Heading } from "@/components/ui/heading";
+import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
+import { Input, InputField } from "@/components/ui/input";
+import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
+import { Spinner } from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
+import { useTimeAgo } from "@/hooks/useTimeAgo";
+import { FlashList } from "@shopify/flash-list";
+import { SendHorizontal, XIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { Pressable } from "react-native";
+
+function commentAuthorInfo(profile?: PostCommentAuthorProfile) {
+  const displayName =
+    profile?.givenName ||
+    `${profile?.firstName ?? ""} ${profile?.lastName ?? ""}`.trim() ||
+    "User";
+  const avatarUrl =
+    profile?.avatar && profile.avatar !== "string"
+      ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.avatar}/jpeg/720`
+      : undefined;
+  return { displayName, username: profile?.username ?? "user", avatarUrl };
+}
+
+function CommentRow({ comment }: { comment: PostComment }) {
+  const { displayName, username, avatarUrl } = commentAuthorInfo(
+    comment.profile,
+  );
+  const timeAgo = useTimeAgo(new Date(comment.dateCreated).toISOString());
+
+  return (
+    <HStack space="sm" className="items-start px-4 py-3">
+      <Avatar className="mt-0.5 h-10 w-10">
+        <AvatarFallbackText>{displayName}</AvatarFallbackText>
+        {avatarUrl && <AvatarImage source={{ uri: avatarUrl }} />}
+      </Avatar>
+      <VStack className="flex-1" space="xs">
+        <HStack space="xs" className="items-center flex-wrap">
+          <Text size="sm" bold className="text-foreground">
+            {displayName}
+          </Text>
+          <Text size="xs" className="text-muted-foreground">
+            @{username}
+          </Text>
+          {!!timeAgo && (
+            <Text size="xs" className="text-muted-foreground">
+              · {timeAgo}
+            </Text>
+          )}
+        </HStack>
+        <Text size="sm" className="text-foreground/90">
+          {comment.text}
+        </Text>
+      </VStack>
+    </HStack>
+  );
+}
 
 export interface PostCommentsModalProps {
-  showComments: boolean;
-  setShowComments: (show: boolean) => void;
-  comments: any[];
+  isOpen: boolean;
+  onClose: () => void;
+  comments: PostComment[];
   totalComments: number;
-  handleToggleCommentLike: (id: string) => void;
-  commentText: string;
-  setCommentText: (text: string) => void;
-  handleAddComment: () => void;
-  onEndReached?: () => void;
-  isFetchingNextPage?: boolean;
   isLoading?: boolean;
-  isDark: boolean;
-  insets?: any;
+  isFetchingNextPage?: boolean;
+  isRefetching?: boolean;
+  onEndReached?: () => void;
+  onRefresh?: () => void;
+  commentText: string;
+  onChangeCommentText: (text: string) => void;
+  onSubmitComment: () => void;
+  isSubmitting?: boolean;
 }
 
 export function PostCommentsModal({
-  showComments,
-  setShowComments,
+  isOpen,
+  onClose,
   comments,
   totalComments,
-  handleToggleCommentLike,
-  commentText,
-  setCommentText,
-  handleAddComment,
+  isLoading = false,
+  isFetchingNextPage = false,
+  isRefetching = false,
   onEndReached,
-  isFetchingNextPage,
-  isLoading,
-  isDark,
-  insets,
+  onRefresh,
+  commentText,
+  onChangeCommentText,
+  onSubmitComment,
+  isSubmitting = false,
 }: PostCommentsModalProps) {
   const { t } = useTranslation();
-  const bottomSheetRef = useRef<BottomSheet>(null);
-  const snapPoints = useMemo(() => ['85%'], []);
-
-  const handleSheetChanges = useCallback(
-    (index: number) => {
-      if (index === -1) {
-        Keyboard.dismiss();
-        setShowComments(false);
-      }
-    },
-    [setShowComments]
-  );
 
   return (
-    <BottomSheet
-      ref={bottomSheetRef}
-      index={showComments ? 0 : -1}
-      snapPoints={snapPoints}
-      enablePanDownToClose={true}
-      enableDynamicSizing={false}
-      onChange={handleSheetChanges}
-      handleIndicatorStyle={{ backgroundColor: isDark ? '#555' : '#ccc' }}
-      backgroundStyle={{ backgroundColor: isDark ? '#18181B' : '#fff' }}
-      keyboardBehavior="extend"
-      keyboardBlurBehavior="restore">
-      <View className="flex-1">
-        <View className="items-center border-b border-neutral-100 pb-4 pt-1 dark:border-neutral-800">
-          <View className="w-full flex-row items-center justify-between px-6">
-            <View className="flex-row items-center gap-2.5">
-              <Text className="text-lg font-black text-neutral-900 dark:text-white">
+    <Actionsheet snapPoints={[80]} isOpen={isOpen} onClose={onClose}>
+      <ActionsheetBackdrop />
+      <ActionsheetContent className="h-full w-full px-0 pb-0 pt-2">
+        <ActionsheetDragIndicatorWrapper>
+          <ActionsheetDragIndicator className="bg-muted-foreground" />
+        </ActionsheetDragIndicatorWrapper>
+
+        <KeyboardAvoidingView className="w-full flex-1">
+          <HStack className="w-full items-center justify-between border-b border-border px-4 pb-3 pt-1">
+            <HStack space="sm" className="items-center">
+              <Heading size="md" className="text-foreground">
                 {t("post_detail.comments_modal.title")}
-              </Text>
-              <View className="rounded-full bg-neutral-100 px-2 py-0.5 dark:bg-neutral-800">
-                <Text className="text-xs font-bold text-neutral-500">{totalComments}</Text>
-              </View>
-            </View>
+              </Heading>
+              <Badge variant="outline" className="rounded-full">
+                <BadgeText>{totalComments}</BadgeText>
+              </Badge>
+            </HStack>
             <Pressable
-              onPress={() => {
-                Keyboard.dismiss();
-                setShowComments(false);
-                bottomSheetRef.current?.close();
-              }}
+              onPress={onClose}
               hitSlop={12}
-              className="rounded-full bg-neutral-100 p-2 active:opacity-70 dark:bg-neutral-800">
-              <X size={16} color={isDark ? '#fff' : '#000'} />
+              accessibilityRole="button"
+              accessibilityLabel={t("post_detail.comments_modal.close")}
+              className="h-8 w-8 items-center justify-center rounded-full bg-muted"
+            >
+              <Icon as={XIcon} size="sm" className="text-foreground" />
             </Pressable>
-          </View>
-        </View>
+          </HStack>
 
-        <BottomSheetFlatList
-          data={comments}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          style={{ flex: 1 }}
-          className="px-6"
-          contentContainerStyle={{ paddingBottom: 24, flexGrow: 1 }}
-          onEndReached={onEndReached}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            isLoading ? (
-              <View className="flex-1 items-center justify-center py-10">
-                <ActivityIndicator size="small" color={isDark ? '#fff' : '#000'} />
-              </View>
-            ) : (
-              <View className="flex-1 items-center justify-center py-10">
-                <Text className="text-[14px] font-medium text-neutral-500 dark:text-neutral-400">
-                  {t("post_detail.comments_modal.empty")}
-                </Text>
-              </View>
-            )
-          }
-          ListFooterComponent={
-            isFetchingNextPage ? (
-              <View className="py-4 items-center justify-center">
-                <ActivityIndicator size="small" color={isDark ? '#fff' : '#000'} />
-              </View>
-            ) : null
-          }
-          renderItem={({ item: comment }) => (
-            <View className="flex-row items-start gap-4 border-b border-neutral-100/50 py-5 dark:border-neutral-900/50">
-              <Image
-                source={{ uri: comment.avatar || 'https://randomuser.me/api/portraits/men/32.jpg' }}
-                style={{ width: 40, height: 40, borderRadius: 20 }}
-                contentFit="cover"
-              />
-              <View className="flex-1">
-                <View className="flex-row items-center justify-between">
-                  <Text className="text-[14px] font-bold text-neutral-900 dark:text-white">
-                    {comment.username}
-                  </Text>
-                  <Text className="text-[12px] font-medium text-neutral-400 dark:text-neutral-500">
-                    {comment.time}
-                  </Text>
-                </View>
-                <Text className="mt-1.5 text-[14px] leading-[20px] text-neutral-700 dark:text-neutral-300">
-                  {comment.text}
-                </Text>
-                <View className="mt-3 flex-row items-center gap-5">
-                  <Pressable
-                    onPress={() => handleToggleCommentLike(comment.id)}
-                    className="flex-row items-center gap-1.5 active:opacity-75">
-                    <HeartIcon
-                      size={14}
-                      color={comment.isLiked ? '#E50914' : '#888'}
-                      fill={comment.isLiked ? '#E50914' : 'transparent'}
-                    />
+          <Box className="flex-1 w-full">
+            <FlashList
+              data={comments}
+              keyExtractor={(item) => item.id}
+              estimatedItemSize={84}
+              renderItem={({ item }) => <CommentRow comment={item} />}
+              onEndReached={onEndReached}
+              onEndReachedThreshold={0.5}
+              refreshing={isRefetching}
+              onRefresh={onRefresh}
+              contentContainerStyle={{ paddingBottom: 12 }}
+              ListEmptyComponent={
+                isLoading ? (
+                  <Box className="flex-1 items-center justify-center py-16">
+                    <Spinner />
+                  </Box>
+                ) : (
+                  <Box className="flex-1 items-center justify-center px-6 py-16">
                     <Text
-                      className={`text-[12px] font-bold ${comment.isLiked ? 'text-[#E50914]' : 'text-neutral-400'}`}>
-                      {comment.likesCount}
+                      size="sm"
+                      className="text-center text-muted-foreground"
+                    >
+                      {t("post_detail.comments_modal.empty")}
                     </Text>
-                  </Pressable>
-                  {comment.repliesCount !== undefined && comment.repliesCount > 0 && (
-                    <Pressable className="active:opacity-75">
-                      <Text className="text-[12px] font-bold text-neutral-400">
-                        {t("post_detail.comments_modal.replies_count", {
-                          count: comment.repliesCount,
-                        })}
-                      </Text>
-                    </Pressable>
-                  )}
-                </View>
-              </View>
-            </View>
-          )}
-        />
-
-        <View
-          style={{ paddingBottom: Math.max(insets?.bottom || 0, 12) }}
-          className="flex-row items-center gap-3 border-t border-neutral-100 bg-white px-5 pt-4 dark:border-neutral-900 dark:bg-[#18181B]">
-          {/* <Image
-            source="https://randomuser.me/api/portraits/men/32.jpg"
-            style={{ width: 40, height: 40, borderRadius: 20 }}
-            contentFit="cover"
-          /> */}
-          <View className="flex-1 flex-row items-center rounded-full border border-neutral-200 bg-neutral-100 px-4 py-2 dark:border-neutral-700 dark:bg-neutral-800">
-            <BottomSheetTextInput
-              placeholder={t("post_detail.comments_modal.placeholder")}
-              placeholderTextColor={isDark ? '#666' : '#888'}
-              value={commentText}
-              onChangeText={setCommentText}
-              style={{
-                flex: 1,
-                height: 36,
-                fontSize: 14,
-                color: isDark ? '#fff' : '#000',
-                paddingVertical: 0,
-              }}
+                  </Box>
+                )
+              }
+              ListFooterComponent={
+                isFetchingNextPage ? (
+                  <Box className="items-center py-4">
+                    <Spinner />
+                  </Box>
+                ) : null
+              }
             />
-            <Pressable
-              onPress={handleAddComment}
-              disabled={!commentText.trim()}
-              style={{ opacity: commentText.trim() ? 1 : 0.5 }}
-              className="ml-2 h-8 w-8 items-center justify-center rounded-full bg-[#E50914] active:opacity-80">
-              <ArrowUp size={16} color="#fff" />
-            </Pressable>
-          </View>
-        </View>
-      </View>
-    </BottomSheet>
+          </Box>
+
+          <HStack
+            space="sm"
+            className="w-full items-center border-t border-border px-4 py-3"
+          >
+            <Input className="flex-1 rounded-full border-0 bg-muted px-4">
+              <InputField
+                placeholder={t("post_detail.comments_modal.placeholder")}
+                value={commentText}
+                onChangeText={onChangeCommentText}
+                onSubmitEditing={onSubmitComment}
+                returnKeyType="send"
+                accessibilityLabel={t("post_detail.comments_modal.placeholder")}
+              />
+            </Input>
+            <Button
+              size="icon"
+              onPress={onSubmitComment}
+              disabled={!commentText.trim() || isSubmitting}
+              accessibilityRole="button"
+              accessibilityLabel={t("post_detail.comments_modal.send")}
+              className="h-11 w-11 rounded-full bg-theme"
+            >
+              {isSubmitting ? (
+                <Spinner size="small" className="text-white" />
+              ) : (
+                <ButtonIcon as={SendHorizontal} className="text-white" />
+              )}
+            </Button>
+          </HStack>
+        </KeyboardAvoidingView>
+      </ActionsheetContent>
+    </Actionsheet>
   );
 }

@@ -3,13 +3,14 @@ import {
   AvatarFallbackText,
   AvatarImage,
 } from "@/components/ui/avatar";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useTimeAgo } from "@/hooks/useTimeAgo";
-import { SlidersHorizontal } from "lucide-react-native";
+import { SlidersHorizontal, UserPlus } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable } from "react-native";
 
@@ -33,11 +34,15 @@ function PostAuthorHeader({ post, onOptionsPress }: PostAuthorHeaderProps) {
           <Heading size="md" className="text-white">
             {post.author.display_name}
           </Heading>
-          <Text size="sm" className="text-white/70">
+          <Text size="sm" className="text-white">
             {createdAt || `@${post.author.username}`}
           </Text>
         </VStack>
       </HStack>
+      <Button variant="theme" className="rounded-full">
+        <ButtonIcon as={UserPlus} className="text-white" />
+        <ButtonText className="text-white">Follow</ButtonText>
+      </Button>
       <Pressable
         onPress={onOptionsPress}
         accessibilityRole="button"

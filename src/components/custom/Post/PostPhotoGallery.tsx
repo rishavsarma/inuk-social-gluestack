@@ -138,14 +138,16 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
                 <Heading size="lg" className="text-white">
                   {post.author.display_name}
                 </Heading>
-                <Text size="sm" className="text-secondary">
+                <Text size="sm" className="text-white/70">
                   {createdAt || `@${post.author.username}`}
                 </Text>
               </VStack>
               {!is_me && (
-                <Button className="rounded-full">
-                  <ButtonIcon as={UserPlus} />
-                  <ButtonText>{t("post_detail.follow")}</ButtonText>
+                <Button variant="theme" className="rounded-full">
+                  <ButtonIcon as={UserPlus} className="text-white" />
+                  <ButtonText className="text-white">
+                    {t("post_detail.follow")}
+                  </ButtonText>
                 </Button>
               )}
             </HStack>

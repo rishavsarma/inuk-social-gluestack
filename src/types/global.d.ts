@@ -292,6 +292,26 @@ interface PostMediaGalleryProps {
   post: PostDetail;
 }
 
+interface PostCommentAuthorProfile {
+  id?: string;
+  username?: string;
+  firstName?: string;
+  lastName?: string;
+  givenName?: string;
+  avatar?: string;
+}
+
+interface PostComment {
+  id: string;
+  contentId: string;
+  contentType?: string;
+  profileId: string;
+  text: string;
+  parentCommentId?: string | null;
+  dateCreated: string | number;
+  profile?: PostCommentAuthorProfile;
+}
+
 interface PostDetail {
   author: {
     profile_id?: string;

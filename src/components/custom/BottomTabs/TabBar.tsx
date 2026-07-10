@@ -102,7 +102,7 @@ function TabItem({
       >
         <Animated.View style={pressStyle}>
           <View className="h-12 w-12 items-center justify-center rounded-full bg-theme">
-            <Icon as={Plus} className="size-6 text-white" />
+            <Icon as={Plus} size="xl" className=" text-white" />
           </View>
         </Animated.View>
       </Pressable>
@@ -119,22 +119,24 @@ function TabItem({
       accessibilityState={{ selected: isActive }}
       className="h-14 flex-1 items-center justify-center"
     >
-      <Animated.View style={pressStyle} className="items-center">
-        {/* Crossfading icon — opacity driven by Reanimated, position by Nativewind */}
+      <Animated.View
+        style={pressStyle}
+        className="items-center gap-1 justify-center"
+      >
         <View className="h-5.5 w-5.5">
           <Animated.View style={inactiveIconStyle} className="absolute inset-0">
-            <Icon as={tab.icon} size="lg" className="text-foreground/60" />
+            <Icon as={tab.icon} size="xl" className="text-foreground/60" />
           </Animated.View>
           <Animated.View style={activeIconStyle} className="absolute inset-0">
-            <Icon as={tab.icon} size="lg" className="text-theme" />
+            <Icon as={tab.icon} size="xl" className="text-theme" />
           </Animated.View>
         </View>
 
         {/* Label */}
         <Text
-          size="lg"
+          size="xs"
           className={cn(
-            "text-xs pt-1 leading-3 tracking-wide",
+            " pt-1.5 leading-3 tracking-wide",
             isActive
               ? "font-bold text-theme"
               : "font-medium text-foreground/60",
