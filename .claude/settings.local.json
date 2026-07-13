@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn \"FeedHeader\" .)",
+      "Bash(grep -rn \"CategoriesRail\\\\|categories-rail\" .)",
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d.get\\('scripts',{}\\), indent=2\\)\\); print\\(d.get\\('main'\\)\\)\")",
+      "Bash(timeout 90 bash -c 'until curl -sf http://localhost:8098 >/dev/null 2>&1; do sleep 2; done')",
+      "Bash(tail -n 60 /tmp/expo-web.log; echo \"---ps---\"; ps aux | grep -i expo | grep -v grep)",
+      "Read(//private/tmp/**)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8098/feed)",
+      "Bash(curl -s http://localhost:8098/feed)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8098/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8098/terms)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" http://localhost:8098/profile)",
+      "Bash(npx tsc *)",
+      "Bash(jobs)",
+      "Bash(wait)",
+      "Bash(npx eslint *)",
+      "Bash(ls -la /Users/rishav/Library/Android/sdk/build-tools/36.0.0/ 2>&1 | head -20; echo \"---package.xml---\"; cat /Users/rishav/Library/Android/sdk/build-tools/36.0.0/package.xml 2>&1 | head -5)",
+      "Read(//Users/rishav/Library/Android/sdk/build-tools/36.0.0/**)",
+      "Read(//Users/rishav/Library/Android/sdk/**)",
+      "Read(//Users/rishav/Library/Android/sdk/licenses/**)"
+    ]
+  }
+}
