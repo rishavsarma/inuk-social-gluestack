@@ -26,6 +26,7 @@ interface AuthState {
   isLoading: boolean;
   _hasHydrated: boolean;
   setAuth: (user: User, token: string) => void;
+  setToken: (token: string) => void;
   logout: () => void;
   setLoading: (isLoading: boolean) => void;
   setHasHydrated: (hasHydrated: boolean) => void;
@@ -68,6 +69,7 @@ export const useAuthStore = create<AuthState>()(
       _hasHydrated: false,
       setAuth: (user, token) =>
         set({ user, token, isAuthenticated: true, isLoading: false }),
+      setToken: (token) => set({ token }),
       logout: () => {
         router.replace(ROUTES.AUTH.HOME);
         set({

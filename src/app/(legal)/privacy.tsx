@@ -81,8 +81,10 @@ export default function PrivacyScreen() {
 
   return (
     <KeyboardAvoidingScrollView
-      title={t("legal.privacy.title")}
       contentContainerStyle={{ paddingBottom: 100 }}
+      showBackButton
+      alwaysShowBar
+      title={t("legal.privacy.title")}
     >
       <VStack space="md" className="pt-4">
         {/* Banner Section */}

@@ -65,8 +65,84 @@ export const MOCK_SEARCH_PROFILES: NetworkProfileItem[] = [
   },
 ];
 
+export const MOCK_TRENDING_TOPICS: TrendingTopic[] = [
+  { id: "topic-1", tag: "Himalayas", postsCount: 12800 },
+  { id: "topic-2", tag: "Nainital", postsCount: 4300 },
+  { id: "topic-3", tag: "StreetPhotography", postsCount: 9100 },
+  { id: "topic-4", tag: "MonsoonTrails", postsCount: 2600 },
+  { id: "topic-5", tag: "WildlifeIndia", postsCount: 7400 },
+  { id: "topic-6", tag: "SunriseChasers", postsCount: 1900 },
+];
+
+export const MOCK_DISCOVER_POSTS: DiscoverPost[] = Array.from(
+  { length: 12 },
+  (_, index) => ({
+    id: `discover-post-${index + 1}`,
+    type: index % 3 === 0 ? "video" : "image",
+    likesCount: Math.round(200 + Math.sin(index) * 150 + index * 37),
+  }),
+);
+
 const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = HOUR_MS * 24;
 const now = Date.now();
+
+export const MOCK_CONTESTS: ContestItem[] = [
+  {
+    id: "contest-1",
+    title: "Himalayan Sunrise Challenge",
+    description: "Capture the first light hitting the peaks near you.",
+    status: "ACTIVE",
+    prize: "₹15,000 + Spotlight Badge",
+    entriesCount: 342,
+    endsAt: now + DAY_MS * 3,
+  },
+  {
+    id: "contest-2",
+    title: "Street Stories of Uttarakhand",
+    description: "Tell a story of daily life in a single candid frame.",
+    status: "ACTIVE",
+    prize: "₹8,000",
+    entriesCount: 189,
+    endsAt: now + DAY_MS * 6,
+  },
+  {
+    id: "contest-3",
+    title: "Monsoon Trails Reel Contest",
+    description: "Short-form video of your favourite monsoon trek.",
+    status: "UPCOMING",
+    prize: "₹10,000 + Feature on Explore",
+    entriesCount: 0,
+    endsAt: now + DAY_MS * 10,
+  },
+  {
+    id: "contest-4",
+    title: "Wildlife of the Hills",
+    description: "Best candid wildlife shot from the Himalayan region.",
+    status: "UPCOMING",
+    prize: "₹12,000",
+    entriesCount: 0,
+    endsAt: now + DAY_MS * 14,
+  },
+  {
+    id: "contest-5",
+    title: "Winter Portraits 2025",
+    description: "Portraits that capture the character of hill-town winters.",
+    status: "ENDED",
+    prize: "₹6,000",
+    entriesCount: 271,
+    endsAt: now - DAY_MS * 20,
+  },
+  {
+    id: "contest-6",
+    title: "Food & Culture Spotlight",
+    description: "Show us a dish that tells a story of your hometown.",
+    status: "ENDED",
+    prize: "₹5,000",
+    entriesCount: 156,
+    endsAt: now - DAY_MS * 45,
+  },
+];
 
 export const MOCK_NOTIFICATIONS: NotificationItem[] = [
   {

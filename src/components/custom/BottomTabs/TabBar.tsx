@@ -9,7 +9,7 @@ import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import * as Haptics from "expo-haptics";
 import { GlassView } from "expo-glass-effect";
 import { usePathname, useRouter } from "expo-router";
-import { Gamepad2, Home, Plus, Trophy, User } from "lucide-react-native";
+import { Compass, Gamepad2, Home, Plus, User } from "lucide-react-native";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Platform, Pressable, View, useWindowDimensions } from "react-native";
@@ -25,13 +25,18 @@ import { useTabBar } from "./TabBarContext";
 export const TABS = [
   { name: "feed", href: ROUTES.TABS.FEED, icon: Home, label: "Home" },
   {
+    name: "discover",
+    href: ROUTES.TABS.DISCOVER,
+    icon: Compass,
+    label: "Discover",
+  },
+  { name: "create", href: ROUTES.TABS.CREATE, icon: Plus, label: "" },
+  {
     name: "contest",
     href: ROUTES.TABS.CONTEST,
     icon: Gamepad2,
     label: "Contest",
   },
-  { name: "create", href: ROUTES.TABS.CREATE, icon: Plus, label: "" },
-  { name: "awards", href: ROUTES.TABS.AWARDS, icon: Trophy, label: "Awards" },
   {
     name: "profile",
     href: ROUTES.TABS.PROFILE,

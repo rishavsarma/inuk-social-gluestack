@@ -30,6 +30,7 @@ import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import { useResetPasswordUpdate, useSignUpSetPassword } from "@/hooks/useAuth";
+import Logo from "@/components/custom/Logo";
 
 const SetPassword = () => {
   const bottomInset = useAppBottomInset();
@@ -197,20 +198,12 @@ const SetPassword = () => {
           className="flex-1 items-center justify-center px-6 py-12"
           space="md"
         >
-          <Heading
-            size="3xl"
-            className="font-extrabold tracking-wider text-foreground"
-          >
-            INUK
-          </Heading>
-          <Text className="text-sm text-muted-foreground text-center">
-            {t("auth.welcome")}
-          </Text>
+          <Logo size={40} />
         </VStack>
 
         {/* Bottom Card Form */}
         <Card
-          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none"
+          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none rounded-t-4xl"
           style={{ paddingBottom: bottomInset + 20 }}
         >
           <VStack space="lg">

@@ -46,7 +46,7 @@ function ProfileListItem({
       onPress={() => router.push(ROUTES.USER.PROFILE(profile.id) as Href)}
       accessibilityRole="button"
       accessibilityLabel={fullName}
-      className="active:opacity-70"
+      className="active:opacity-70 bg-card my-1"
     >
       <HStack space="md" className="items-center px-4 py-3">
         <Avatar className="h-12 w-12">
@@ -82,9 +82,7 @@ function ProfileListItem({
                 color={profile.isFollowing ? undefined : "white"}
               />
             ) : (
-              <ButtonText
-                className={profile.isFollowing ? "" : "text-white"}
-              >
+              <ButtonText className={profile.isFollowing ? "" : "text-white"}>
                 {profile.isFollowing
                   ? t("network.following_btn")
                   : t("network.follow")}

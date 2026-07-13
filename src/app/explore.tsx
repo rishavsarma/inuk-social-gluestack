@@ -1,24 +1,33 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ArrowLeftIcon, SearchIcon, UserSearch, X } from "lucide-react-native";
+import { ArrowLeftIcon, SearchIcon, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { View } from "react-native";
 
 import { FlashList } from "@shopify/flash-list";
 
+import { Badge, BadgeText } from "@/components/ui/badge";
 import { Button, ButtonIcon } from "@/components/ui/button";
+import { Divider } from "@/components/ui/divider";
+import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+import { Pressable } from "@/components/ui/pressable";
+import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
 
 import { useAppTopInset } from "@/hooks/useAppInsets";
+import { useFollowUser, useSearchProfiles } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
 
-import { MOCK_SEARCH_PROFILES } from "@/constants/mock-data";
+import { MOCK_SEARCH_PROFILES, MOCK_TRENDING_TOPICS } from "@/constants/mock-data";
 
 import { EmptyState } from "@/components/custom/Feed/EmptyState";
-import ProfileListItem from "@/components/custom/Profile/ProfileListItem";
+import ProfileListItem, {
+  ProfileListItemSkeleton,
+} from "@/components/custom/Profile/ProfileListItem";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -27,11 +36,24 @@ function SearchScreen() {
   const topInset = useAppTopInset();
   const currentUserId = useAuthStore((state) => state.user?.profileId);
 
-  const [profiles, setProfiles] = useState<NetworkProfileItem[]>(
-    MOCK_SEARCH_PROFILES,
-  );
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
+
+  const [suggestedProfiles, setSuggestedProfiles] = useState<
+    NetworkProfileItem[]
+  >(MOCK_SEARCH_PROFILES);
+  const handleToggleSuggestedFollow = useCallback(
+    (profile: NetworkProfileItem) => {
+      setSuggestedProfiles((prev) =>
+        prev.map((item) =>
+          item.id === profile.id
+            ? { ...item, isFollowing: !item.isFollowing }
+            : item,
+        ),
+      );
+    },
+    [],
+  );
 
   useEffect(() => {
     const timeout = setTimeout(
@@ -41,48 +63,101 @@ function SearchScreen() {
     return () => clearTimeout(timeout);
   }, [query]);
 
-  const results = useMemo(() => {
-    const trimmed = debouncedQuery.trim().toLowerCase();
-    if (!trimmed) return [];
-    return profiles.filter((profile) => {
-      const fullName = `${profile.firstName ?? ""} ${profile.lastName ?? ""}`.toLowerCase();
-      return (
-        fullName.includes(trimmed) ||
-        (profile.username ?? "").toLowerCase().includes(trimmed)
-      );
-    });
-  }, [profiles, debouncedQuery]);
+  const {
+    data,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
+    refetch,
+    isRefetching,
+  } = useSearchProfiles(debouncedQuery);
 
-  const handleToggleFollow = useCallback((profile: NetworkProfileItem) => {
-    setProfiles((prev) =>
-      prev.map((item) =>
-        item.id === profile.id
-          ? { ...item, isFollowing: !item.isFollowing }
-          : item,
-      ),
-    );
-  }, []);
+  const results = useMemo(
+    () => data?.pages.flatMap((page) => page.data ?? []) ?? [],
+    [data],
+  );
+
+  const {
+    mutate: toggleFollow,
+    variables: followVariables,
+    isPending: isFollowPending,
+  } = useFollowUser();
+
+  const handleToggleFollow = useCallback(
+    (profile: NetworkProfileItem) => {
+      if (!currentUserId) return;
+      toggleFollow({
+        followerId: currentUserId,
+        followedId: profile.id,
+        action: profile.isFollowing ? "UNFOLLOW" : "FOLLOW",
+      });
+    },
+    [currentUserId, toggleFollow],
+  );
 
   const renderItem = useCallback(
     ({ item }: { item: NetworkProfileItem }) => (
       <ProfileListItem
         profile={item}
         isSelf={item.id === currentUserId}
+        isFollowLoading={
+          isFollowPending && followVariables?.followedId === item.id
+        }
         onToggleFollow={handleToggleFollow}
       />
     ),
-    [currentUserId, handleToggleFollow],
+    [currentUserId, handleToggleFollow, isFollowPending, followVariables],
   );
 
   const listEmptyComponent = useMemo(() => {
     if (!debouncedQuery.trim()) {
       return (
-        <EmptyState
-          icon={UserSearch}
-          title={t("search.start_typing")}
-          description={t("search.start_typing_sub")}
-          fullScreen={false}
-        />
+        <VStack space="lg" className="pt-2">
+          <VStack space="sm">
+            <Heading size="sm" className="px-4 text-foreground">
+              {t("search.trending_searches")}
+            </Heading>
+            <HStack space="sm" className="flex-row flex-wrap px-4">
+              {MOCK_TRENDING_TOPICS.map((topic) => (
+                <Pressable
+                  key={topic.id}
+                  onPress={() => setQuery(topic.tag)}
+                  accessibilityRole="button"
+                  accessibilityLabel={topic.tag}
+                  className="active:opacity-70"
+                >
+                  <Badge variant="outline" className="rounded-full px-3 py-1.5">
+                    <BadgeText className="normal-case">#{topic.tag}</BadgeText>
+                  </Badge>
+                </Pressable>
+              ))}
+            </HStack>
+          </VStack>
+
+          <VStack>
+            <Heading size="sm" className="px-4 pb-1 text-foreground">
+              {t("search.suggested_for_you")}
+            </Heading>
+            {suggestedProfiles.map((profile) => (
+              <ProfileListItem
+                key={profile.id}
+                profile={profile}
+                isSelf={profile.id === currentUserId}
+                onToggleFollow={handleToggleSuggestedFollow}
+              />
+            ))}
+          </VStack>
+        </VStack>
+      );
+    }
+    if (isLoading) {
+      return (
+        <VStack>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <ProfileListItemSkeleton key={index} />
+          ))}
+        </VStack>
       );
     }
     return (
@@ -93,7 +168,14 @@ function SearchScreen() {
         fullScreen={false}
       />
     );
-  }, [debouncedQuery, t]);
+  }, [
+    debouncedQuery,
+    isLoading,
+    t,
+    currentUserId,
+    suggestedProfiles,
+    handleToggleSuggestedFollow,
+  ]);
 
   return (
     <View style={{ flex: 1 }} className="bg-background">
@@ -144,9 +226,28 @@ function SearchScreen() {
         data={results}
         renderItem={renderItem}
         keyExtractor={(item: NetworkProfileItem) => item.id}
-        refreshing={false}
-        onRefresh={() => {}}
+        refreshing={isRefetching}
+        onRefresh={refetch}
+        onEndReached={() => {
+          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+        }}
+        onEndReachedThreshold={0.4}
+        ItemSeparatorComponent={() => <Divider className="ml-16" />}
+        ListHeaderComponent={
+          debouncedQuery.trim() && results.length > 0 ? (
+            <Text size="xs" className="px-4 pb-2 pt-1 text-muted-foreground">
+              {t("search.results_count", { count: results.length })}
+            </Text>
+          ) : null
+        }
         ListEmptyComponent={listEmptyComponent}
+        ListFooterComponent={
+          isFetchingNextPage ? (
+            <VStack className="py-4">
+              <ProfileListItemSkeleton />
+            </VStack>
+          ) : null
+        }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingTop: 8, paddingBottom: 24 }}
       />

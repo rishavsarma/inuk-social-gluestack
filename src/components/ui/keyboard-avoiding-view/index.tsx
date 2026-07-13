@@ -24,7 +24,7 @@ const BaseKeyboardAvoidingView = ({
   const animatedStyle = useAnimatedStyle(() => {
     const keyboardHeight = -height.value;
     const padding =
-      keyboardHeight > 0 ? keyboardHeight + keyboardVerticalOffset : 0;
+      keyboardHeight > 0 ? keyboardHeight + keyboardVerticalOffset - 25 : 0;
 
     return {
       paddingBottom: padding,

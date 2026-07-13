@@ -76,10 +76,9 @@ export function useGetFollowing(profileId: string, enabled: boolean = true) {
 
 export function useSearchProfiles(query: string) {
   const trimmed = query.trim();
-
   return useInfiniteQuery({
     queryKey: ["profile-search", trimmed],
-    enabled: trimmed.length > 0,
+    // enabled: trimmed.length > 0,
     queryFn: ({ pageParam }: { pageParam: number }) =>
       profileService.searchProfiles(trimmed, pageParam, NETWORK_PAGE_LIMIT),
     getNextPageParam: (
@@ -92,7 +91,7 @@ export function useSearchProfiles(query: string) {
       }
       return loaded;
     },
-    initialPageParam: 0,
+    initialPageParam: 1,
   });
 }
 

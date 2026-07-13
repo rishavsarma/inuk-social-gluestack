@@ -2,7 +2,12 @@
   "name": "inuk-social",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "trustedDependencies": [
+    "@shopify/react-native-skia",
+    "unrs-resolver"
+  ],
   "dependencies": {
+    "@bsky.app/expo-image-crop-tool": "^0.5.1",
     "@expo-google-fonts/baloo-2": "^0.4.2",
     "@expo-google-fonts/inter": "^0.4.2",
     "@expo/html-elements": "^0.12.5",

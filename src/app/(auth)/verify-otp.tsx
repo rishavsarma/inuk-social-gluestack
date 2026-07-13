@@ -28,11 +28,17 @@ import { ChevronRightIcon, Icon } from "@/components/ui/icon";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 
-import { useSignInVerifyOtp, useSignUpVerifyOtp } from "@/hooks/useAuth";
+import {
+  useInitiateJourney,
+  useSignInInitiateOtp,
+  useSignInVerifyOtp,
+  useSignUpVerifyOtp,
+} from "@/hooks/useAuth";
 import { useAuthStore } from "@/stores/auth.store";
 import { useJourneyStore } from "@/stores/journey.store";
 import { useSettingStore } from "@/stores/setting.store";
 import { useColorScheme } from "react-native";
+import Logo from "@/components/custom/Logo";
 
 const VerifyOtp = () => {
   const bottomInset = useAppBottomInset();
@@ -51,6 +57,7 @@ const VerifyOtp = () => {
   const isSignIn = mode === "sign-in";
   const isSignUp = mode === "sign-up";
   const setAuth = useAuthStore((s) => s.setAuth);
+  const setToken = useAuthStore((s) => s.setToken);
   const { theme } = useSettingStore();
   const systemColorScheme = useColorScheme();
   const activeTheme = theme === "system" ? systemColorScheme : theme;
@@ -58,6 +65,9 @@ const VerifyOtp = () => {
 
   const { isPending: isSignInVerifyOtpPending, mutateAsync: signInVerifyOtp } =
     useSignInVerifyOtp();
+
+  const { isPending: isResendOtpPending, mutateAsync: initiateOtp } =
+    useInitiateJourney();
 
   const { isPending: isSignUpVerifyOtpPending, mutateAsync: signUpVerifyOtp } =
     useSignUpVerifyOtp();
@@ -130,6 +140,7 @@ const VerifyOtp = () => {
         },
         {
           onSuccess: (res) => {
+            setToken(res?.data?.token); // Log the token for debugging
             router.push({
               pathname: ROUTES.AUTH.SET_PASSWORD,
               params: { mode: "set-password" },
@@ -147,6 +158,21 @@ const VerifyOtp = () => {
   const handleResend = async () => {
     if (timer > 0) return;
     setError(null);
+    initiateOtp(
+      {
+        contact: `${countryCode.replace("+", "")}-${phone}`,
+        accountType: "USER",
+      },
+      {
+        onSuccess: (res) => {
+          setTimer(30);
+        },
+        onError: (err: any) => {
+          console.log("err", err?.response?.message);
+          setError(err?.response?.message || t("auth.invalid_phone_error"));
+        },
+      },
+    );
     // setIsLoading(true);
     // try {
     //   const response = await authService.sendOtp(countryCode, phone);
@@ -170,20 +196,12 @@ const VerifyOtp = () => {
           className="flex-1 items-center justify-center px-6 py-12"
           space="md"
         >
-          <Heading
-            size="3xl"
-            className="font-extrabold tracking-wider text-foreground"
-          >
-            INUK
-          </Heading>
-          <Text className="text-sm text-muted-foreground text-center">
-            {t("auth.welcome")}
-          </Text>
+          <Logo size={40} />
         </VStack>
 
         {/* Bottom Card Form */}
         <Card
-          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none"
+          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none rounded-t-4xl"
           style={{ paddingBottom: bottomInset + 20 }}
         >
           <VStack space="2xl">
@@ -191,28 +209,29 @@ const VerifyOtp = () => {
               <Heading size="2xl" className="font-bold text-foreground">
                 {t("auth.verify_otp_title")}
               </Heading>
-              <HStack space="xs" className="items-center">
-                <Text size="sm" className="text-muted-foreground">
+              <HStack space="xs" className="items-center justify-between ">
+                <Text size="sm" className="text-muted-foreground leading-none">
                   {t("auth.verify_otp_subtitle", {
                     phone: `${countryCode} ${phone}`,
                   })}
                 </Text>
-                {timer > 0 ? (
-                  <Text size="md" className="text-muted-foreground">
-                    {t("auth.resend_code_in", { seconds: timer })}
-                  </Text>
-                ) : (
-                  <Button
-                    variant="link"
-                    size="default"
-                    onPress={handleResend}
-                    className="p-0  py-0 min-h-fit"
-                  >
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onPress={handleResend}
+                  className=""
+                  disabled={isResendOtpPending || timer > 0}
+                >
+                  {timer > 0 ? (
+                    <ButtonText className="">
+                      {t("auth.resend_code_in", { seconds: timer })}
+                    </ButtonText>
+                  ) : (
                     <ButtonText className="">
                       {t("auth.resend_code")}
                     </ButtonText>
-                  </Button>
-                )}
+                  )}
+                </Button>
               </HStack>
             </VStack>
 
@@ -293,7 +312,7 @@ const VerifyOtp = () => {
               disabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
               className="gap-1"
             >
-              <ButtonText className="font-serif">{t("auth.verify")}</ButtonText>
+              <ButtonText className="">{t("auth.verify")}</ButtonText>
               {isSignInVerifyOtpPending || isSignUpVerifyOtpPending ? (
                 <ButtonSpinner color={"white"} />
               ) : (

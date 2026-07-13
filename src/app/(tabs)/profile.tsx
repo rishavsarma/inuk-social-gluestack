@@ -40,6 +40,8 @@ const ProfileScreen = () => {
     refetch,
   } = useGetProfile(profileId);
 
+  console.log("profileData", profileId, profileData?.stats);
+
   const {
     data: postsPhotoData,
     isLoading: isLoadingPhotoPosts,

@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
-import { ChevronRightIcon, Moon, Sun } from "lucide-react-native";
-import { useState } from "react";
+import { ChevronRightIcon, Globe, Moon, Sun } from "lucide-react-native";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import switchTheme from "react-native-theme-switch-animation";
 
@@ -10,6 +10,7 @@ import {
   ButtonSpinner,
   ButtonText,
 } from "@/components/ui/button";
+import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import {
   FormControl,
@@ -33,28 +34,32 @@ import {
   SelectItem,
   SelectPortal,
   SelectTrigger,
+  SelectVirtualizedList,
 } from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
-import { COUNTRY_CODES } from "@/constants";
+import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
+import { COUNTRY_CODES, LANGUAGES } from "@/constants";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { useInitiateJourney } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
 import { useJourneyStore } from "@/stores/journey.store";
 import { useSettingStore } from "@/stores/setting.store";
 import { Platform } from "react-native";
+import Logo from "@/components/custom/Logo";
 
 const AuthHome = () => {
-  const { t } = useTranslation();
-  const { theme, setTheme } = useSettingStore();
+  const { t, i18n } = useTranslation();
+  const { theme, setTheme, language, setLanguage } = useSettingStore();
   const bottomInset = useAppBottomInset();
   const router = useRouter();
 
   const [countryCode, setCountryCode] = useState("+91");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [countrySearch, setCountrySearch] = useState("");
 
   const setPhone = useJourneyStore((s) => s.setPhone);
   const setCountry = useJourneyStore((s) => s.setCountry);
@@ -101,6 +106,22 @@ const AuthHome = () => {
 
   const selectedCountry =
     COUNTRY_CODES.find((c) => c.code === countryCode) || COUNTRY_CODES[0];
+
+  const selectedLang = LANGUAGES.find((l) => l.id === language);
+
+  const handleLanguageChange = (langCode: string) => {
+    setLanguage(langCode);
+    i18n.changeLanguage(langCode);
+  };
+
+  const filteredCountryCodes = useMemo(() => {
+    const query = countrySearch.trim().toLowerCase();
+    if (!query) return COUNTRY_CODES;
+    return COUNTRY_CODES.filter(
+      (item) =>
+        item.country.toLowerCase().includes(query) || item.code.includes(query),
+    );
+  }, [countrySearch]);
 
   const handleContinue = () => {
     setError(null);
@@ -175,36 +196,67 @@ const AuthHome = () => {
 
   return (
     <KeyboardAvoidingScrollView>
-      <VStack className="flex-1 justify-between bg-background relative">
-        {/* Theme Switcher Button */}
-        <Button
-          onPress={toggleTheme}
-          size="icon"
-          variant="secondary"
-          className="absolute right-4 h-12 w-12 top-2 rounded-full"
-        >
-          <ButtonIcon as={isDark ? Sun : Moon} size="lg" />
-        </Button>
+      <VStack className="flex-1 justify-between bg-background">
+        {/* Top Right Actions */}
+        <HStack space="sm" className="justify-end items-center w-full px-4">
+          {/* Language Picker */}
+          {/* <Select selectedValue={language} onValueChange={handleLanguageChange}>
+            <SelectTrigger
+              accessibilityLabel={t("settings.language")}
+              variant="rounded"
+              size="lg"
+              className="h-12 min-w-36 items-center gap-2 border-0 bg-secondary px-4"
+            >
+              <SelectIcon as={Globe} className="text-muted-foreground" />
+
+              <SelectInput
+                value={selectedLang ? t(selectedLang.labelKey) : ""}
+                textAlignVertical="center"
+                style={{ includeFontPadding: false }}
+                className="flex-1 h-full self-center py-0 font-semibold text-foreground pointer-events-none px-0"
+              />
+              <SelectIcon as={ChevronDownIcon} className="text-foreground/50" />
+            </SelectTrigger>
+            <SelectPortal>
+              <SelectBackdrop />
+              <SelectContent className="bg-card gap-1">
+                <SelectDragIndicatorWrapper>
+                  <SelectDragIndicator />
+                </SelectDragIndicatorWrapper>
+                {LANGUAGES.map((item) => (
+                  <SelectItem
+                    key={item.id}
+                    label={t(item.labelKey)}
+                    value={item.id}
+                    className="py-4"
+                  />
+                ))}
+              </SelectContent>
+            </SelectPortal>
+          </Select> */}
+
+          {/* Theme Switcher Button */}
+          <Button
+            onPress={toggleTheme}
+            size="icon"
+            variant="secondary"
+            className="h-12 w-12 rounded-full"
+          >
+            <ButtonIcon as={isDark ? Sun : Moon} size="lg" />
+          </Button>
+        </HStack>
 
         {/* Brand/Logo Section */}
         <VStack
           className="flex-1 items-center justify-center px-6 py-12"
           space="md"
         >
-          <Heading
-            size="3xl"
-            className="font-extrabold tracking-wider text-foreground"
-          >
-            INUK
-          </Heading>
-          <Text className="text-sm text-muted-foreground text-center">
-            {t("auth.welcome")}
-          </Text>
+          <Logo size={40} />
         </VStack>
 
         {/* Bottom Card Form */}
         <Card
-          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none"
+          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none rounded-t-4xl"
           style={{ paddingBottom: bottomInset + 20 }}
         >
           <VStack space="2xl">
@@ -233,7 +285,10 @@ const AuthHome = () => {
                   {/* Country Selector */}
                   <Select
                     selectedValue={countryCode}
-                    onValueChange={setCountryCode}
+                    onValueChange={(val) => {
+                      setCountryCode(val);
+                      setCountrySearch("");
+                    }}
                   >
                     <SelectTrigger
                       variant="outline"
@@ -241,7 +296,7 @@ const AuthHome = () => {
                       className="w-28 pl-1"
                     >
                       <SelectInput
-                        value={`${selectedCountry.code}`}
+                        value={`${selectedCountry.flag} ${selectedCountry.code}`}
                         className="flex-1 text-base font-medium text-foreground pointer-events-none px-0 mx-2"
                       />
                       <SelectIcon
@@ -249,20 +304,58 @@ const AuthHome = () => {
                         className="mr-2 text-foreground/50 w-4 h-4"
                       />
                     </SelectTrigger>
-                    <SelectPortal>
+                    <SelectPortal snapPoints={[80]}>
                       <SelectBackdrop />
-                      <SelectContent className="bg-card gap-1">
-                        <SelectDragIndicatorWrapper className="pt-4 pb-8">
+                      <SelectContent className="h-full w-full bg-card gap-1">
+                        <SelectDragIndicatorWrapper className="pt-4 pb-2">
                           <SelectDragIndicator />
                         </SelectDragIndicatorWrapper>
-                        {COUNTRY_CODES.map((item) => (
-                          <SelectItem
-                            key={item.code}
-                            label={`${item.flag}  ${item.code} (${item.country})`}
-                            value={item.code}
-                            className="py-4"
+                        <KeyboardAvoidingView className="w-full flex-1">
+                          <Box className="w-full px-1 pb-2">
+                            <Input>
+                              <InputField
+                                autoFocus
+                                placeholder={t(
+                                  "auth.country_search_placeholder",
+                                )}
+                                value={countrySearch}
+                                onChangeText={setCountrySearch}
+                                className="text-base text-foreground"
+                              />
+                            </Input>
+                          </Box>
+                          <SelectVirtualizedList
+                            data={filteredCountryCodes}
+                            keyExtractor={(item: unknown) =>
+                              (item as (typeof COUNTRY_CODES)[number]).code
+                            }
+                            getItemCount={(data: unknown) =>
+                              (data as typeof COUNTRY_CODES).length
+                            }
+                            getItem={(data: unknown, index: number) =>
+                              (data as typeof COUNTRY_CODES)[index]
+                            }
+                            keyboardShouldPersistTaps="handled"
+                            renderItem={({ item }: { item: unknown }) => {
+                              const country =
+                                item as (typeof COUNTRY_CODES)[number];
+                              return (
+                                <SelectItem
+                                  key={country.code}
+                                  label={`${country.flag}  ${country.code} (${country.country})`}
+                                  value={country.code}
+                                  className="py-4"
+                                />
+                              );
+                            }}
+                            ListEmptyComponent={
+                              <Text className="text-xs text-muted-foreground px-1 py-6 text-center w-full">
+                                {t("auth.country_no_results")}
+                              </Text>
+                            }
+                            className="w-full flex-1"
                           />
-                        ))}
+                        </KeyboardAvoidingView>
                       </SelectContent>
                     </SelectPortal>
                   </Select>

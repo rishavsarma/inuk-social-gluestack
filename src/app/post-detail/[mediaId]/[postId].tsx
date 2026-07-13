@@ -30,6 +30,7 @@ import {
   usePostPhotoDetailsQuery,
   usePostVideoDetailsQuery,
 } from "@/hooks/usePosts";
+import { useFollowUser } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
 import { BlurView } from "expo-blur";
 import { useLocalSearchParams } from "expo-router";
@@ -72,7 +73,15 @@ import Animated, {
   useAnimatedStyle,
 } from "react-native-reanimated";
 
-const PostDetailContent = ({ formattedPost }: { formattedPost: any }) => {
+const PostDetailContent = ({
+  formattedPost,
+  onFollowPress,
+  isFollowLoading,
+}: {
+  formattedPost: any;
+  onFollowPress: () => void;
+  isFollowLoading?: boolean;
+}) => {
   const scrollY = useKeyboardAvoidingScrollViewScrollY();
   const { t } = useTranslation();
   const isVideo = formattedPost.post.type === "video";
@@ -252,12 +261,18 @@ const PostDetailContent = ({ formattedPost }: { formattedPost: any }) => {
                 <PostAuthorHeader
                   post={formattedPost}
                   onOptionsPress={videoControls.onToggleControls}
+                  onFollowPress={onFollowPress}
+                  isFollowLoading={isFollowLoading}
                 />
               </Animated.View>
             ))}
         </>
       ) : (
-        <PostPhotoGallery post={formattedPost} />
+        <PostPhotoGallery
+          post={formattedPost}
+          onFollowPress={onFollowPress}
+          isFollowLoading={isFollowLoading}
+        />
       )}
     </Animated.View>
   );
@@ -295,8 +310,19 @@ const PostDetail = () => {
     () => openComments === "true",
   );
   const [commentText, setCommentText] = useState("");
+  const [followOverride, setFollowOverride] = useState<boolean | null>(null);
 
   const likeMutation = useLikePostMutation(postId, mediaId);
+  const { mutate: toggleFollow, isPending: isFollowPending } = useFollowUser();
+
+  // Reset the optimistic override when navigating to a different profile's
+  // post, per React's "adjusting state when a prop changes" pattern.
+  const [followOverrideProfileId, setFollowOverrideProfileId] =
+    useState(profile_id);
+  if (profile_id !== followOverrideProfileId) {
+    setFollowOverrideProfileId(profile_id);
+    setFollowOverride(null);
+  }
   const commentsQuery = useCommentsQuery(postId, showComments);
   const addCommentMutation = useAddCommentMutation(postId);
 
@@ -464,7 +490,10 @@ const PostDetail = () => {
         apiProfile?.avatar && apiProfile?.avatar !== "string"
           ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${apiProfile.avatar}/jpeg/720`
           : "https://randomuser.me/api/portraits/men/32.jpg",
-      is_following: apiFollowing?.status === "PENDING",
+      is_following:
+        followOverride ??
+        (apiFollowing?.status === "ACTIVE" ||
+          apiFollowing?.status === "PENDING"),
       date_joined: apiProfile?.dateCreated
         ? new Date(apiProfile.dateCreated).toISOString()
         : null,
@@ -536,7 +565,18 @@ const PostDetail = () => {
         place: apiPost.place,
       },
     };
-  }, [postDetails, id, type, isVideoPost, my_profile_id, t]);
+  }, [postDetails, id, type, isVideoPost, my_profile_id, followOverride, t]);
+
+  const handleFollowToggle = useCallback(() => {
+    if (!formattedPost?.author.profile_id || !my_profile_id) return;
+    const currentlyFollowing = formattedPost.author.is_following;
+    setFollowOverride(!currentlyFollowing);
+    toggleFollow({
+      followerId: my_profile_id,
+      followedId: formattedPost.author.profile_id,
+      action: currentlyFollowing ? "UNFOLLOW" : "FOLLOW",
+    });
+  }, [formattedPost, my_profile_id, toggleFollow]);
 
   const handleLike = useCallback(() => {
     if (!formattedPost) return;
@@ -617,9 +657,18 @@ const PostDetail = () => {
         title={formattedPost.post.title || t("post_detail.title")}
         contentContainerStyle={{ paddingBottom: bottomInset + 40 }}
       >
-        <PostDetailContent formattedPost={formattedPost} />
+        <PostDetailContent
+          formattedPost={formattedPost}
+          onFollowPress={handleFollowToggle}
+          isFollowLoading={isFollowPending}
+        />
         <VStack space="sm" className="bg-background">
-          <PostCaption post={formattedPost} />
+          {formattedPost.post.caption && (
+            <Animated.View entering={FadeInDown.delay(100).duration(400)}>
+              <PostCaption post={formattedPost} />
+            </Animated.View>
+          )}
+
           <PostPerformanceCard
             likesCount={formattedPost.post.likes_count}
             commentsCount={formattedPost.post.comments_count}

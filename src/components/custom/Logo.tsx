@@ -1,9 +1,8 @@
 import React from "react";
 
 import { Baloo2_800ExtraBold, useFonts } from "@expo-google-fonts/baloo-2";
+import { Image } from "expo-image";
 import { HStack } from "@/components/ui/hstack";
-import Svg, { Circle, Path, Rect } from "react-native-svg";
-import { THEME_ACCENT_COLOR } from "@/constants";
 import { Heading } from "../ui/heading";
 
 type LogoProps = {
@@ -12,24 +11,12 @@ type LogoProps = {
 
 export function LogoIcon({ size = 34 }: { size: number }) {
   return (
-    <Svg width={size} height={size} viewBox="0 0 100 100">
-      <Rect
-        x={0}
-        y={0}
-        width={100}
-        height={100}
-        rx={14}
-        fill={THEME_ACCENT_COLOR}
-      />
-      <Circle cx={33} cy={24} r={8} fill="white" />
-      <Path
-        d="M33 40 V58 A17 17 0 0 0 67 58 V18"
-        stroke="white"
-        strokeWidth={12}
-        strokeLinecap="round"
-        fill="none"
-      />
-    </Svg>
+    <Image
+      source={require("@/assets/images/logo.svg")}
+      style={{ width: size, height: size, borderRadius: 5 }}
+      contentFit="contain"
+      accessibilityIgnoresInvertColors
+    />
   );
 }
 
@@ -39,21 +26,22 @@ export function LogoWordmark() {
 
   const textStyle = {
     fontFamily,
+    fontWeight: "normal" as const,
   };
 
   return (
     <HStack className="items-center">
       <Heading
-        size="2xl"
-        className="text-foreground leading-0 tracking-tight"
+        size="3xl"
+        className="text-foreground leading-none tracking-tight"
         style={textStyle}
       >
         soc
       </Heading>
       <Heading
-        size="2xl"
+        size="3xl"
         style={textStyle}
-        className="underline  text-theme leading-0 tracking-tight"
+        className="underline text-theme leading-none tracking-tight"
       >
         ial
       </Heading>

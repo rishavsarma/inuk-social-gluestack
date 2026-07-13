@@ -108,7 +108,7 @@ const ListHeader = ({
   showBackButton,
 }: ListHeaderProps) => {
   const userDetail = {
-    name: profile.firstName + " " + profile.lastName,
+    name: profile.givenName,
     cover: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.coverPhoto}/jpeg/720`,
     avatar: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.avatar}/jpeg/720`,
     username: profile.username,
@@ -143,7 +143,7 @@ const ListHeader = ({
               accessibilityLabel={t("common.go_back")}
               className="rounded-full h-12 w-12 opacity-80 "
             >
-              <Icon as={ArrowLeftIcon} className="size-5 text-white" />
+              <Icon as={ArrowLeftIcon} className="size-5 text-primary" />
             </Button>
           ) : (
             <Button
@@ -242,7 +242,9 @@ const ListHeader = ({
                 count: userDetail?.followers || 0,
               })}
               onPress={() =>
-                router.push(ROUTES.USER.NETWORK(profile.id, "followers") as Href)
+                router.push(
+                  ROUTES.USER.NETWORK(profile.id, "followers") as Href,
+                )
               }
               className="items-center active:opacity-70"
             >
@@ -260,7 +262,9 @@ const ListHeader = ({
           >
             <Button
               onPress={() =>
-                router.push(ROUTES.USER.NETWORK(profile.id, "following") as Href)
+                router.push(
+                  ROUTES.USER.NETWORK(profile.id, "following") as Href,
+                )
               }
               variant="ghost"
               accessibilityRole="button"

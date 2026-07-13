@@ -50,12 +50,16 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function fetchFileAsBlob(uri: string): Promise<Blob> {
+async function fetchFileAsArrayBuffer(uri: string): Promise<ArrayBuffer> {
   const response = await fetch(uri);
   if (!response.ok) {
     throw new Error(`Failed to fetch file: ${response.statusText}`);
   }
-  return await response.blob();
+  // Reading as ArrayBuffer (rather than Blob) avoids React Native's Blob
+  // polyfill, which throws "Creating blobs from 'ArrayBuffer' and
+  // 'ArrayBufferView' are not supported" when slicing a blob backed by
+  // a local file on-device.
+  return await response.arrayBuffer();
 }
 
 // --------------------------
@@ -63,7 +67,7 @@ async function fetchFileAsBlob(uri: string): Promise<Blob> {
 // --------------------------
 async function uploadPart(
   part: PartInfo,
-  fileBlob: Blob,
+  fileBuffer: ArrayBuffer,
   partSize: number,
   fileSize: number,
   contentType: string
@@ -73,8 +77,8 @@ async function uploadPart(
   const start = (partNumber - 1) * partSize;
   const end = Math.min(start + partSize, fileSize);
 
-  // Extract the chunk as a blob
-  const chunk = fileBlob.slice(start, end, contentType);
+  // Extract the chunk as a plain ArrayBuffer slice (not a Blob slice)
+  const chunk = fileBuffer.slice(start, end);
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
@@ -131,9 +135,9 @@ export async function uploadFileMultipart(options: UploadOptions): Promise<strin
   }
 
   try {
-    // Get file as blob
-    const fileBlob = await fetchFileAsBlob(fileUri);
-    const fileSize = fileBlob.size;
+    // Get file as an ArrayBuffer
+    const fileBuffer = await fetchFileAsArrayBuffer(fileUri);
+    const fileSize = fileBuffer.byteLength;
 
     // Extract file extension from fileName
     const fileExtension = fileName.split('.').pop() || '';
@@ -195,7 +199,7 @@ export async function uploadFileMultipart(options: UploadOptions): Promise<strin
     for (let i = 0; i < partsInfo.length; i += MAX_WORKERS) {
       const batch = partsInfo.slice(i, i + MAX_WORKERS);
       const batchPromises = batch.map((part) =>
-        uploadPart(part, fileBlob, partSize, fileSize, contentType)
+        uploadPart(part, fileBuffer, partSize, fileSize, contentType)
       );
 
       const results = await Promise.all(batchPromises);

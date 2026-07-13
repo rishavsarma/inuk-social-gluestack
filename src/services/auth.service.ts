@@ -95,4 +95,18 @@ export const authService = {
     );
     return data;
   },
+
+  validateUsername: async (username: string) => {
+    const { data } = await api.get<ValidateUsernameResponse>(
+      `/auth/validate/username/${encodeURIComponent(username)}`,
+    );
+    return data;
+  },
+
+  validateReferralCode: async (code: string) => {
+    const { data } = await api.get<ValidateReferralCodeResponse>(
+      `/auth/validate/referral-code/${encodeURIComponent(code)}`,
+    );
+    return data;
+  },
 };

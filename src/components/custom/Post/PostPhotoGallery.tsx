@@ -4,7 +4,12 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import {
+  Button,
+  ButtonIcon,
+  ButtonSpinner,
+  ButtonText,
+} from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import {
@@ -31,6 +36,8 @@ import Animated, {
 
 const PostPhotoGallery = React.memo(function PostMediaGallery({
   post,
+  onFollowPress,
+  isFollowLoading,
 }: PostMediaGalleryProps) {
   const { t } = useTranslation();
   const [currentMediaIndex, setCurrentMediaIndex] = React.useState(0);
@@ -39,6 +46,7 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
 
   const media = post.post.media;
   const is_me = post.author.is_me;
+  const isFollowing = post.author.is_following;
   const createdAt = useTimeAgo(post.post.created_at);
 
   if (!media || media.length === 0) {
@@ -143,11 +151,37 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
                 </Text>
               </VStack>
               {!is_me && (
-                <Button variant="theme" className="rounded-full">
-                  <ButtonIcon as={UserPlus} className="text-white" />
-                  <ButtonText className="text-white">
-                    {t("post_detail.follow")}
-                  </ButtonText>
+                <Button
+                  variant={"theme"}
+                  className="rounded-full"
+                  onPress={onFollowPress}
+                  disabled={isFollowLoading}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    isFollowing
+                      ? t("network.unfollow_a11y", {
+                          name: post.author.display_name,
+                        })
+                      : t("network.follow_a11y", {
+                          name: post.author.display_name,
+                        })
+                  }
+                >
+                  {isFollowLoading ? (
+                    <ButtonSpinner color={isFollowing ? undefined : "white"} />
+                  ) : (
+                    <>
+                      <ButtonIcon
+                        as={UserPlus}
+                        className={isFollowing ? "" : "text-white"}
+                      />
+                      <ButtonText className={isFollowing ? "" : "text-white"}>
+                        {isFollowing
+                          ? t("network.following_btn")
+                          : t("network.follow")}
+                      </ButtonText>
+                    </>
+                  )}
                 </Button>
               )}
             </HStack>

@@ -17,6 +17,7 @@ export const ROUTES = {
     CONTEST: "/contest" as const,
     CREATE: "/create" as const,
     AWARDS: "/awards" as const,
+    DISCOVER: "/discover" as const,
     PROFILE: "/profile" as const,
     EXPLORE: "/explore" as const,
     NOTIFICATIONS: "/notifications" as const,
@@ -29,7 +30,7 @@ export const ROUTES = {
     CONTEST_DETAILS: (id: string | number) => `/contest/${id}` as const,
   },
   USER: {
-    PROFILE: (id: string | number) => `/profile/${id}` as const,
+    PROFILE: (id: string | number) => `/(tabs)/profile?id=${id}` as const,
     NETWORK: (userId: string | number, tab: "followers" | "following") =>
       `/profile/network?userId=${userId}&tab=${tab}` as const,
     MENU: "/profile-menu" as const,

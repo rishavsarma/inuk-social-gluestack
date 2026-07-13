@@ -73,6 +73,8 @@ export default function TermsScreen() {
     <KeyboardAvoidingScrollView
       title={t("legal.terms.title")}
       contentContainerStyle={{ paddingBottom: 100 }}
+      showBackButton
+      alwaysShowBar
     >
       <VStack space="md" className="pt-4">
         {/* Banner Section */}

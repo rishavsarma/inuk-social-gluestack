@@ -1,4 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
 @import "tailwindcss/theme.css" layer(theme);
 @import "tailwindcss/preflight.css" layer(base);
 @import "tailwindcss/utilities.css";
@@ -130,26 +129,4 @@
   --color-accent: rgb(var(--accent));
   --color-accent-foreground: rgb(var(--accent-foreground));
   --color-theme: rgb(var(--theme));
-
-  /* Custom Font mappings for Tailwind/NativeWind v4 */
-  /* --font-sans: Inter_400Regular, Inter;
-  --font-body: Inter_400Regular, Inter;
-  --font-heading: Inter_700Bold, Inter; */
 }
-
-/* Custom weight mapping rules for Native React Native to select the correct font file */
-/* .font-normal {
-  font-family: Inter_400Regular;
-}
-.font-medium {
-  font-family: Inter_500Medium;
-}
-.font-semibold {
-  font-family: Inter_600SemiBold;
-}
-.font-bold {
-  font-family: Inter_700Bold;
-}
-.font-extrabold {
-  font-family: Inter_700Bold;
-} */

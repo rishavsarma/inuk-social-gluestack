@@ -1,5 +1,6 @@
 import { useAuthStore } from "@/stores/auth.store";
 import { api } from "./api";
+import { getFollowingConnectionSafe, profileService } from "./profile.service";
 
 export const postService = {
   createPost: async (payload: any) => {
@@ -224,7 +225,7 @@ export const postService = {
 
     const [
       profileRes,
-      followingRes,
+      following,
       postRes,
       photoRes,
       exifRes,
@@ -233,7 +234,7 @@ export const postService = {
       statRes,
     ] = await Promise.all([
       api.get(`/iam/profile/search?search=${profileSearchStr}`),
-      api.get(`/iam/following/connection/${profileId}`),
+      getFollowingConnectionSafe(profileId, myProfileId),
       api.get(`/content/api/post/search?search=${postSearchStr}`),
       api.get(
         `/content/api/photo/search?search=${mediaSearchStr}&sort=${mediaSortStr}`,
@@ -256,7 +257,7 @@ export const postService = {
 
     return {
       profile: profileRes.data,
-      following: followingRes.data,
+      following,
       post: postRes.data,
       media: photoRes.data,
       exif: exifRes.data,
@@ -284,7 +285,7 @@ export const postService = {
 
     const [
       profileRes,
-      followingRes,
+      following,
       postRes,
       videoRes,
       exifRes,
@@ -293,7 +294,7 @@ export const postService = {
       statRes,
     ] = await Promise.all([
       api.get(`/iam/profile/search?search=${profileSearchStr}`),
-      api.get(`/iam/following/connection/${profileId}`),
+      getFollowingConnectionSafe(profileId, myProfileId),
       api.get(`/content/api/post/search?search=${postSearchStr}`),
       api.get(
         `/content/api/video/search?search=${mediaSearchStr}&sort=${mediaSortStr}`,
@@ -316,7 +317,7 @@ export const postService = {
 
     return {
       profile: profileRes.data,
-      following: followingRes.data,
+      following,
       post: postRes.data,
       media: videoRes.data,
       exif: exifRes.data,
@@ -398,20 +399,46 @@ export const postService = {
       new Set(postsArray.map((p: any) => p.profileId).filter(Boolean)),
     ) as string[];
 
-    // Fetch the profiles dynamically in parallel
+    // Fetch the profiles, and whether the current user follows each one, in parallel
     const profilePromises = uniqueProfileIds.map(async (profileId) => {
-      try {
-        const { data: profileRes } = await api.get(`/iam/profile/${profileId}`);
-        const profile = profileRes?.data?.[0] || profileRes?.data || profileRes;
-        return { profileId, profile };
-      } catch (e) {
-        console.warn(`Failed to fetch profile for ID ${profileId}:`, e);
-        return { profileId, profile: null };
-      }
+      const profilePromise = (async () => {
+        try {
+          const { data: profileRes } = await api.get(
+            `/iam/profile/${profileId}`,
+          );
+          return profileRes?.data?.[0] || profileRes?.data || profileRes;
+        } catch (e) {
+          console.warn(`Failed to fetch profile for ID ${profileId}:`, e);
+          return null;
+        }
+      })();
+
+      const isFollowingPromise = (async () => {
+        if (!myProfileId || profileId === myProfileId) return false;
+        try {
+          const connection =
+            await profileService.getFollowingConnection(profileId);
+
+          return (
+            connection?.status === "ACTIVE" || connection?.status === "PENDING"
+          );
+        } catch (e) {
+          return false;
+        }
+      })();
+
+      const [profile, isFollowing] = await Promise.all([
+        profilePromise,
+        isFollowingPromise,
+      ]);
+      return { profileId, profile, isFollowing };
     });
     const profilesRes = await Promise.all(profilePromises);
     const profileMap = new Map(
       profilesRes.map((p) => [p.profileId, p.profile]),
+    );
+    const followingMap = new Map(
+      profilesRes.map((p) => [p.profileId, p.isFollowing]),
     );
 
     // Fetch media, stats, and like interaction status for all retrieved posts in parallel
@@ -524,16 +551,19 @@ export const postService = {
         stats.find((s: any) => s.statType === "SAVE")?.count || 0;
       const is_liked = postDetail?.isLiked || false;
 
+      const authorId = post.profileId || "84064d0c11c84e15bc3df02a2080ffe6";
+
       return {
         id: post.id,
         type: (post.postType || "photo").toLowerCase() as any,
         author: {
-          id: post.profileId || "84064d0c11c84e15bc3df02a2080ffe6",
+          id: authorId,
           username,
           display_name,
           avatar_url,
           is_verified: false,
-          is_following: false,
+          is_following: followingMap.get(post.profileId) ?? false,
+          is_me: !!myProfileId && authorId === myProfileId,
         },
         caption: post.description || post.title || "",
         media: mappedMedia,

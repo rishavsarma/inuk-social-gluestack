@@ -13,8 +13,9 @@ const TabLayout = () => {
         screenOptions={{ headerShown: false }}
       >
         <Tabs.Screen name="feed" />
-        <Tabs.Screen name="contest" />
+        <Tabs.Screen name="discover" />
         <Tabs.Screen name="create" />
+        <Tabs.Screen name="contest" />
         <Tabs.Screen name="awards" />
         <Tabs.Screen name="profile" />
       </Tabs>

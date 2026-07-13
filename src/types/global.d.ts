@@ -53,13 +53,12 @@ interface SetPasswordResponse {
 }
 
 interface SetProfilePayload {
-  token: string;
+  avatar: string;
   username: string;
-  email: string;
-  name?: string;
-  bio?: string;
-  dob?: string;
-  location?: string;
+  givenName: string;
+  dob: string;
+  location: string;
+  referredBy: string;
 }
 
 interface SetProfileResponse {
@@ -290,6 +289,8 @@ interface PostMedia {
 
 interface PostMediaGalleryProps {
   post: PostDetail;
+  onFollowPress?: () => void;
+  isFollowLoading?: boolean;
 }
 
 interface PostCommentAuthorProfile {
@@ -382,6 +383,37 @@ interface NetworkProfileItem {
   isFollowing?: boolean;
 }
 
+interface FollowConnectionResponse {
+  followerId?: string;
+  followedId?: string;
+  type?: "SINGLE" | "MUTUAL";
+  status?: "PENDING" | "ACTIVE" | "DECLINED" | "BLOCKED";
+}
+
+interface TrendingTopic {
+  id: string;
+  tag: string;
+  postsCount: number;
+}
+
+interface DiscoverPost {
+  id: string;
+  type: "image" | "video";
+  likesCount: number;
+}
+
+type ContestStatus = "ACTIVE" | "UPCOMING" | "ENDED";
+
+interface ContestItem {
+  id: string;
+  title: string;
+  description: string;
+  status: ContestStatus;
+  prize: string;
+  entriesCount: number;
+  endsAt: number;
+}
+
 interface PaginatedListResponse<T> {
   data: T[];
   total?: number;
@@ -398,6 +430,42 @@ interface ChangePasswordPayload {
 interface ChangePasswordResponse {
   status?: string;
   data?: any;
+}
+
+interface ValidateUsernameResponse {
+  status: "AVAILABLE" | "UNAVAILABLE" | string;
+  message?: string;
+  data?: null;
+}
+
+interface ReferralCodeReferrer {
+  givenName?: string;
+  coverPhoto?: string | null;
+  avatar?: string;
+  username?: string;
+}
+
+interface ValidateReferralCodeResponse {
+  status: "VALID" | "INVALID" | string;
+  message?: string;
+  data?: ReferralCodeReferrer | null;
+}
+
+interface LocationSearchResult {
+  id: string;
+  slug: string;
+  type: string;
+  settlementClass: string | null;
+  name: string;
+  nameEn?: string;
+  localName?: string;
+  breadcrumb?: string;
+  centroid?: {
+    lat: number;
+    lng: number;
+  };
+  primaryPinCode?: string | null;
+  matchedAlias?: string | null;
 }
 
 interface NotificationItem {

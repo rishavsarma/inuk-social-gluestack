@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { router } from "expo-router";
 
@@ -24,6 +24,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Modal, Platform } from "react-native";
 
+import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
 import {
   Button,
@@ -45,6 +46,7 @@ import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { ChevronDownIcon, CircleIcon, Icon } from "@/components/ui/icon";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
 import { LinearGradient } from "@/components/ui/linear-gradient";
 import { Pressable } from "@/components/ui/pressable";
 import {
@@ -65,6 +67,7 @@ import {
   SelectItem,
   SelectPortal,
   SelectTrigger,
+  SelectVirtualizedList,
 } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Spinner } from "@/components/ui/spinner";
@@ -80,6 +83,7 @@ import {
 import { useAuthStore } from "@/stores/auth.store";
 
 import { useGetProfile, useUpdateProfile } from "@/hooks/useProfile";
+import { useSearchLocations } from "@/hooks/useLocation";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 
@@ -172,12 +176,14 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
 
-  const [name, setName] = useState(
-    [profile.firstName, profile.lastName].filter(Boolean).join(" "),
-  );
+  const [name, setName] = useState(profile.givenName);
   const [username, setUsername] = useState(profile.username || "");
   const [bio, setBio] = useState(profile.bio || "");
   const [location, setLocation] = useState(profile.location || "");
+  const [selectedLocation, setSelectedLocation] =
+    useState<LocationSearchResult | null>(null);
+  const [locationQuery, setLocationQuery] = useState("");
+  const [debouncedLocationQuery, setDebouncedLocationQuery] = useState("");
   const [gender, setGender] = useState<string>(profile.gender || "");
   const [dob, setDob] = useState<Date | undefined>(
     profile.dob ? new Date(profile.dob) : undefined,
@@ -190,6 +196,26 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
   const [nameError, setNameError] = useState<string | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => setDebouncedLocationQuery(locationQuery),
+      300,
+    );
+    return () => clearTimeout(timeout);
+  }, [locationQuery]);
+
+  const { data: locationSuggestions, isFetching: isLocationSearchLoading } =
+    useSearchLocations(debouncedLocationQuery);
+
+  const handleSelectLocation = (item: LocationSearchResult) => {
+    const label = item.breadcrumb
+      ? `${item.name}, ${item.breadcrumb}`
+      : item.name;
+    setSelectedLocation(item);
+    setLocation(label);
+    setLocationQuery("");
+  };
 
   const handlePickImage = async (target: "avatar" | "cover") => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -608,17 +634,125 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                   {t("edit_profile.location")}
                 </FormControlLabelText>
               </FormControlLabel>
-              <Input className="">
-                <InputSlot className="">
-                  <InputIcon as={MapPin} className="text-muted-foreground" />
-                </InputSlot>
-                <InputField
-                  placeholder={t("edit_profile.location_placeholder")}
-                  value={location}
-                  onChangeText={setLocation}
-                  className="text-base text-foreground"
-                />
-              </Input>
+              <Select
+                selectedValue={selectedLocation?.id ?? ""}
+                onValueChange={(val) => {
+                  const found = locationSuggestions?.find(
+                    (item) => item.id === val,
+                  );
+                  if (found) handleSelectLocation(found);
+                }}
+              >
+                <SelectTrigger variant="outline" size="lg">
+                  <SelectIcon
+                    as={MapPin}
+                    className="ml-3 text-muted-foreground"
+                  />
+                  <SelectInput
+                    value={location}
+                    placeholder={t("edit_profile.location_placeholder")}
+                    className="flex-1 text-base text-foreground pointer-events-none px-3"
+                  />
+                  <SelectIcon
+                    as={ChevronDownIcon}
+                    className="mr-3 text-muted-foreground"
+                  />
+                </SelectTrigger>
+                <SelectPortal snapPoints={[80]}>
+                  <SelectBackdrop />
+                  <SelectContent className="h-full w-full bg-background">
+                    <SelectDragIndicatorWrapper className="pt-4 pb-2">
+                      <SelectDragIndicator />
+                    </SelectDragIndicatorWrapper>
+                    <KeyboardAvoidingView className="w-full flex-1">
+                      <Box className="w-full px-1 pb-2">
+                        <Input>
+                          <InputField
+                            autoFocus
+                            placeholder={t("auth.location_search_placeholder")}
+                            value={locationQuery}
+                            onChangeText={setLocationQuery}
+                            className="text-base text-foreground"
+                          />
+                        </Input>
+                      </Box>
+                      {isLocationSearchLoading ? (
+                        <HStack className="items-center justify-center py-6 w-full">
+                          <Spinner size="small" />
+                        </HStack>
+                      ) : (
+                        <SelectVirtualizedList
+                          data={locationSuggestions ?? []}
+                          keyExtractor={(item: unknown) =>
+                            (item as LocationSearchResult).id
+                          }
+                          getItemCount={(data: unknown) =>
+                            (data as LocationSearchResult[]).length
+                          }
+                          getItem={(data: unknown, index: number) =>
+                            (data as LocationSearchResult[])[index]
+                          }
+                          keyboardShouldPersistTaps="handled"
+                          renderItem={({ item }: { item: unknown }) => {
+                            const suggestion = item as LocationSearchResult;
+                            return (
+                              <Box
+                                key={suggestion.id}
+                                className="relative w-full"
+                              >
+                                <SelectItem
+                                  label=""
+                                  value={suggestion.id}
+                                  className="min-h-16 py-3"
+                                />
+                                <Box
+                                  pointerEvents="none"
+                                  className="absolute inset-0 flex-row items-center justify-between px-3"
+                                >
+                                  <VStack space="xs" className="flex-1 pr-2">
+                                    <Text
+                                      numberOfLines={1}
+                                      className="text-sm font-medium text-foreground"
+                                    >
+                                      {suggestion.name}
+                                    </Text>
+                                    {!!suggestion.breadcrumb && (
+                                      <Text
+                                        numberOfLines={1}
+                                        className="text-xs text-muted-foreground"
+                                      >
+                                        {suggestion.breadcrumb}
+                                      </Text>
+                                    )}
+                                  </VStack>
+                                  {!!suggestion.settlementClass && (
+                                    <Badge
+                                      variant="outline"
+                                      className="rounded-full"
+                                    >
+                                      <BadgeText className="capitalize text-xs text-center">
+                                        {suggestion.settlementClass}
+                                      </BadgeText>
+                                    </Badge>
+                                  )}
+                                </Box>
+                              </Box>
+                            );
+                          }}
+                          ListEmptyComponent={
+                            <Text className="text-xs text-muted-foreground px-1 py-6 text-center w-full">
+                              {debouncedLocationQuery.trim().length < 2
+                                ? t("auth.location_search_hint")
+                                : t("auth.location_no_results")}
+                            </Text>
+                          }
+                          className="w-full flex-1"
+                        />
+                      )}
+                    </KeyboardAvoidingView>
+                  </SelectContent>
+                </SelectPortal>
+              </Select>
             </VStack>
           </FormControl>
         </Card>
@@ -731,6 +865,8 @@ function EditProfileScreen() {
   const profileId = user?.profileId || "";
 
   const { data: profileData, isLoading } = useGetProfile(profileId);
+
+  console.log("profileData", profileData?.profile);
 
   return (
     <KeyboardAvoidingScrollView

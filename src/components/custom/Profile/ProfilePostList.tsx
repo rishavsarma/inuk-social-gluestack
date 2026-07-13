@@ -48,8 +48,6 @@ const ProfileGridItem = ({
         : `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${item.mediaId}/jpeg/720`,
   };
 
-  console.log("postData", postData);
-
   const typeStr = (item.type || item.postType || "photo").toLowerCase();
   const isText = typeStr === "text";
   const isAudio = typeStr === "audio";

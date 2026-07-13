@@ -1,8 +1,18 @@
-import { PhotoEditor } from "@/components/custom/PhotoEditor";
+import ExpoImageCropTool from "@bsky.app/expo-image-crop-tool";
 import * as ImagePicker from "expo-image-picker";
+import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, ArrowRight } from "lucide-react-native";
-import { useState } from "react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  AtSign,
+  Calendar,
+  Camera,
+  Gift,
+  MapPin,
+  User,
+} from "lucide-react-native";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Modal, Platform, Pressable, useColorScheme, View } from "react-native";
 import switchTheme from "react-native-theme-switch-animation";
@@ -23,7 +33,9 @@ import {
   ButtonSpinner,
   ButtonText,
 } from "@/components/ui/button";
+import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
 import {
   FormControl,
   FormControlError,
@@ -34,103 +46,163 @@ import {
   FormControlLabelText,
 } from "@/components/ui/form-control";
 import { HStack } from "@/components/ui/hstack";
-import { Input, InputField } from "@/components/ui/input";
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+import {
+  Select,
+  SelectBackdrop,
+  SelectContent,
+  SelectDragIndicator,
+  SelectDragIndicatorWrapper,
+  SelectIcon,
+  SelectInput,
+  SelectItem,
+  SelectPortal,
+  SelectTrigger,
+  SelectVirtualizedList,
+} from "@/components/ui/select";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
+import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
 import {
+  Avatar,
+  AvatarFallbackText,
+  AvatarImage,
+} from "@/components/ui/avatar";
+import {
+  ChevronDownIcon,
   ChevronRightIcon,
+  CheckCircleIcon,
+  CloseCircleIcon,
   CloseIcon,
   EditIcon,
   EyeOffIcon,
   Icon,
 } from "@/components/ui/icon";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
+import { useSearchLocations } from "@/hooks/useLocation";
+import {
+  useValidateReferralCode,
+  useValidateUsername,
+  useSetProfileDetails,
+} from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
 import { useSettingStore } from "@/stores/setting.store";
+import { useUpdateProfile } from "@/hooks/useProfile";
+import Logo from "@/components/custom/Logo";
+import { buildUsernameSuggestions } from "@/utils/username";
+import { Badge, BadgeText } from "@/components/ui/badge";
+import {
+  getContentTypeFromExtension,
+  uploadFileMultipart,
+} from "@/services/upload";
+import { differenceInYears, format, subYears } from "date-fns";
 
-const FILTER_OVERLAYS: Record<string, string> = {
-  none: "",
-  sepia: "bg-[#e3a857]/20",
-  cool: "bg-[#00e1ff]/15",
-  warm: "bg-[#ffaa00]/15",
-  vintage: "bg-[#ff009d]/10",
-};
-
-const FILTERS = [
-  { id: "none", nameKey: "auth.filter_none" },
-  { id: "sepia", nameKey: "auth.filter_sepia" },
-  { id: "cool", nameKey: "auth.filter_cool" },
-  { id: "warm", nameKey: "auth.filter_warm" },
-  { id: "vintage", nameKey: "auth.filter_vintage" },
-];
+const AVATAR_SIZE = 512;
+const MIN_AGE_YEARS = 13;
 
 const SetProfile = () => {
   const bottomInset = useAppBottomInset();
   const { t } = useTranslation();
   const router = useRouter();
-  const params = useLocalSearchParams<{
-    phone?: string;
-    countryCode?: string;
-    token?: string;
-  }>();
-
-  const phone = params.phone || "";
-  const countryCode = params.countryCode || "+91";
-  const token = params.token || "";
-
-  const { setAuth } = useAuthStore();
+  const token = useAuthStore((state) => state.token);
 
   // Core fields
   const [username, setUsername] = useState("");
+  const [usernameManuallyEdited, setUsernameManuallyEdited] = useState(false);
   const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [bio, setBio] = useState("");
-  const [dob, setDob] = useState<Date | undefined>(new Date(2000, 0, 1));
+  const maxDob = useMemo(() => subYears(new Date(), MIN_AGE_YEARS), []);
+  const [dob, setDob] = useState<Date>(maxDob);
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [location, setLocation] = useState("");
+  const [selectedLocation, setSelectedLocation] =
+    useState<LocationSearchResult | null>(null);
+  const [locationQuery, setLocationQuery] = useState("");
+  const [debouncedLocationQuery, setDebouncedLocationQuery] = useState("");
   const [referralCode, setReferralCode] = useState("");
+  const [debouncedReferralCode, setDebouncedReferralCode] = useState("");
+  const [debouncedUsername, setDebouncedUsername] = useState("");
+
+  const usernameSuggestions = useMemo(
+    () => buildUsernameSuggestions(name),
+    [name],
+  );
+
+  const handleNameChange = (val: string) => {
+    setName(val);
+    if (!usernameManuallyEdited) {
+      const [firstSuggestion] = buildUsernameSuggestions(val);
+      setUsername(firstSuggestion ?? "");
+    }
+  };
+
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => setDebouncedUsername(username.trim().toLowerCase()),
+      400,
+    );
+    return () => clearTimeout(timeout);
+  }, [username]);
+
+  const { data: usernameValidation, isFetching: isCheckingUsername } =
+    useValidateUsername(debouncedUsername);
+
+  const isUsernameAvailable = usernameValidation?.status === "AVAILABLE";
+  const isUsernameUnavailable = usernameValidation?.status === "UNAVAILABLE";
+
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => setDebouncedLocationQuery(locationQuery),
+      300,
+    );
+    return () => clearTimeout(timeout);
+  }, [locationQuery]);
+
+  const { data: locationSuggestions, isFetching: isLocationSearchLoading } =
+    useSearchLocations(debouncedLocationQuery);
+
+  const locationLabel = selectedLocation
+    ? selectedLocation.breadcrumb
+      ? `${selectedLocation.name}, ${selectedLocation.breadcrumb}`
+      : selectedLocation.name
+    : "";
+
+  useEffect(() => {
+    const timeout = setTimeout(
+      () => setDebouncedReferralCode(referralCode.trim()),
+      400,
+    );
+    return () => clearTimeout(timeout);
+  }, [referralCode]);
+
+  const { data: referralValidation, isFetching: isCheckingReferralCode } =
+    useValidateReferralCode(debouncedReferralCode);
+
+  const referrer =
+    referralValidation?.status === "VALID" ? referralValidation.data : null;
+
+  const handleSelectLocation = (item: LocationSearchResult) => {
+    setSelectedLocation(item);
+    setLocationQuery("");
+    if (locationError) setLocationError(null);
+  };
 
   // Avatar fields
-  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
-  const [avatarFilter, setAvatarFilter] = useState("none");
+  const [avatarUrl, setAvatarUrl] = useState<string>();
+  const [isProcessingAvatar, setIsProcessingAvatar] = useState(false);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
 
-  // Image Editor state
-  const [showEditorModal, setShowEditorModal] = useState(false);
-  const [editorUri, setEditorUri] = useState<string>("");
-
-  const [isLoading, setIsLoading] = useState(false);
   const [showAvatarSheet, setShowAvatarSheet] = useState(false);
 
   // Field validation states
+  const [avatarError, setAvatarError] = useState<string | null>(null);
+  const [nameError, setNameError] = useState<string | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
   const [dobError, setDobError] = useState<string | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-
-  const { theme, setTheme } = useSettingStore();
-  const systemColorScheme = useColorScheme();
-  const activeTheme = theme === "system" ? systemColorScheme : theme;
-  const isDark = activeTheme === "dark";
-
-  const toggleTheme = () => {
-    switchTheme({
-      switchThemeFunction: () => {
-        setTheme(isDark ? "light" : "dark");
-      },
-      animationConfig: {
-        type: "circular",
-        duration: 800,
-        startingPoint: {
-          cxRatio: 0.9,
-          cyRatio: 0.05,
-        },
-      },
-    });
-  };
+  const [referralError, setReferralError] = useState<string | null>(null);
 
   const handleImagePickerResponse = async (useCamera: boolean) => {
     setShowAvatarSheet(false);
@@ -148,49 +220,76 @@ const SetProfile = () => {
       }
 
       const pickerOptions: ImagePicker.ImagePickerOptions = {
-        allowsEditing: true,
-        aspect: [1, 1],
-        quality: 0.8,
-        base64: Platform.OS !== "web",
+        quality: 1,
       };
 
       const result = useCamera
         ? await ImagePicker.launchCameraAsync(pickerOptions)
         : await ImagePicker.launchImageLibraryAsync(pickerOptions);
 
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const asset = result.assets[0];
+      if (result.canceled || !result.assets || result.assets.length === 0) {
+        return;
+      }
 
-        // Open Editor Modal with picked image (use local file URI for manipulations)
-        setEditorUri(asset.uri);
-        setShowEditorModal(true);
+      const asset = result.assets[0];
+
+      setIsProcessingAvatar(true);
+      try {
+        const cropped = await ExpoImageCropTool.openCropperAsync({
+          imageUri: asset.uri,
+          shape: "rectangle",
+          aspectRatio: 1,
+          rotationEnabled: true,
+          format: "jpeg",
+          compressImageQuality: 0.9,
+        });
+
+        const final = await manipulateAsync(
+          cropped.path,
+          [{ resize: { width: AVATAR_SIZE, height: AVATAR_SIZE } }],
+          { compress: 0.85, format: SaveFormat.JPEG },
+        );
+        setAvatarUrl(final.uri);
+        if (avatarError) setAvatarError(null);
+      } catch (error) {
+        // User cancelled the native cropper — nothing to do.
+        console.warn("Avatar crop cancelled or failed:", error);
+      } finally {
+        setIsProcessingAvatar(false);
       }
     } catch (error) {
       console.warn("Error picking image:", error);
     }
   };
 
-  // Save Callback from custom PhotoEditor
-  const handleSaveEditedImage = (editedUri: string, filterId: string) => {
-    setAvatarUrl(editedUri);
-    setAvatarFilter(filterId);
-    setShowEditorModal(false);
-  };
+  const { isPending, mutateAsync: setProfileDetails } = useSetProfileDetails();
 
   const handleCompleteProfile = async () => {
+    setAvatarError(null);
+    setNameError(null);
     setUsernameError(null);
-    setEmailError(null);
     setDobError(null);
     setLocationError(null);
+    setReferralError(null);
 
     const cleanedUsername = username.trim().toLowerCase();
-    const cleanedEmail = email.trim();
     const cleanedName = name.trim();
-    const cleanedBio = bio.trim();
-    const cleanedLocation = location.trim();
+    const cleanedLocation = selectedLocation?.id;
     const cleanedReferral = referralCode.trim();
 
     let hasError = false;
+
+    // Validate Avatar
+    if (!avatarUrl) {
+      setAvatarError(t("auth.avatar_error_required"));
+      hasError = true;
+    }
+
+    // Validate Name
+    if (!cleanedName) {
+      setNameError(t("auth.name_error_required"));
+      hasError = true;
+    }
 
     // Validate Username
     const usernameRegex = /^[a-z0-9_]{3,}$/;
@@ -202,19 +301,12 @@ const SetProfile = () => {
       hasError = true;
     }
 
-    // Validate Email
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!cleanedEmail) {
-      setEmailError(t("auth.email_error_invalid"));
-      hasError = true;
-    } else if (!emailRegex.test(cleanedEmail)) {
-      setEmailError(t("auth.email_error_invalid"));
-      hasError = true;
-    }
-
     // Validate DOB
     if (!dob) {
       setDobError(t("auth.dob_error_required"));
+      hasError = true;
+    } else if (differenceInYears(new Date(), dob) < MIN_AGE_YEARS) {
+      setDobError(t("auth.dob_error_min_age", { age: MIN_AGE_YEARS }));
       hasError = true;
     }
 
@@ -224,414 +316,707 @@ const SetProfile = () => {
       hasError = true;
     }
 
-    // if (hasError) return;
+    // Validate Referral Code
+    if (!cleanedReferral) {
+      setReferralError(t("auth.referral_code_error_required"));
+      hasError = true;
+    } else if (cleanedReferral.length < 6) {
+      setReferralError(t("auth.referral_code_invalid"));
+      hasError = true;
+    }
 
-    setIsLoading(true);
-    setTimeout(() => {
-      router.push({
-        pathname: ROUTES.AUTH.PASSWORD_LOGIN,
-        params: { phone, countryCode },
+    if (hasError) return;
+    if (!avatarUrl || !cleanedLocation) return;
+
+    setIsUploadingAvatar(true);
+    let avatarMediaId: string;
+    try {
+      const fileName = `avatar-${Date.now()}.jpg`;
+      avatarMediaId = await uploadFileMultipart({
+        fileUri: avatarUrl,
+        fileName,
+        contentType: getContentTypeFromExtension(fileName),
+        mediaType: "AVATAR",
+        visibility: "ALL",
+        token: token || "",
       });
-      setIsLoading(false);
-    }, 2000);
+    } catch (error) {
+      console.warn("Avatar upload failed:", error);
+      setAvatarError(t("auth.avatar_upload_error"));
+      setIsUploadingAvatar(false);
+      return;
+    }
+    setIsUploadingAvatar(false);
 
-    // setIsLoading(true);
-    // try {
-    //   const response = await authService.setProfile(
-    //     {
-    //       username: cleanedUsername,
-    //       email: cleanedEmail,
-    //       name: cleanedName || undefined,
-    //       bio: cleanedBio || undefined,
-    //       avatarUrl: avatarUrl || undefined,
-    //       dob: dob ? dob.toISOString().split("T")[0] : undefined,
-    //       location: cleanedLocation,
-    //       referralCode: cleanedReferral || undefined,
-    //       avatarFilter: avatarFilter !== "none" ? avatarFilter : undefined,
-    //     },
-    //     token,
-    //   );
+    const payload = {
+      avatar: avatarMediaId,
+      givenName: cleanedName,
+      username: cleanedUsername,
+      dob: dob.toISOString().split("T")[0],
+      location: cleanedLocation,
+      referredBy: cleanedReferral,
+    };
 
-    //   // Save details to auth store
-    //   setAuth(response.user, token);
-
-    // Redirect to Tabs Flow
-    // router.replace(ROUTES.TABS.FEED);
-    // } catch (err: any) {
-    //   setUsernameError(err.message || t("auth.username_error_invalid"));
-    // } finally {
-    //   setIsLoading(false);
-    // }
+    console.log("payload", payload);
+    setProfileDetails(payload, {
+      onSuccess: () => {
+        router.replace(ROUTES.AUTH.HOME);
+      },
+      onError: (error) => {
+        console.error("Error setting profile details:", error);
+      },
+    });
   };
 
   return (
-    <KeyboardAvoidingScrollView>
-      <VStack className="flex-1 justify-end bg-background relative">
-        {/* Form Card */}
-        <Card
-          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none"
-          style={{ paddingBottom: bottomInset + 20 }}
+    <>
+      <KeyboardAvoidingScrollView>
+        <VStack className="flex-1 justify-end">
+          {/* Form Card */}
+          {/* <VStack
+          className="flex-1 items-center justify-center px-6 py-12"
+          space="md"
         >
-          {/* Title Section */}
-          {/* <VStack className="items-center justify-center px-6 pb-4" space="xs">
-            <Heading
-              size="2xl"
-              className="font-extrabold tracking-wider text-foreground"
-            >
-              {t("auth.set_profile_title")}
-            </Heading>
-            <Text className="text-sm text-muted-foreground text-center">
-              {t("auth.set_profile_subtitle")}
-            </Text>
-          </VStack> */}
-          <VStack space="lg">
-            {/* Avatar Picker Section */}
-            {/* <VStack className="items-center justify-center py-2">
-              <Pressable
-                onPress={() => setShowAvatarSheet(true)}
-                className="relative"
-              >
-                <Avatar className="w-24 h-24 rounded-full bg-secondary justify-center items-center border border-border overflow-hidden relative">
-                  {avatarUrl ? (
-                    <>
-                      <Image
-                        source={{ uri: avatarUrl }}
-                        className="w-full h-full rounded-full"
+          <Logo size={40} />
+        </VStack> */}
+          <Card
+            className="px-4 bg-card pt-8 shadow-none border-0 rounded-none rounded-t-4xl"
+            style={{ paddingBottom: bottomInset + 20 }}
+          >
+            {/* Title Section */}
+            <VStack space="lg">
+              {/* Avatar Picker Section */}
+              <VStack className="items-center justify-center py-2" space="xs">
+                <Pressable
+                  onPress={() => setShowAvatarSheet(true)}
+                  disabled={isProcessingAvatar}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("auth.avatar_picker_label")}
+                  className="relative"
+                >
+                  <Avatar
+                    className={`w-32 h-32 rounded-full bg-secondary border ${
+                      avatarError ? "border-destructive" : "border-border"
+                    }`}
+                  >
+                    {avatarUrl ? (
+                      <AvatarImage source={{ uri: avatarUrl }} />
+                    ) : (
+                      <Icon
+                        as={User}
+                        className="w-10 h-10 text-muted-foreground"
                       />
-                      {avatarFilter !== "none" && (
-                        <Box
-                          className={`absolute inset-0 ${FILTER_OVERLAYS[avatarFilter]} pointer-events-none rounded-full`}
-                        />
-                      )}
-                    </>
-                  ) : (
-                    <VStack className="items-center justify-center w-full h-full">
-                      <User className="w-10 h-10 text-muted-foreground" />
-                    </VStack>
-                  )}
-                </Avatar>
-                <Box className="absolute right-0 bottom-0 bg-primary p-2 rounded-full border-2 border-background shadow-lg">
-                  <Camera className="w-4 h-4 text-primary-foreground" />
-                </Box>
-              </Pressable>
-              <Text className="text-xs text-muted-foreground mt-2 font-medium">
-                {t("auth.avatar_picker_label")}
-              </Text>
-            </VStack> */}
-
-            {/* Username Input */}
-            <FormControl
-              isInvalid={!!usernameError}
-              isDisabled={isLoading}
-              className="w-full"
-            >
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.username_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
-                <Input>
-                  <InputField
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    placeholder={t("auth.username_placeholder")}
-                    value={username}
-                    onChangeText={(val) => {
-                      setUsername(val);
-                      if (usernameError) setUsernameError(null);
-                    }}
-                    className="text-base text-foreground"
-                  />
-                </Input>
-                <FormControlHelper>
-                  <FormControlHelperText>
-                    {t("auth.username_helper")}
-                  </FormControlHelperText>
-                </FormControlHelper>
-                {usernameError && (
-                  <FormControlError>
-                    <FormControlErrorText>{usernameError}</FormControlErrorText>
-                  </FormControlError>
+                    )}
+                  </Avatar>
+                  <Box className="absolute right-0 bottom-0 bg-primary p-2 rounded-full border-2 border-background shadow-lg">
+                    {isProcessingAvatar ? (
+                      <Spinner
+                        size="small"
+                        className="text-primary-foreground"
+                      />
+                    ) : (
+                      <Icon
+                        as={Camera}
+                        className="w-4 h-4 text-primary-foreground"
+                      />
+                    )}
+                  </Box>
+                </Pressable>
+                <Text className="text-xs text-muted-foreground font-medium">
+                  {t("auth.avatar_picker_label")}
+                </Text>
+                {avatarError && (
+                  <Text className="text-xs text-destructive">
+                    {avatarError}
+                  </Text>
                 )}
               </VStack>
-            </FormControl>
 
-            {/* Full Name Input */}
-            <FormControl isDisabled={isLoading} className="w-full">
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.name_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
-                <Input>
-                  <InputField
-                    placeholder={t("auth.name_placeholder")}
-                    value={name}
-                    onChangeText={setName}
-                    className="text-base text-foreground"
-                  />
-                </Input>
-              </VStack>
-            </FormControl>
-
-            {/* Date of Birth Input */}
-            <FormControl
-              isInvalid={!!dobError}
-              isDisabled={isLoading}
-              className="w-full"
-            >
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.dob_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
-                <Pressable onPress={() => setShowDatePicker(true)}>
-                  <Input pointerEvents="none">
+              {/* Full Name Input */}
+              <FormControl
+                isInvalid={!!nameError}
+                isDisabled={isPending}
+                className="w-full"
+              >
+                <VStack space="xs">
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-sm font-semibold">
+                      {t("auth.name_label")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+                  <Input>
+                    <InputSlot className="">
+                      <InputIcon as={User} className="text-muted-foreground" />
+                    </InputSlot>
                     <InputField
-                      value={dob ? dob.toISOString().split("T")[0] : ""}
-                      editable={false}
-                      placeholder={t("auth.dob_placeholder")}
-                      className="text-base text-foreground py-2 leading-normal"
+                      placeholder={t("auth.name_placeholder")}
+                      value={name}
+                      onChangeText={(val) => {
+                        handleNameChange(val);
+                        if (nameError) setNameError(null);
+                      }}
+                      className="text-base text-foreground"
                     />
                   </Input>
-                </Pressable>
-                {Platform.OS === "android" && showDatePicker && (
-                  <DateTimePicker
-                    value={dob || new Date()}
-                    mode="date"
-                    display="default"
-                    onChange={(event: any, date?: Date) => {
-                      setShowDatePicker(false);
-                      if (date) {
-                        setDob(date);
-                        if (dobError) setDobError(null);
-                      }
-                    }}
-                  />
-                )}
-                {Platform.OS === "ios" && (
-                  <Modal
-                    visible={showDatePicker}
-                    transparent
-                    animationType="slide"
-                    onRequestClose={() => setShowDatePicker(false)}
-                  >
-                    <View
-                      style={{
-                        flex: 1,
-                        justifyContent: "flex-end",
-                        backgroundColor: "rgba(0,0,0,0.5)",
-                      }}
-                    >
-                      <Pressable
-                        style={{
-                          position: "absolute",
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                        }}
-                        onPress={() => setShowDatePicker(false)}
-                      />
-                      <View className="bg-zinc-900 rounded-t-2xl p-4 pb-8 border-t border-zinc-800">
-                        <HStack className="justify-between items-center mb-4">
-                          <Pressable onPress={() => setShowDatePicker(false)}>
-                            <Text className="text-indigo-500 font-semibold text-base">
-                              {t("auth.cancel")}
-                            </Text>
-                          </Pressable>
-                          <Text className="text-white font-bold text-base">
-                            {t("auth.dob_label")}
-                          </Text>
-                          <Pressable
-                            onPress={() => {
-                              setShowDatePicker(false);
-                            }}
-                          >
-                            <Text className="text-indigo-500 font-semibold text-base">
-                              {t("auth.save")}
-                            </Text>
-                          </Pressable>
-                        </HStack>
-                        <DateTimePicker
-                          value={dob || new Date()}
-                          mode="date"
-                          display="spinner"
-                          themeVariant="dark"
-                          textColor="#ffffff"
-                          style={{ height: 216 }}
-                          onChange={(event: any, date?: Date) => {
-                            if (date) {
-                              setDob(date);
-                              if (dobError) setDobError(null);
-                            }
-                          }}
-                        />
-                      </View>
-                    </View>
-                  </Modal>
-                )}
-                {dobError && (
-                  <FormControlError>
-                    <FormControlErrorText>{dobError}</FormControlErrorText>
-                  </FormControlError>
-                )}
-              </VStack>
-            </FormControl>
+                  {nameError && (
+                    <FormControlError>
+                      <FormControlErrorText>{nameError}</FormControlErrorText>
+                    </FormControlError>
+                  )}
+                </VStack>
+              </FormControl>
 
-            {/* Location Input */}
-            <FormControl
-              isInvalid={!!locationError}
-              isDisabled={isLoading}
-              className="w-full"
-            >
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.location_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
-                <Input>
-                  <InputField
-                    placeholder={t("auth.location_placeholder")}
-                    value={location}
-                    onChangeText={(val) => {
-                      setLocation(val);
-                      if (locationError) setLocationError(null);
-                    }}
-                    className="text-base text-foreground"
-                  />
-                </Input>
-                {locationError && (
-                  <FormControlError>
-                    <FormControlErrorText>{locationError}</FormControlErrorText>
-                  </FormControlError>
-                )}
-              </VStack>
-            </FormControl>
-
-            {/* Referral Code Input */}
-            <FormControl isDisabled={isLoading} className="w-full">
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.referral_code_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
-                <Input>
-                  <InputField
-                    autoCapitalize="characters"
-                    placeholder={t("auth.referral_code_placeholder")}
-                    value={referralCode}
-                    onChangeText={setReferralCode}
-                    className="text-base text-foreground"
-                  />
-                </Input>
-              </VStack>
-            </FormControl>
-
-            {/* Complete Profile Button */}
-            <Button
-              size="xl"
-              variant="theme"
-              onPress={handleCompleteProfile}
-              disabled={isLoading}
-              className="gap-1"
-            >
-              <ButtonText>{t("auth.complete_profile_button")}</ButtonText>
-              {isPending ? (
-                <ButtonSpinner color={"white"} />
-              ) : (
-                <Icon as={ChevronRightIcon} className="text-white stroke-2" />
-              )}
-            </Button>
-            {/* Timer and Resend Actions */}
-            <HStack space="xs" className="justify-between items-center">
-              <Button
-                variant="link"
-                size="default"
-                onPress={() => router.replace(ROUTES.AUTH.HOME)}
-                className="p-0"
+              {/* Username Input */}
+              <FormControl
+                isInvalid={!!usernameError}
+                isDisabled={isPending}
+                className="w-full"
               >
-                <ButtonIcon as={ArrowLeft} />
-                <ButtonText className="">{t("auth.back_to_login")}</ButtonText>
+                <VStack space="xs">
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-sm font-semibold">
+                      {t("auth.username_label")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+                  <Input>
+                    <InputSlot className="">
+                      <InputIcon
+                        as={AtSign}
+                        className="text-muted-foreground"
+                      />
+                    </InputSlot>
+                    <InputField
+                      autoCorrect={false}
+                      autoCapitalize="none"
+                      spellCheck={false}
+                      placeholder={t("auth.username_placeholder")}
+                      value={username}
+                      onChangeText={(val) => {
+                        setUsername(val.replace(/\s/g, ""));
+                        setUsernameManuallyEdited(true);
+                        if (usernameError) setUsernameError(null);
+                      }}
+                      className="text-base text-foreground leading-none"
+                    />
+                    {isCheckingUsername ? (
+                      <InputSlot className="pr-3">
+                        <Spinner size="small" />
+                      </InputSlot>
+                    ) : isUsernameAvailable ? (
+                      <InputSlot className="pr-3">
+                        <InputIcon
+                          as={CheckCircleIcon}
+                          className="text-green-600"
+                        />
+                      </InputSlot>
+                    ) : isUsernameUnavailable ? (
+                      <InputSlot className="pr-3">
+                        <InputIcon
+                          as={CloseCircleIcon}
+                          className="text-destructive"
+                        />
+                      </InputSlot>
+                    ) : null}
+                  </Input>
+                  {usernameSuggestions.length > 0 && (
+                    <HStack space="xs" className="flex-wrap items-center">
+                      {/* <Text className="text-xs text-muted-foreground">
+                      {t("auth.username_suggestions_label")}
+                    </Text> */}
+                      {usernameSuggestions.map((suggestion) => (
+                        <Pressable
+                          key={suggestion}
+                          accessibilityRole="button"
+                          accessibilityLabel={suggestion}
+                          onPress={() => {
+                            setUsername(suggestion);
+                            setUsernameManuallyEdited(true);
+                            if (usernameError) setUsernameError(null);
+                          }}
+                          className={`px-2.5 py-1 rounded-full border ${
+                            username === suggestion
+                              ? "bg-primary border-primary"
+                              : "bg-secondary border-border"
+                          }`}
+                        >
+                          <Text
+                            className={`text-xs font-medium ${
+                              username === suggestion
+                                ? "text-primary-foreground"
+                                : "text-foreground"
+                            }`}
+                          >
+                            {suggestion}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </HStack>
+                  )}
+                  {debouncedUsername.length >= 3 &&
+                    debouncedUsername === username.trim().toLowerCase() && (
+                      <>
+                        {isUsernameUnavailable && (
+                          <Text className="text-xs text-destructive">
+                            {usernameValidation?.message ??
+                              t("auth.username_unavailable")}
+                          </Text>
+                        )}
+                      </>
+                    )}
+                  <FormControlHelper>
+                    <FormControlHelperText>
+                      {t("auth.username_helper")}
+                    </FormControlHelperText>
+                  </FormControlHelper>
+                  {usernameError && (
+                    <FormControlError>
+                      <FormControlErrorText>
+                        {usernameError}
+                      </FormControlErrorText>
+                    </FormControlError>
+                  )}
+                </VStack>
+              </FormControl>
+
+              {/* Location Input */}
+              <FormControl
+                isInvalid={!!locationError}
+                isDisabled={isPending}
+                className="w-full"
+              >
+                <VStack space="xs">
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-sm font-semibold">
+                      {t("auth.location_label")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+                  <Select
+                    selectedValue={selectedLocation?.id ?? ""}
+                    onValueChange={(val) => {
+                      const location = locationSuggestions?.find(
+                        (item) => item.id === val,
+                      );
+
+                      if (location) handleSelectLocation(location);
+                    }}
+                  >
+                    <SelectTrigger
+                      variant="outline"
+                      size="xl"
+                      className="gap-0"
+                    >
+                      <SelectIcon
+                        as={MapPin}
+                        size="md"
+                        className="ml-3 text-muted-foreground"
+                      />
+                      <SelectInput
+                        value={locationLabel}
+                        placeholder={t("auth.location_placeholder")}
+                        className="flex-1 pl-3 text-base text-foreground pointer-events-none"
+                      />
+                      <SelectIcon
+                        as={ChevronDownIcon}
+                        className="mr-3 text-muted-foreground"
+                      />
+                    </SelectTrigger>
+                    <SelectPortal snapPoints={[80]}>
+                      <SelectBackdrop />
+                      <SelectContent className="h-full w-full bg-background">
+                        <SelectDragIndicatorWrapper className="pt-4 pb-2">
+                          <SelectDragIndicator />
+                        </SelectDragIndicatorWrapper>
+                        <KeyboardAvoidingView className="w-full flex-1">
+                          <Box className="w-full px-1 pb-2">
+                            <Input>
+                              <InputField
+                                autoFocus
+                                placeholder={t(
+                                  "auth.location_search_placeholder",
+                                )}
+                                value={locationQuery}
+                                onChangeText={setLocationQuery}
+                                className="text-base text-foreground"
+                              />
+                            </Input>
+                          </Box>
+                          {isLocationSearchLoading ? (
+                            <HStack className="items-center justify-center py-6 w-full">
+                              <Spinner size="small" />
+                            </HStack>
+                          ) : (
+                            <SelectVirtualizedList
+                              data={locationSuggestions ?? []}
+                              keyExtractor={(item: unknown) =>
+                                (item as LocationSearchResult).id
+                              }
+                              getItemCount={(data: unknown) =>
+                                (data as LocationSearchResult[]).length
+                              }
+                              getItem={(data: unknown, index: number) =>
+                                (data as LocationSearchResult[])[index]
+                              }
+                              keyboardShouldPersistTaps="handled"
+                              renderItem={({ item }: { item: unknown }) => {
+                                const location = item as LocationSearchResult;
+                                return (
+                                  <Box
+                                    key={location.id}
+                                    className="relative w-full bg-card mb-1"
+                                  >
+                                    <SelectItem
+                                      label=""
+                                      value={location.id}
+                                      className="min-h-16 py-3"
+                                    />
+                                    <Box
+                                      pointerEvents="none"
+                                      className="absolute inset-0 flex-row items-center justify-between px-3"
+                                    >
+                                      <VStack
+                                        space="xs"
+                                        className="flex-1 pr-2"
+                                      >
+                                        <Text
+                                          numberOfLines={1}
+                                          className="text-sm font-medium text-foreground"
+                                        >
+                                          {location.name}
+                                        </Text>
+                                        {!!location.breadcrumb && (
+                                          <Text
+                                            numberOfLines={1}
+                                            className="text-xs text-muted-foreground"
+                                          >
+                                            {location.breadcrumb}
+                                          </Text>
+                                        )}
+                                      </VStack>
+                                      {!!location.settlementClass && (
+                                        <Badge
+                                          variant="outline"
+                                          className="rounded-full"
+                                        >
+                                          <BadgeText className="capitalize text-xs text-center">
+                                            {location.settlementClass}
+                                          </BadgeText>
+                                        </Badge>
+                                      )}
+                                    </Box>
+                                  </Box>
+                                );
+                              }}
+                              ListEmptyComponent={
+                                <Text className="text-xs text-muted-foreground px-1 py-6 text-center w-full">
+                                  {debouncedLocationQuery.trim().length < 2
+                                    ? t("auth.location_search_hint")
+                                    : t("auth.location_no_results")}
+                                </Text>
+                              }
+                              className="w-full flex-1"
+                            />
+                          )}
+                        </KeyboardAvoidingView>
+                      </SelectContent>
+                    </SelectPortal>
+                  </Select>
+                  {locationError && (
+                    <FormControlError>
+                      <FormControlErrorText>
+                        {locationError}
+                      </FormControlErrorText>
+                    </FormControlError>
+                  )}
+                </VStack>
+              </FormControl>
+
+              {/* Date of Birth Input */}
+              <FormControl
+                isInvalid={!!dobError}
+                isDisabled={isPending}
+                className="w-full"
+              >
+                <VStack space="xs">
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-sm font-semibold">
+                      {t("auth.dob_label")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+                  <Pressable onPress={() => setShowDatePicker(true)}>
+                    <Input pointerEvents="none">
+                      <InputSlot className="">
+                        <InputIcon
+                          as={Calendar}
+                          className="text-muted-foreground"
+                        />
+                      </InputSlot>
+                      <InputField
+                        value={dob ? format(dob, "dd-MM-yyyy") : ""}
+                        editable={false}
+                        placeholder={t("auth.dob_placeholder")}
+                        className="text-base text-foreground py-2 leading-normal"
+                      />
+                    </Input>
+                  </Pressable>
+                  {Platform.OS === "android" && showDatePicker && (
+                    <DateTimePicker
+                      value={dob || maxDob}
+                      mode="date"
+                      display="default"
+                      maximumDate={maxDob}
+                      onChange={(event: any, date?: Date) => {
+                        setShowDatePicker(false);
+                        if (date) {
+                          setDob(date);
+                          if (dobError) setDobError(null);
+                        }
+                      }}
+                    />
+                  )}
+                  {Platform.OS === "ios" && (
+                    <Modal
+                      visible={showDatePicker}
+                      transparent
+                      animationType="slide"
+                      onRequestClose={() => setShowDatePicker(false)}
+                    >
+                      <View
+                        style={{
+                          flex: 1,
+                          justifyContent: "flex-end",
+                          backgroundColor: "rgba(0,0,0,0.5)",
+                        }}
+                      >
+                        <Pressable
+                          style={{
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                          }}
+                          onPress={() => setShowDatePicker(false)}
+                        />
+                        <View className="bg-zinc-900 rounded-t-2xl p-4 pb-8 border-t border-zinc-800">
+                          <HStack className="justify-between items-center mb-4">
+                            <Pressable onPress={() => setShowDatePicker(false)}>
+                              <Text className="text-theme font-semibold text-base">
+                                {t("auth.cancel")}
+                              </Text>
+                            </Pressable>
+                            <Text className="text-white font-bold text-base">
+                              {t("auth.dob_label")}
+                            </Text>
+                            <Pressable
+                              onPress={() => {
+                                setShowDatePicker(false);
+                              }}
+                            >
+                              <Text className="text-theme font-semibold text-base">
+                                {t("auth.save")}
+                              </Text>
+                            </Pressable>
+                          </HStack>
+                          <DateTimePicker
+                            value={dob || maxDob}
+                            mode="date"
+                            display="spinner"
+                            themeVariant="dark"
+                            textColor="#ffffff"
+                            maximumDate={maxDob}
+                            style={{ height: 216 }}
+                            onChange={(event: any, date?: Date) => {
+                              if (date) {
+                                setDob(date);
+                                if (dobError) setDobError(null);
+                              }
+                            }}
+                          />
+                        </View>
+                      </View>
+                    </Modal>
+                  )}
+                  {dobError && (
+                    <FormControlError>
+                      <FormControlErrorText>{dobError}</FormControlErrorText>
+                    </FormControlError>
+                  )}
+                </VStack>
+              </FormControl>
+
+              {/* Referral Code Input */}
+              <FormControl
+                isInvalid={!!referralError}
+                isDisabled={isPending}
+                className="w-full"
+              >
+                <VStack space="xs">
+                  <FormControlLabel>
+                    <FormControlLabelText className="text-sm font-semibold">
+                      {t("auth.referral_code_label")}
+                    </FormControlLabelText>
+                  </FormControlLabel>
+                  <Input>
+                    <InputSlot>
+                      <InputIcon as={Gift} className="text-muted-foreground" />
+                    </InputSlot>
+                    <InputField
+                      autoCapitalize="characters"
+                      placeholder={t("auth.referral_code_placeholder")}
+                      value={referralCode}
+                      onChangeText={(val) => {
+                        setReferralCode(val);
+                        if (referralError) setReferralError(null);
+                      }}
+                      className="text-base  text-foreground"
+                    />
+                    <InputSlot className="pr-3">
+                      {isCheckingReferralCode ? (
+                        <Spinner size="small" />
+                      ) : referrer ? (
+                        <InputIcon
+                          as={CheckCircleIcon}
+                          className="text-green-600"
+                        />
+                      ) : referralValidation ? (
+                        <InputIcon
+                          as={CloseCircleIcon}
+                          className="text-destructive"
+                        />
+                      ) : null}
+                    </InputSlot>
+                  </Input>
+                  {debouncedReferralCode.length >= 6 &&
+                    debouncedReferralCode === referralCode.trim() && (
+                      <>
+                        {referrer ? (
+                          <Card className="p-3 mt-1 bg-card rounded-md">
+                            <HStack space="md" className="items-center">
+                              <Avatar className="h-10 w-10">
+                                <AvatarFallbackText>
+                                  {referrer.givenName ?? referrer.username}
+                                </AvatarFallbackText>
+                                {referrer.avatar ? (
+                                  <AvatarImage
+                                    source={{
+                                      uri: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${referrer.avatar}/jpeg/150`,
+                                    }}
+                                  />
+                                ) : null}
+                              </Avatar>
+                              <VStack className="flex-1">
+                                <Text className="text-sm font-semibold text-foreground">
+                                  {referrer.givenName}
+                                </Text>
+                                {referrer.username ? (
+                                  <Text className="text-xs text-muted-foreground">
+                                    @{referrer.username}
+                                  </Text>
+                                ) : null}
+                              </VStack>
+                            </HStack>
+                          </Card>
+                        ) : referralValidation ? (
+                          <Text className="text-xs text-destructive">
+                            {referralValidation.message ??
+                              t("auth.referral_code_invalid")}
+                          </Text>
+                        ) : null}
+                      </>
+                    )}
+                  {referralError && (
+                    <FormControlError>
+                      <FormControlErrorText>
+                        {referralError}
+                      </FormControlErrorText>
+                    </FormControlError>
+                  )}
+                </VStack>
+              </FormControl>
+
+              {/* Complete Profile Button */}
+              <Button
+                size="xl"
+                variant="theme"
+                onPress={handleCompleteProfile}
+                disabled={isPending || isProcessingAvatar || isUploadingAvatar}
+                className="gap-1"
+              >
+                <ButtonText>{t("auth.complete_profile_button")}</ButtonText>
+                {isPending || isUploadingAvatar ? (
+                  <ButtonSpinner color={"white"} />
+                ) : (
+                  <Icon as={ChevronRightIcon} className="text-white stroke-2" />
+                )}
               </Button>
-            </HStack>
-          </VStack>
-        </Card>
-      </VStack>
+              {/* Timer and Resend Actions */}
+              <HStack space="xs" className="justify-between items-center">
+                <Button
+                  variant="link"
+                  size="default"
+                  onPress={() => router.replace(ROUTES.AUTH.HOME)}
+                  className="p-0"
+                >
+                  <ButtonIcon as={ArrowLeft} />
+                  <ButtonText className="">
+                    {t("auth.back_to_login")}
+                  </ButtonText>
+                </Button>
+              </HStack>
+            </VStack>
+          </Card>
+        </VStack>
 
-      {/* Avatar Picker Actionsheet */}
-      <Actionsheet
-        isOpen={showAvatarSheet}
-        onClose={() => setShowAvatarSheet(false)}
-      >
-        <ActionsheetBackdrop />
-        <ActionsheetContent className="bg-card">
-          <ActionsheetDragIndicatorWrapper>
-            <ActionsheetDragIndicator />
-          </ActionsheetDragIndicatorWrapper>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-2 right-2"
-            onPress={() => setShowAvatarSheet(false)}
-          >
-            <ButtonIcon
-              as={CloseIcon}
-              size="lg"
-              className="stroke-background-500"
-            />
-          </Button>
-
-          <VStack className="w-full pb-20" space="sm">
-            <ActionsheetItem>
-              <ActionsheetIcon
-                className="stroke-background-700"
-                as={EditIcon}
+        {/* Avatar Picker Actionsheet */}
+        <Actionsheet
+          snapPoints={[25]}
+          isOpen={showAvatarSheet}
+          onClose={() => setShowAvatarSheet(false)}
+        >
+          <ActionsheetBackdrop />
+          <ActionsheetContent className="bg-card">
+            <ActionsheetDragIndicatorWrapper>
+              <ActionsheetDragIndicator className="bg-primary mb-2" />
+            </ActionsheetDragIndicatorWrapper>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute top-2 right-2"
+              onPress={() => setShowAvatarSheet(false)}
+            >
+              <ButtonIcon
+                as={CloseIcon}
+                size="lg"
+                className="stroke-background-500"
               />
-              <ActionsheetItemText>
-                {" "}
-                {t("auth.avatar_picker_camera")}
-              </ActionsheetItemText>
-            </ActionsheetItem>
-            <ActionsheetItem>
-              <ActionsheetIcon
-                className="stroke-background-700"
-                as={EyeOffIcon}
-              />
-              <ActionsheetItemText>
-                {" "}
-                {t("auth.avatar_picker_gallery")}
-              </ActionsheetItemText>
-            </ActionsheetItem>
-            {/* <ActionsheetItem onPress={() => handleImagePickerResponse(true)}>
-              <ActionsheetItemText>
-                {t("auth.avatar_picker_camera")}
-              </ActionsheetItemText>
-            </ActionsheetItem>
-            <ActionsheetItem onPress={() => handleImagePickerResponse(false)}>
-              <ActionsheetItemText>
-                {t("auth.avatar_picker_gallery")}
-              </ActionsheetItemText>
-            </ActionsheetItem> */}
-          </VStack>
-        </ActionsheetContent>
-      </Actionsheet>
+            </Button>
 
-      {/* Feature-Rich Custom Photo Editor */}
-      <PhotoEditor
-        visible={showEditorModal}
-        imageUri={editorUri}
-        initialFilter="none"
-        onClose={() => setShowEditorModal(false)}
-        onSave={handleSaveEditedImage}
-      />
-    </KeyboardAvoidingScrollView>
+            <VStack className="w-full" space="sm">
+              <ActionsheetItem onPress={() => handleImagePickerResponse(true)}>
+                <ActionsheetIcon
+                  className="stroke-background-700"
+                  as={EditIcon}
+                />
+                <ActionsheetItemText>
+                  {" "}
+                  {t("auth.avatar_picker_camera")}
+                </ActionsheetItemText>
+              </ActionsheetItem>
+              <ActionsheetItem onPress={() => handleImagePickerResponse(false)}>
+                <ActionsheetIcon
+                  className="stroke-background-700"
+                  as={EyeOffIcon}
+                />
+                <ActionsheetItemText>
+                  {" "}
+                  {t("auth.avatar_picker_gallery")}
+                </ActionsheetItemText>
+              </ActionsheetItem>
+            </VStack>
+          </ActionsheetContent>
+        </Actionsheet>
+      </KeyboardAvoidingScrollView>
+    </>
   );
 };
 

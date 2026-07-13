@@ -1,5 +1,5 @@
 import { authService } from "@/services/auth.service";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export const useInitiateJourney = () => {
   return useMutation({
@@ -11,6 +11,7 @@ export const useInitiateJourney = () => {
 export const useSignInInitiateOtp = () => {
   return useMutation({
     mutationFn: (payload: { contact: string; profileType: AccountType }) =>
+      // console.log('payload', payload)
       authService.signInInitiateOtp(payload), //TODO There should be only one api to send otp and another api to verify it. Also requestId is needed for validation
   });
 };
@@ -64,5 +65,36 @@ export const useChangePassword = () => {
   return useMutation({
     mutationFn: (payload: ChangePasswordPayload) =>
       authService.changePassword(payload),
+  });
+};
+
+export const useSetProfileDetails = () => {
+  return useMutation({
+    mutationFn: (payload: SetProfilePayload) =>
+      authService.signUpSetProfile(payload),
+  });
+};
+
+const USERNAME_REGEX = /^[a-z0-9_]{3,}$/;
+
+export const useValidateUsername = (username: string) => {
+  const trimmed = username.trim().toLowerCase();
+
+  return useQuery({
+    queryKey: ["validate-username", trimmed],
+    queryFn: () => authService.validateUsername(trimmed),
+    enabled: USERNAME_REGEX.test(trimmed),
+    staleTime: 30_000,
+  });
+};
+
+export const useValidateReferralCode = (code: string) => {
+  const trimmed = code.trim();
+
+  return useQuery({
+    queryKey: ["validate-referral-code", trimmed],
+    queryFn: () => authService.validateReferralCode(trimmed),
+    enabled: trimmed.length >= 6,
+    staleTime: 30_000,
   });
 };

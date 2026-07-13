@@ -18,7 +18,9 @@ import { Text } from "@/components/ui/text";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 import { useGetFeedPosts, useLikeFeedPostMutation } from "@/hooks/usePosts";
+import { useFollowUser } from "@/hooks/useProfile";
 import { ROUTES } from "@/routes";
+import { useAuthStore } from "@/stores/auth.store";
 import { useFeedVideoStore } from "@/stores/feed-video.store";
 import { useSettingStore } from "@/stores/setting.store";
 import {
@@ -35,7 +37,6 @@ import {
   ImageOff,
   MessageCircle,
   MoreHorizontal,
-  UserPlus,
   Share2,
 } from "lucide-react-native";
 import { useCallback, useMemo, useState } from "react";
@@ -58,6 +59,15 @@ const FeedScreen = () => {
     isFetchingNextPage,
   } = useGetFeedPosts();
   const likeMutation = useLikeFeedPostMutation();
+  const currentUserId = useAuthStore((state) => state.user?.profileId);
+  const {
+    mutate: toggleFollow,
+    variables: followVariables,
+    isPending: isFollowPending,
+  } = useFollowUser();
+  const [followOverrides, setFollowOverrides] = useState<
+    Record<string, boolean>
+  >({});
   const feedPosts = useMemo(
     () => postsData?.pages?.flatMap((page: any) => page?.data ?? []) ?? [],
     [postsData],
@@ -123,6 +133,19 @@ const FeedScreen = () => {
     router.push(ROUTES.USER.PROFILE(activeOptionsPost.authorId) as Href);
   }, [activeOptionsPost]);
 
+  const handleFollowPress = useCallback(
+    (authorId: string | undefined, isFollowing: boolean) => {
+      if (!authorId || !currentUserId) return;
+      setFollowOverrides((prev) => ({ ...prev, [authorId]: !isFollowing }));
+      toggleFollow({
+        followerId: currentUserId,
+        followedId: authorId,
+        action: isFollowing ? "UNFOLLOW" : "FOLLOW",
+      });
+    },
+    [currentUserId, toggleFollow],
+  );
+
   const handleWhySeeingThis = useCallback(() => {
     showFeedbackToast(t("post_options.why_seeing_this_post"));
   }, [showFeedbackToast, t]);
@@ -178,6 +201,11 @@ const FeedScreen = () => {
       const commentsCount = item.comments_count ?? 0;
       const sharesCount = item.shares_count ?? 0;
       const postMediaId = mediaItem?.id;
+      const authorId = item.author?.id;
+      const isMe =
+        item.author?.is_me ?? (!!currentUserId && authorId === currentUserId);
+      const isFollowing =
+        followOverrides[authorId] ?? !!item.author?.is_following;
 
       const handlePress = () => {
         if (!postMediaId || !item.id) return;
@@ -249,17 +277,30 @@ const FeedScreen = () => {
                     </Text>
                   </VStack>
                 </HStack>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onPress={handleMorePress}
-                  accessibilityRole="button"
-                  accessibilityLabel={t("post_options.menu_a11y")}
-                  className="border border-border/40"
-                >
-                  {/* <ButtonIcon as={UserPlus} className="" /> */}
-                  <ButtonText className="">Follow</ButtonText>
-                </Button>
+                {!isMe && (
+                  <Button
+                    variant={isFollowing ? "outline" : "ghost"}
+                    size="sm"
+                    onPress={() => handleFollowPress(authorId, isFollowing)}
+                    disabled={
+                      isFollowPending &&
+                      followVariables?.followedId === authorId
+                    }
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      isFollowing
+                        ? t("network.unfollow_a11y", { name: displayName })
+                        : t("network.follow_a11y", { name: displayName })
+                    }
+                    className="border border-border/40"
+                  >
+                    <ButtonText className="">
+                      {isFollowing
+                        ? t("network.following_btn")
+                        : t("network.follow")}
+                    </ButtonText>
+                  </Button>
+                )}
                 <Button
                   size="default"
                   variant="ghost"
@@ -387,7 +428,17 @@ const FeedScreen = () => {
         </Card>
       );
     },
-    [isDark, t, likeMutation, handleOptionsPress],
+    [
+      isDark,
+      t,
+      likeMutation,
+      handleOptionsPress,
+      currentUserId,
+      followOverrides,
+      followVariables,
+      isFollowPending,
+      handleFollowPress,
+    ],
   );
 
   return (
