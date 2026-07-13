@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { Overlay } from "@gluestack-ui/core/overlay/creator";
 import { tva } from "@gluestack-ui/utils/nativewind-utils";

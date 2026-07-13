@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Check, Eye, EyeOff, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
+import { AxiosError } from "axios";
 
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 
@@ -26,7 +27,7 @@ import { useChangePassword } from "@/hooks/useAuth";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 
-function ChangePasswordScreen() {
+const ChangePasswordScreen = () => {
   const { t } = useTranslation();
   const toast = useToast();
   const { mutate: changePassword, isPending } = useChangePassword();
@@ -151,7 +152,7 @@ function ChangePasswordScreen() {
           });
           router.back();
         },
-        onError: (err: any) => {
+        onError: (err: AxiosError<{ message?: string }>) => {
           setCurrentPasswordError(
             err?.response?.data?.message ||
               t("change_password.current_password_incorrect"),
@@ -383,6 +384,8 @@ function ChangePasswordScreen() {
           onPress={handleSubmit}
           disabled={isPending}
           className="gap-1 mt-2"
+          accessibilityRole="button"
+          accessibilityLabel={t("change_password.submit_button")}
         >
           <ButtonText>{t("change_password.submit_button")}</ButtonText>
           {isPending && <ButtonSpinner color="white" />}
@@ -390,6 +393,6 @@ function ChangePasswordScreen() {
       </VStack>
     </KeyboardAvoidingScrollView>
   );
-}
+};
 
 export default ChangePasswordScreen;

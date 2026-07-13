@@ -26,7 +26,7 @@ import ProfileListItem, {
 
 type NetworkTab = "followers" | "following";
 
-function NetworkScreen() {
+const NetworkScreen = () => {
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ userId?: string; tab?: string }>();
   const currentUserId = useAuthStore((state) => state.user?.profileId);
@@ -169,6 +169,6 @@ function NetworkScreen() {
       )}
     </KeyboardAvoidingScrollView>
   );
-}
+};
 
 export default NetworkScreen;

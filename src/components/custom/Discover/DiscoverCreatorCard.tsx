@@ -44,7 +44,12 @@ function DiscoverCreatorCard({
     >
       <Avatar className="h-16 w-16">
         <AvatarFallbackText>{fullName}</AvatarFallbackText>
-        {avatarUrl ? <AvatarImage source={{ uri: avatarUrl }} /> : null}
+        {avatarUrl ? (
+          <AvatarImage
+            source={{ uri: avatarUrl }}
+            alt={t("profile.avatar_alt", { name: fullName })}
+          />
+        ) : null}
       </Avatar>
       <VStack className="items-center">
         <Text

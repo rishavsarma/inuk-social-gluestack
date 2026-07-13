@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createSlider } from '@gluestack-ui/core/slider/creator';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';

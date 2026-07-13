@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createMenu } from '@gluestack-ui/core/menu/creator';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';

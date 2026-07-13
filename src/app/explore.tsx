@@ -31,7 +31,7 @@ import ProfileListItem, {
 
 const SEARCH_DEBOUNCE_MS = 300;
 
-function SearchScreen() {
+const SearchScreen = () => {
   const { t } = useTranslation();
   const topInset = useAppTopInset();
   const currentUserId = useAuthStore((state) => state.user?.profileId);
@@ -253,6 +253,6 @@ function SearchScreen() {
       />
     </View>
   );
-}
+};
 
 export default SearchScreen;

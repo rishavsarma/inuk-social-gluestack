@@ -81,6 +81,7 @@ function FeedPostVideo({ id, uri, posterUri }: FeedPostVideoProps) {
           source={{ uri: posterUri }}
           style={StyleSheet.absoluteFill}
           contentFit="cover"
+          alt={t("feed.video_thumbnail_alt")}
         />
       )}
       <VideoView

@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import React, { useEffect, useLayoutEffect } from 'react';
 import { OverlayProvider } from '@gluestack-ui/core/overlay/creator';

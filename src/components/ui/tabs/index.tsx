@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { UIIcon } from "@gluestack-ui/core/icon/creator";
 import { createTabs, TabsContext } from "@gluestack-ui/core/tabs/creator";

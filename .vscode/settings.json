@@ -6,5 +6,31 @@
   },
   "tailwindCSS.experimental.classRegex": [
     ["tva\\((([^()]*|\\([^()]*\\))*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
-  ]
+  ],
+  "typescript.tsserver.maxTsServerMemory": 8192,
+  "typescript.disableAutomaticTypeAcquisition": true,
+  "typescript.tsserver.watchOptions": {
+    "excludeDirectories": ["**/node_modules", "**/.git", "**/.expo", "**/android", "**/ios", "**/dist"]
+  },
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.git/**": true,
+    "**/.expo/**": true,
+    "**/android/**": true,
+    "**/ios/**": true,
+    "**/dist/**": true,
+    "**/.turbo/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.expo": true,
+    "**/android": true,
+    "**/ios": true,
+    "**/dist": true,
+    "**/.turbo": true
+  },
+  "files.exclude": {
+    "**/.expo": true,
+    "**/.turbo": true
+  }
 }

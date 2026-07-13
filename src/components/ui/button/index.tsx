@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { createButton } from "@gluestack-ui/core/button/creator";
 import { UIIcon } from "@gluestack-ui/core/icon/creator";

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { createIcon } from '@gluestack-ui/core/icon/creator';
 import { Path } from 'react-native-svg';

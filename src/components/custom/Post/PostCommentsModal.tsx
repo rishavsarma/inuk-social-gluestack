@@ -40,6 +40,7 @@ function commentAuthorInfo(profile?: PostCommentAuthorProfile) {
 }
 
 function CommentRow({ comment }: { comment: PostComment }) {
+  const { t } = useTranslation();
   const { displayName, username, avatarUrl } = commentAuthorInfo(
     comment.profile,
   );
@@ -49,7 +50,12 @@ function CommentRow({ comment }: { comment: PostComment }) {
     <HStack space="sm" className="items-start px-4 py-3">
       <Avatar className="mt-0.5 h-10 w-10">
         <AvatarFallbackText>{displayName}</AvatarFallbackText>
-        {avatarUrl && <AvatarImage source={{ uri: avatarUrl }} />}
+        {avatarUrl && (
+          <AvatarImage
+            source={{ uri: avatarUrl }}
+            alt={t("profile.avatar_alt", { name: displayName })}
+          />
+        )}
       </Avatar>
       <VStack className="flex-1" space="xs">
         <HStack space="xs" className="items-center flex-wrap">

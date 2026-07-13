@@ -51,7 +51,12 @@ function ProfileListItem({
       <HStack space="md" className="items-center px-4 py-3">
         <Avatar className="h-12 w-12">
           <AvatarFallbackText>{fullName}</AvatarFallbackText>
-          {avatarUrl ? <AvatarImage source={{ uri: avatarUrl }} /> : null}
+          {avatarUrl ? (
+            <AvatarImage
+              source={{ uri: avatarUrl }}
+              alt={t("profile.avatar_alt", { name: fullName })}
+            />
+          ) : null}
         </Avatar>
         <VStack className="flex-1">
           <Text size="sm" className="font-semibold text-foreground">

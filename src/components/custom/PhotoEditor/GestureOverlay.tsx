@@ -1,5 +1,6 @@
 import { X } from "lucide-react-native";
 import React, { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
@@ -36,6 +37,8 @@ export const GestureOverlayItem: React.FC<GestureOverlayItemProps> = ({
   onDelete,
   children,
 }) => {
+  const { t } = useTranslation();
+
   // Shared values initialized with props
   const translationX = useSharedValue(x);
   const translationY = useSharedValue(y);
@@ -154,6 +157,8 @@ export const GestureOverlayItem: React.FC<GestureOverlayItemProps> = ({
             <Pressable
               onPress={() => onDelete(id)}
               className="absolute -top-1 -right-1 bg-destructive p-1 rounded-full border border-background shadow-md z-50 active:scale-95"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.delete_item")}
             >
               <X className="w-3.5 h-3.5 text-destructive-foreground" />
             </Pressable>

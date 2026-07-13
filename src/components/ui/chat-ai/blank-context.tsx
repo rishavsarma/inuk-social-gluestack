@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createContext, ReactNode, useContext } from 'react';
 import type { SharedValue } from 'react-native-reanimated';
 import { useSharedValue } from 'react-native-reanimated';

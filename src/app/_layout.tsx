@@ -1,5 +1,13 @@
 import "@/globals.css";
 import "@/locales/i18n";
+import {
+  Baloo2_400Regular,
+  Baloo2_500Medium,
+  Baloo2_600SemiBold,
+  Baloo2_700Bold,
+  Baloo2_800ExtraBold,
+  useFonts,
+} from "@expo-google-fonts/baloo-2";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { useSettingStore } from "@/stores/setting.store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -41,16 +49,27 @@ const CustomDefaultTheme = {
   },
 };
 
-export default function RootLayout() {
+const RootLayout = () => {
   const theme = useSettingStore((state) => state.theme);
   const language = useSettingStore((state) => state.language);
   const { i18n } = useTranslation();
+  const [fontsLoaded] = useFonts({
+    Baloo2_400Regular,
+    Baloo2_500Medium,
+    Baloo2_600SemiBold,
+    Baloo2_700Bold,
+    Baloo2_800ExtraBold,
+  });
 
   useEffect(() => {
     if (i18n.language !== language) {
       i18n.changeLanguage(language);
     }
   }, [language, i18n]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
@@ -68,4 +87,6 @@ export default function RootLayout() {
       </QueryClientProvider>
     </GestureHandlerRootView>
   );
-}
+};
+
+export default RootLayout;

@@ -92,6 +92,10 @@ export function ThemeSwitcher({ variant = "tab" }: ThemeSwitcherProps) {
             setTempTheme(theme);
             setIsOpen(true);
           }}
+          accessibilityRole="button"
+          accessibilityLabel={t("settings.theme_selector_a11y", {
+            theme: t(selectedThemeItem.labelKey),
+          })}
           className="w-full"
         >
           <View className="flex-row justify-between items-center px-4 py-3 border border-border rounded-lg bg-background dark:bg-input/20">
@@ -148,6 +152,8 @@ export function ThemeSwitcher({ variant = "tab" }: ThemeSwitcherProps) {
                 onPress={handleSave}
                 size="lg"
                 variant="default"
+                accessibilityRole="button"
+                accessibilityLabel={t("settings.save_preference")}
                 className="w-full rounded-full mt-2"
               >
                 <ButtonText>{t("settings.save_preference")}</ButtonText>

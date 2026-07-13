@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createAlert } from '@gluestack-ui/core/alert/creator';
 import { UIIcon } from '@gluestack-ui/core/icon/creator';

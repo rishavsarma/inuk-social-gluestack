@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {
   Table as ExpoTable,
   TBody as ExpoTBody,

@@ -259,10 +259,18 @@ const ProfileMenuScreen = () => {
             <Button
               variant="outline"
               onPress={() => setShowLogoutConfirm(false)}
+              accessibilityRole="button"
+              accessibilityLabel={t("profile_bottom_sheet.cancel")}
             >
               <ButtonText>{t("profile_bottom_sheet.cancel")}</ButtonText>
             </Button>
-            <Button variant="destructive" onPress={handleConfirmLogout}>
+            <Button
+              variant="destructive"
+              onPress={handleConfirmLogout}
+              accessibilityRole="button"
+              accessibilityLabel={t("profile_bottom_sheet.log_out")}
+              accessibilityHint={t("profile_bottom_sheet.confirm_logout")}
+            >
               <ButtonText>{t("profile_bottom_sheet.log_out")}</ButtonText>
             </Button>
           </AlertDialogFooter>

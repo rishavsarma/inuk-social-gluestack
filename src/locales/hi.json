@@ -37,6 +37,8 @@
     "password_label": "पासवर्ड",
     "password_placeholder": "अपना पासवर्ड दर्ज करें",
     "password_helper": "अपना खाता पासवर्ड दर्ज करें",
+    "show_password": "पासवर्ड दिखाएं",
+    "hide_password": "पासवर्ड छुपाएं",
     "password_error_invalid": "गलत पासवर्ड। कृपया पुनः प्रयास करें।",
     "password_error_required": "पासवर्ड आवश्यक है",
     "forgot_password": "पासवर्ड भूल गए?",
@@ -135,7 +137,16 @@
     "draw_arrow": "तीर (एरो)",
     "add_text": "टेक्स्ट जोड़ें",
     "type_text": "यहाँ टेक्स्ट लिखें...",
-    "add_emoji": "स्टिकर / इमोजी जोड़ें"
+    "add_emoji": "स्टिकर / इमोजी जोड़ें",
+    "close": "बंद करें",
+    "reset": "रीसेट करें",
+    "deselect_item": "आइटम अचयनित करें",
+    "transform": "बदलाव (ट्रांसफ़ॉर्म)",
+    "filters": "फ़िल्टर",
+    "filter_grayscale": "मोनोक्रोम",
+    "sticker_label": "स्टिकर {{emoji}}",
+    "text_color": "टेक्स्ट का रंग",
+    "delete_item": "आइटम हटाएं"
   },
   "settings": {
     "theme": "थीम",
@@ -168,7 +179,8 @@
     "privacy_policy": "गोपनीयता नीति",
     "log_out": "लॉग आउट",
     "select_language": "भाषा चुनें",
-    "member": "सदस्य"
+    "member": "सदस्य",
+    "theme_selector_a11y": "चयनित थीम: {{theme}}. बदलने के लिए डबल टैप करें"
   },
   "tabs": {
     "feed": "फ़ीड",
@@ -204,7 +216,10 @@
     "share": "शेयर करें",
     "mute_video": "वीडियो म्यूट करें",
     "unmute_video": "वीडियो अनम्यूट करें",
-    "view_post_a11y": "पोस्ट देखें"
+    "view_post_a11y": "पोस्ट देखें",
+    "category_thumbnail_alt": "{{category}} श्रेणी थंबनेल",
+    "video_thumbnail_alt": "वीडियो थंबनेल",
+    "post_image_alt": "पोस्ट छवि"
   },
   "post_options": {
     "menu_a11y": "अधिक विकल्प",
@@ -353,7 +368,10 @@
     "sparks_balance": "{{count}} स्पार्क्स",
     "posts_count": "{{count}} पोस्ट",
     "followers_count": "{{count}} फ़ॉलोअर्स",
-    "following_count": "{{count}} फ़ॉलोइंग"
+    "following_count": "{{count}} फ़ॉलोइंग",
+    "avatar_alt": "{{name}} की प्रोफ़ाइल तस्वीर",
+    "cover_photo_alt": "{{name}} का कवर फ़ोटो",
+    "post_thumbnail_alt": "{{type}} पोस्ट थंबनेल"
   },
   "profile_bottom_sheet": {
     "account_menu": "खाता मेनू",
@@ -435,7 +453,8 @@
     "error_loading": "कुछ गलत हो गया। कृपया पुनः प्रयास करें。",
     "not_available": "लागू नहीं",
     "user": "उपयोगकर्ता",
-    "go_back": "वापस जाएं"
+    "go_back": "वापस जाएं",
+    "app_logo_alt": "Inuk लोगो"
   },
   "post_detail": {
     "loading": "लोड हो रहा है…",
@@ -454,6 +473,10 @@
     "camera_specs": "कैमरा विवरण",
     "environment": "वातावरण",
     "open_maps": "मैप्स खोलें",
+    "open_maps_a11y": "मैप्स ऐप में स्थान खोलें",
+    "view_photo_a11y": "फ़ोटो {{index}} / {{count}} देखें",
+    "photo_alt": "{{name}} की फ़ोटो {{index}}",
+    "video_poster_alt": "वीडियो थंबनेल",
     "performance": "प्रदर्शन",
     "score": "स्कोर",
     "awards": "पुरस्कार",
@@ -523,6 +546,7 @@
     "like_error": "आपकी लाइक अपडेट नहीं हो सकी। कृपया पुनः प्रयास करें।",
     "play_video": "वीडियो चलाएं",
     "pause_video": "वीडियो रोकें",
+    "seek_video": "वीडियो की स्थिति बदलें",
     "fullscreen_video": "फ़ुलस्क्रीन में देखें",
     "close_video": "बंद करें",
     "post_options": "पोस्ट विकल्प",

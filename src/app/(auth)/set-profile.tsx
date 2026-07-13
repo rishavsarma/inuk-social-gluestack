@@ -742,7 +742,11 @@ const SetProfile = () => {
                       {t("auth.dob_label")}
                     </FormControlLabelText>
                   </FormControlLabel>
-                  <Pressable onPress={() => setShowDatePicker(true)}>
+                  <Pressable
+                    onPress={() => setShowDatePicker(true)}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("auth.dob_label")}
+                  >
                     <Input pointerEvents="none">
                       <InputSlot className="">
                         <InputIcon
@@ -796,10 +800,16 @@ const SetProfile = () => {
                             bottom: 0,
                           }}
                           onPress={() => setShowDatePicker(false)}
+                          accessibilityRole="button"
+                          accessibilityLabel={t("auth.cancel")}
                         />
                         <View className="bg-zinc-900 rounded-t-2xl p-4 pb-8 border-t border-zinc-800">
                           <HStack className="justify-between items-center mb-4">
-                            <Pressable onPress={() => setShowDatePicker(false)}>
+                            <Pressable
+                              onPress={() => setShowDatePicker(false)}
+                              accessibilityRole="button"
+                              accessibilityLabel={t("auth.cancel")}
+                            >
                               <Text className="text-theme font-semibold text-base">
                                 {t("auth.cancel")}
                               </Text>
@@ -811,6 +821,8 @@ const SetProfile = () => {
                               onPress={() => {
                                 setShowDatePicker(false);
                               }}
+                              accessibilityRole="button"
+                              accessibilityLabel={t("auth.save")}
                             >
                               <Text className="text-theme font-semibold text-base">
                                 {t("auth.save")}
@@ -941,6 +953,8 @@ const SetProfile = () => {
                 onPress={handleCompleteProfile}
                 disabled={isPending || isProcessingAvatar || isUploadingAvatar}
                 className="gap-1"
+                accessibilityRole="button"
+                accessibilityLabel={t("auth.complete_profile_button")}
               >
                 <ButtonText>{t("auth.complete_profile_button")}</ButtonText>
                 {isPending || isUploadingAvatar ? (
@@ -956,6 +970,8 @@ const SetProfile = () => {
                   size="default"
                   onPress={() => router.replace(ROUTES.AUTH.HOME)}
                   className="p-0"
+                  accessibilityRole="button"
+                  accessibilityLabel={t("auth.back_to_login")}
                 >
                   <ButtonIcon as={ArrowLeft} />
                   <ButtonText className="">
@@ -983,6 +999,8 @@ const SetProfile = () => {
               size="icon"
               className="absolute top-2 right-2"
               onPress={() => setShowAvatarSheet(false)}
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.cancel")}
             >
               <ButtonIcon
                 as={CloseIcon}

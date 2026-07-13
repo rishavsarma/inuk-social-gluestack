@@ -221,6 +221,15 @@ const VerifyOtp = () => {
                   onPress={handleResend}
                   className=""
                   disabled={isResendOtpPending || timer > 0}
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    timer > 0
+                      ? t("auth.resend_code_in", { seconds: timer })
+                      : t("auth.resend_code")
+                  }
+                  accessibilityState={{
+                    disabled: isResendOtpPending || timer > 0,
+                  }}
                 >
                   {timer > 0 ? (
                     <ButtonText className="">
@@ -311,6 +320,11 @@ const VerifyOtp = () => {
               onPress={handleVerify}
               disabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
               className="gap-1"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.verify")}
+              accessibilityState={{
+                disabled: isSignInVerifyOtpPending || isSignUpVerifyOtpPending,
+              }}
             >
               <ButtonText className="">{t("auth.verify")}</ButtonText>
               {isSignInVerifyOtpPending || isSignUpVerifyOtpPending ? (
@@ -328,6 +342,11 @@ const VerifyOtp = () => {
                 onPress={() => router.replace(ROUTES.AUTH.HOME)}
                 className="p-0"
                 disabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
+                accessibilityRole="button"
+                accessibilityLabel={t("auth.back_to_login")}
+                accessibilityState={{
+                  disabled: isSignInVerifyOtpPending || isSignUpVerifyOtpPending,
+                }}
               >
                 <ButtonIcon as={ArrowLeft} />
                 <ButtonText className="">{t("auth.back_to_login")}</ButtonText>
@@ -346,6 +365,12 @@ const VerifyOtp = () => {
                     })
                   }
                   className="p-0"
+                  accessibilityRole="button"
+                  accessibilityLabel={t("auth.login_with_password")}
+                  accessibilityState={{
+                    disabled:
+                      isSignInVerifyOtpPending || isSignUpVerifyOtpPending,
+                  }}
                 >
                   <ButtonText className="font-semibold text-primary">
                     {t("auth.login_with_password")}

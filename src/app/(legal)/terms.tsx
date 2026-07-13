@@ -58,7 +58,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   </Box>
 );
 
-export default function TermsScreen() {
+const TermsScreen = () => {
   const { t } = useTranslation();
 
   const prohibitedBullets = [
@@ -147,4 +147,6 @@ export default function TermsScreen() {
       </VStack>
     </KeyboardAvoidingScrollView>
   );
-}
+};
+
+export default TermsScreen;

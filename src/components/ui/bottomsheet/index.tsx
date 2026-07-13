@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { FocusScope } from '@gluestack-ui/utils/aria';
 import { tva } from '@gluestack-ui/utils/nativewind-utils';

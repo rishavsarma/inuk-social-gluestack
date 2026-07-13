@@ -201,7 +201,7 @@ function ProfileSummary() {
   );
 }
 
-function SettingsScreen() {
+const SettingsScreen = () => {
   const { t, i18n } = useTranslation();
 
   const logout = useAuthStore((state) => state.logout);
@@ -485,6 +485,8 @@ function SettingsScreen() {
               size="lg"
               variant="default"
               className="mt-2 w-full rounded-full"
+              accessibilityRole="button"
+              accessibilityLabel={t("settings.save_preference")}
             >
               <ButtonText>{t("settings.save_preference")}</ButtonText>
             </Button>
@@ -513,10 +515,18 @@ function SettingsScreen() {
             <Button
               variant="outline"
               onPress={() => setShowLogoutConfirm(false)}
+              accessibilityRole="button"
+              accessibilityLabel={t("profile_bottom_sheet.cancel")}
             >
               <ButtonText>{t("profile_bottom_sheet.cancel")}</ButtonText>
             </Button>
-            <Button variant="destructive" onPress={handleConfirmLogout}>
+            <Button
+              variant="destructive"
+              onPress={handleConfirmLogout}
+              accessibilityRole="button"
+              accessibilityLabel={t("profile_bottom_sheet.log_out")}
+              accessibilityHint={t("profile_bottom_sheet.confirm_logout")}
+            >
               <ButtonText>{t("profile_bottom_sheet.log_out")}</ButtonText>
             </Button>
           </AlertDialogFooter>
@@ -524,6 +534,6 @@ function SettingsScreen() {
       </AlertDialog>
     </KeyboardAvoidingScrollView>
   );
-}
+};
 
 export default SettingsScreen;

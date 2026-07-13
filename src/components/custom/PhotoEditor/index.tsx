@@ -471,7 +471,13 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
         >
           {/* Top Bar Header */}
           <Box className="flex-row justify-between items-center px-4 py-3 border-b border-zinc-900 bg-zinc-950">
-            <Button size="sm" variant="link" onPress={onClose}>
+            <Button
+              size="sm"
+              variant="link"
+              onPress={onClose}
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.close")}
+            >
               <ButtonIcon as={X} className="text-zinc-400" />
             </Button>
 
@@ -485,6 +491,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 variant="outline"
                 className="border-zinc-800"
                 onPress={handleReset}
+                accessibilityRole="button"
+                accessibilityLabel={t("auth.reset")}
               >
                 <ButtonIcon as={RotateCcw} className="text-zinc-300 mr-1" />
                 <ButtonText className="text-zinc-300 text-xs">Reset</ButtonText>
@@ -494,6 +502,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className="bg-primary px-3 rounded-full"
                 onPress={handleSave}
                 disabled={isSaving}
+                accessibilityRole="button"
+                accessibilityLabel={t("auth.save")}
+                accessibilityState={{ disabled: isSaving }}
               >
                 {isSaving ? (
                   <ActivityIndicator size="small" color="#FFF" />
@@ -508,6 +519,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
           <Pressable
             onPress={() => setSelectedItemId(null)}
             className="flex-1 items-center justify-center bg-zinc-900/40 p-4"
+            accessibilityRole="button"
+            accessibilityLabel={t("auth.deselect_item")}
           >
             <Box
               style={{
@@ -610,6 +623,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     variant="outline"
                     className="border-zinc-800 flex-1 py-2 rounded-xl"
                     onPress={handleRotate}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("auth.rotate")}
                   >
                     <ButtonIcon as={RotateCw} className="text-zinc-300 mr-2" />
                     <ButtonText className="text-zinc-300 text-sm">
@@ -620,6 +635,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     variant="outline"
                     className="border-zinc-800 flex-1 py-2 rounded-xl"
                     onPress={() => handleFlip("horizontal")}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("auth.flip_h")}
                   >
                     <ButtonText className="text-zinc-300 text-sm">
                       {t("auth.flip_h")}
@@ -629,6 +646,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     variant="outline"
                     className="border-zinc-800 flex-1 py-2 rounded-xl"
                     onPress={() => handleFlip("vertical")}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("auth.flip_v")}
                   >
                     <ButtonText className="text-zinc-300 text-sm">
                       {t("auth.flip_v")}
@@ -645,6 +664,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     variant="outline"
                     className="border-zinc-800 px-3 rounded-full"
                     onPress={() => handleCrop("1:1")}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("auth.crop_square")}
                   >
                     <ButtonText className="text-zinc-300">
                       {t("auth.crop_square")}
@@ -655,6 +676,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     variant="outline"
                     className="border-zinc-800 px-3 rounded-full"
                     onPress={() => handleCrop("16:9")}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("auth.crop_ratio_16_9")}
                   >
                     <ButtonText className="text-zinc-300">16:9 Wide</ButtonText>
                   </Button>
@@ -663,6 +686,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     variant="outline"
                     className="border-zinc-800 px-3 rounded-full"
                     onPress={() => handleCrop("4:3")}
+                    accessibilityRole="button"
+                    accessibilityLabel={t("auth.crop_ratio_4_3")}
                   >
                     <ButtonText className="text-zinc-300">
                       4:3 Aspect
@@ -762,6 +787,10 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
               >
                 {filterList.map((f) => {
                   const isActive = editorState.filter === f.id;
+                  const filterLabel =
+                    f.id === "grayscale"
+                      ? t("auth.filter_grayscale")
+                      : t(`auth.${f.label}`);
                   return (
                     <Pressable
                       key={f.id}
@@ -773,15 +802,16 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                           ? "bg-primary border-primary"
                           : "bg-zinc-900 border-zinc-800"
                       }`}
+                      accessibilityRole="button"
+                      accessibilityLabel={filterLabel}
+                      accessibilityState={{ selected: isActive }}
                     >
                       <Text
                         className={
                           isActive ? "text-white font-bold" : "text-zinc-400"
                         }
                       >
-                        {f.id === "grayscale"
-                          ? "Monochrome"
-                          : t(`auth.${f.label}`)}
+                        {filterLabel}
                       </Text>
                     </Pressable>
                   );
@@ -905,6 +935,10 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     key={idx}
                     onPress={() => handleAddSticker(item)}
                     className="w-12 h-12 bg-zinc-900/60 rounded-full justify-center items-center active:opacity-80"
+                    accessibilityRole="button"
+                    accessibilityLabel={t("auth.sticker_label", {
+                      emoji: item,
+                    })}
                   >
                     <Text className="text-2xl text-center select-none">
                       {item}
@@ -920,6 +954,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 <Button
                   className="bg-primary rounded-xl px-6 py-3"
                   onPress={() => setShowTextModal(true)}
+                  accessibilityRole="button"
+                  accessibilityLabel={t("auth.add_text")}
                 >
                   <ButtonIcon as={Type} className="text-white mr-2" />
                   <ButtonText className="text-white font-bold">
@@ -943,6 +979,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       size="xs"
                       className={`px-3 rounded-full ${drawType === "free" ? "bg-primary" : "bg-zinc-900 border border-zinc-800"}`}
                       onPress={() => setDrawType("free")}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("auth.draw_free")}
+                      accessibilityState={{ selected: drawType === "free" }}
                     >
                       <ButtonText
                         className={
@@ -958,6 +997,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       size="xs"
                       className={`px-3 rounded-full ${drawType === "rect" ? "bg-primary" : "bg-zinc-900 border border-zinc-800"}`}
                       onPress={() => setDrawType("rect")}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("auth.draw_rect")}
+                      accessibilityState={{ selected: drawType === "rect" }}
                     >
                       <ButtonText
                         className={
@@ -973,6 +1015,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       size="xs"
                       className={`px-3 rounded-full ${drawType === "circle" ? "bg-primary" : "bg-zinc-900 border border-zinc-800"}`}
                       onPress={() => setDrawType("circle")}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("auth.draw_circle")}
+                      accessibilityState={{ selected: drawType === "circle" }}
                     >
                       <ButtonText
                         className={
@@ -988,6 +1033,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       size="xs"
                       className={`px-3 rounded-full ${drawType === "arrow" ? "bg-primary" : "bg-zinc-900 border border-zinc-800"}`}
                       onPress={() => setDrawType("arrow")}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("auth.draw_arrow")}
+                      accessibilityState={{ selected: drawType === "arrow" }}
                     >
                       <ButtonText
                         className={
@@ -1037,6 +1085,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                             ? "border-primary scale-110 shadow-lg"
                             : "border-zinc-900"
                         }`}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${t("auth.brush_color")}: ${c}`}
+                        accessibilityState={{ selected: isActive }}
                       />
                     );
                   })}
@@ -1053,6 +1104,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 setSelectedItemId(null);
               }}
               className="items-center py-2 flex-grow"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.transform")}
+              accessibilityState={{ selected: activeTab === "transform" }}
             >
               <Crop
                 className={`w-5 h-5 ${activeTab === "transform" ? "text-primary" : "text-zinc-500"}`}
@@ -1070,6 +1124,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 setSelectedItemId(null);
               }}
               className="items-center py-2 flex-grow"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.adjust")}
+              accessibilityState={{ selected: activeTab === "adjust" }}
             >
               <Sliders
                 className={`w-5 h-5 ${activeTab === "adjust" ? "text-primary" : "text-zinc-500"}`}
@@ -1087,6 +1144,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 setSelectedItemId(null);
               }}
               className="items-center py-2 flex-grow"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.filters")}
+              accessibilityState={{ selected: activeTab === "filters" }}
             >
               <Sparkles
                 className={`w-5 h-5 ${activeTab === "filters" ? "text-primary" : "text-zinc-500"}`}
@@ -1104,6 +1164,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 setSelectedItemId(null);
               }}
               className="items-center py-2 flex-grow"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.effects")}
+              accessibilityState={{ selected: activeTab === "effects" }}
             >
               <Zap
                 className={`w-5 h-5 ${activeTab === "effects" ? "text-primary" : "text-zinc-500"}`}
@@ -1121,6 +1184,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 setSelectedItemId(null);
               }}
               className="items-center py-2 flex-grow"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.blur")}
+              accessibilityState={{ selected: activeTab === "blur" }}
             >
               <Droplet
                 className={`w-5 h-5 ${activeTab === "blur" ? "text-primary" : "text-zinc-500"}`}
@@ -1138,6 +1204,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 setSelectedItemId(null);
               }}
               className="items-center py-2 flex-grow"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.stickers")}
+              accessibilityState={{ selected: activeTab === "stickers" }}
             >
               <Smile
                 className={`w-5 h-5 ${activeTab === "stickers" ? "text-primary" : "text-zinc-500"}`}
@@ -1155,6 +1224,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 setSelectedItemId(null);
               }}
               className="items-center py-2 flex-grow"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.text")}
+              accessibilityState={{ selected: activeTab === "text" }}
             >
               <Type
                 className={`w-5 h-5 ${activeTab === "text" ? "text-primary" : "text-zinc-500"}`}
@@ -1172,6 +1244,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 setSelectedItemId(null);
               }}
               className="items-center py-2 flex-grow"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.draw")}
+              accessibilityState={{ selected: activeTab === "draw" }}
             >
               <Brush
                 className={`w-5 h-5 ${activeTab === "draw" ? "text-primary" : "text-zinc-500"}`}
@@ -1201,6 +1276,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 <Pressable
                   onPress={() => setShowTextModal(false)}
                   className="p-1 rounded-full bg-zinc-800 active:opacity-80"
+                  accessibilityRole="button"
+                  accessibilityLabel={t("auth.close")}
                 >
                   <X className="w-4 h-4 text-zinc-400" />
                 </Pressable>
@@ -1241,6 +1318,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                           ? "border-primary scale-110 shadow-lg"
                           : "border-zinc-950"
                       }`}
+                      accessibilityRole="button"
+                      accessibilityLabel={`${t("auth.text_color")}: ${c}`}
+                      accessibilityState={{ selected: isActive }}
                     />
                   );
                 })}
@@ -1249,6 +1329,8 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
               <Button
                 className="bg-primary py-3 rounded-2xl w-full"
                 onPress={handleAddText}
+                accessibilityRole="button"
+                accessibilityLabel={t("auth.save")}
               >
                 <ButtonText className="text-white font-bold">
                   {t("auth.save")}

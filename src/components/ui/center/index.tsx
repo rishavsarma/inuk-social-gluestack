@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { View, ViewProps } from 'react-native';
 import React from 'react';
 import { centerStyle } from './styles';

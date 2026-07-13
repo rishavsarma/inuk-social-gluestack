@@ -1,0 +1,63 @@
+{
+  "format_on_save": "on",
+  "code_actions_on_format": {
+    "source.fixAll": true,
+    "source.organizeImports": false,
+    "source.sortMembers": true
+  },
+  "file_scan_exclusions": [
+    "**/.git",
+    "**/.svn",
+    "**/.hg",
+    "**/.jj",
+    "**/CVS",
+    "**/.DS_Store",
+    "**/Thumbs.db",
+    "**/.classpath",
+    "**/.settings",
+    "**/.sl",
+    "**/.repo",
+    "**/node_modules",
+    "**/.expo",
+    "**/android",
+    "**/ios",
+    "**/dist",
+    "**/.turbo"
+  ],
+  "lsp": {
+    "vtsls": {
+      "settings": {
+        "typescript": {
+          "disableAutomaticTypeAcquisition": true,
+          "tsserver": {
+            "maxTsServerMemory": 8192,
+            "watchOptions": {
+              "excludeDirectories": [
+                "**/node_modules",
+                "**/.git",
+                "**/.expo",
+                "**/android",
+                "**/ios",
+                "**/dist"
+              ]
+            }
+          }
+        },
+        "javascript": {
+          "tsserver": {
+            "maxTsServerMemory": 8192
+          }
+        }
+      }
+    },
+    "tailwindcss-language-server": {
+      "settings": {
+        "experimental": {
+          "classRegex": [
+            ["tva\\((([^()]*|\\([^()]*\\))*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]"]
+          ]
+        }
+      }
+    }
+  }
+}

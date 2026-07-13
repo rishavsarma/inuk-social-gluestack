@@ -4,6 +4,7 @@ import { Image } from "expo-image";
 import { useIsFocused } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import * as React from "react";
+import { useTranslation } from "react-i18next";
 import {
   ActivityIndicator,
   Pressable,
@@ -126,6 +127,7 @@ function PostVideoHeroItem({
   isVisible: boolean;
   onControlsReady?: (state: VideoControlsState) => void;
 }) {
+  const { t } = useTranslation();
   const videoViewRef = React.useRef<VideoView>(null);
   const [isFullscreen, setIsFullscreen] = React.useState(false);
   const [isBuffering, setIsBuffering] = React.useState(true);
@@ -299,6 +301,7 @@ function PostVideoHeroItem({
           style={StyleSheet.absoluteFill}
           contentFit="cover"
           transition={0}
+          alt={t("post_detail.video_poster_alt")}
         />
       )}
 
@@ -315,7 +318,16 @@ function PostVideoHeroItem({
       )}
 
       {!isFullscreen && (
-        <Pressable onPress={togglePlay} style={StyleSheet.absoluteFill} />
+        <Pressable
+          onPress={togglePlay}
+          accessibilityRole="button"
+          accessibilityLabel={
+            isPlaying
+              ? t("post_detail.pause_video")
+              : t("post_detail.play_video")
+          }
+          style={StyleSheet.absoluteFill}
+        />
       )}
     </View>
   );

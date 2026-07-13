@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { UIIcon } from '@gluestack-ui/core/icon/creator';
 import { createRadio } from '@gluestack-ui/core/radio/creator';

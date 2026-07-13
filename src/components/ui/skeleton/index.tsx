@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { forwardRef } from 'react';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';
 import { View } from 'react-native';

@@ -5,7 +5,6 @@ import { FeedPostVideo } from "@/components/custom/Feed/FeedPostVideo";
 import { PostSkeleton } from "@/components/custom/Feed/PostSkeleton";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { PostOptionsActionsheet } from "@/components/custom/Post/PostOptionsActionsheet";
-import { ThemeSwitcher } from "@/components/custom/ThemeSwitcher";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
@@ -43,6 +42,34 @@ import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Platform, Pressable, Share, StyleSheet, View } from "react-native";
 
+interface FeedPostItem {
+  id: string | number;
+  type: string;
+  profileId?: string;
+  author?: {
+    id?: string;
+    avatar_url?: string;
+    display_name?: string;
+    username?: string;
+    is_me?: boolean;
+    is_following?: boolean;
+  };
+  created_at?: string;
+  caption?: string;
+  media?: { id?: string; url?: string; thumbnail_url?: string }[];
+  is_liked?: boolean;
+  likes_count?: number;
+  comments_count?: number;
+  shares_count?: number;
+}
+
+interface FeedPostsPage {
+  data?: FeedPostItem[];
+  offset?: number;
+  total?: number;
+  limit?: number;
+}
+
 const FeedScreen = () => {
   const { t } = useTranslation();
   const { theme } = useSettingStore();
@@ -68,8 +95,15 @@ const FeedScreen = () => {
   const [followOverrides, setFollowOverrides] = useState<
     Record<string, boolean>
   >({});
+  // postService.getFeedPosts's declared return type (PostDetail, a nested
+  // shape meant for the single-post-detail screen) doesn't match the flat
+  // item shape it actually returns for the feed list — re-typed here at the
+  // consumption boundary to match what this screen actually reads.
   const feedPosts = useMemo(
-    () => postsData?.pages?.flatMap((page: any) => page?.data ?? []) ?? [],
+    () =>
+      (postsData?.pages as unknown as FeedPostsPage[] | undefined)?.flatMap(
+        (page) => page?.data ?? [],
+      ) ?? [],
     [postsData],
   );
 
@@ -81,7 +115,10 @@ const FeedScreen = () => {
   } | null>(null);
 
   const posts = useMemo(
-    () => feedPosts.filter((post: any) => !hiddenPostIds.has(String(post.id))),
+    () =>
+      feedPosts.filter(
+        (post: FeedPostItem) => !hiddenPostIds.has(String(post.id)),
+      ),
     [feedPosts, hiddenPostIds],
   );
 
@@ -175,7 +212,7 @@ const FeedScreen = () => {
     [],
   );
   const handleViewableItemsChanged = useCallback(
-    ({ viewableItems }: { viewableItems: ViewToken<any>[] }) => {
+    ({ viewableItems }: { viewableItems: ViewToken<FeedPostItem>[] }) => {
       const activeVideo = viewableItems.find(
         (token) => token.isViewable && token.item?.type === "video",
       );
@@ -185,7 +222,7 @@ const FeedScreen = () => {
   );
 
   const renderItem = useCallback(
-    ({ item }: ListRenderItemInfo<any>) => {
+    ({ item }: ListRenderItemInfo<FeedPostItem>) => {
       const type = item.type;
       const avatarUrl = item.author?.avatar_url;
       const displayName =
@@ -205,14 +242,14 @@ const FeedScreen = () => {
       const isMe =
         item.author?.is_me ?? (!!currentUserId && authorId === currentUserId);
       const isFollowing =
-        followOverrides[authorId] ?? !!item.author?.is_following;
+        followOverrides[authorId ?? ""] ?? !!item.author?.is_following;
 
       const handlePress = () => {
         if (!postMediaId || !item.id) return;
         router.push(
           `${ROUTES.CONTENT.POST_DETAILS(
             postMediaId,
-            item.id,
+            String(item.id),
           )}?id=${postMediaId}&profile_id=${item.author?.id}&type=${type}` as Href,
         );
       };
@@ -222,7 +259,7 @@ const FeedScreen = () => {
         router.push(
           `${ROUTES.CONTENT.POST_DETAILS(
             postMediaId,
-            item.id,
+            String(item.id),
           )}?id=${postMediaId}&profile_id=${item.author?.id}&type=${type}&comments=true` as Href,
         );
       };
@@ -261,17 +298,21 @@ const FeedScreen = () => {
                   <Avatar className="h-12 w-12">
                     <AvatarImage
                       source={{ uri: avatarUrl }}
-                      alt="avatar"
+                      alt={t("profile.avatar_alt", { name: displayName })}
                       className=""
                     />
                   </Avatar>
-                  <VStack space="2xs" className="flex-1 ">
-                    <Text size="md" bold className="leading-none">
+                  <VStack className="">
+                    <Text
+                      size="md"
+                      bold
+                      className="leading-none py-0 leading-0 font-baloo-bold "
+                    >
                       {displayName}
                     </Text>
                     <Text
-                      size="sm"
-                      className="text-sm leading-none text-muted-foreground"
+                      size="xs"
+                      className="leading-none text-muted-foreground"
                     >
                       {createdAt}
                     </Text>
@@ -328,6 +369,7 @@ const FeedScreen = () => {
                   ) : (
                     <Image
                       source={{ uri: mediaUrl }}
+                      alt={t("feed.post_image_alt")}
                       style={{ width: "100%", height: "100%" }}
                       contentFit="cover"
                       transition={300}
@@ -447,7 +489,7 @@ const FeedScreen = () => {
         {({ scrollProps, topInset }) => (
           <FlashList
             data={posts}
-            keyExtractor={(item: any) => String(item.id)}
+            keyExtractor={(item: FeedPostItem) => String(item.id)}
             renderItem={renderItem}
             {...scrollProps}
             viewabilityConfig={viewabilityConfig}

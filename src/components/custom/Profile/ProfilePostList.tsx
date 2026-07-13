@@ -117,6 +117,7 @@ const ProfileGridItem = ({
                 contentFit="cover"
                 transition={200}
                 onError={() => setErroredUrl(postData.url)}
+                alt={t("profile.post_thumbnail_alt", { type: typeStr })}
               />
             )}
             {isVideo && !hasImageError && (

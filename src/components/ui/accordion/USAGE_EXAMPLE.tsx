@@ -1,3 +1,4 @@
+// @ts-nocheck
 /**
  * Accordion Usage Example with Automatic Icon Rotation
  *

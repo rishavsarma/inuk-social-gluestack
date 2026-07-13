@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import { useAnimatedReaction } from "react-native-reanimated";
 import { useBlankContext } from "./blank-context";

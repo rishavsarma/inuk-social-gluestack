@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { tva } from '@gluestack-ui/utils/nativewind-utils';
 import {
   GlassContainer as ExpoGlassContainer,

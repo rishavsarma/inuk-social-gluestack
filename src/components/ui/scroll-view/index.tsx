@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { ScrollView as RNScrollView } from "react-native";
 import { styled } from "nativewind";

@@ -2,7 +2,9 @@ import React, { useEffect, useState } from "react";
 
 import { router } from "expo-router";
 
-import DateTimePicker from "@react-native-community/datetimepicker";
+import DateTimePicker, {
+  DateTimePickerEvent,
+} from "@react-native-community/datetimepicker";
 import { format } from "date-fns";
 import { Image } from "expo-image";
 import * as ImagePicker from "expo-image-picker";
@@ -330,6 +332,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
           <Box className="h-72 w-full overflow-hidden bg-muted">
             <Image
               source={{ uri: coverUri }}
+              alt={t("profile.cover_photo_alt")}
               style={{ width: "100%", height: "100%" }}
               contentFit="cover"
             />
@@ -364,6 +367,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
           <Box className="h-24 w-24 overflow-hidden rounded-full border-4 border-background bg-muted shadow-lg shadow-black/30">
             <Image
               source={{ uri: avatarUri }}
+              alt={t("profile.edit_avatar")}
               style={{ width: "100%", height: "100%" }}
               contentFit="cover"
             />
@@ -566,7 +570,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                   mode="date"
                   display="default"
                   maximumDate={new Date()}
-                  onChange={(_event: any, date?: Date) => {
+                  onChange={(_event: DateTimePickerEvent, date?: Date) => {
                     setShowDatePicker(false);
                     if (date) setDob(date);
                   }}
@@ -615,7 +619,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                         mode="date"
                         display="spinner"
                         maximumDate={new Date()}
-                        onChange={(_event: any, date?: Date) => {
+                        onChange={(_event: DateTimePickerEvent, date?: Date) => {
                           if (date) setDob(date);
                         }}
                       />
@@ -670,6 +674,9 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
                           <InputField
                             autoFocus
                             placeholder={t("auth.location_search_placeholder")}
+                            accessibilityLabel={t(
+                              "auth.location_search_placeholder",
+                            )}
                             value={locationQuery}
                             onChangeText={setLocationQuery}
                             className="text-base text-foreground"
@@ -857,7 +864,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
   );
 }
 
-function EditProfileScreen() {
+const EditProfileScreen = () => {
   const { t } = useTranslation();
   const bottomInset = useAppBottomInset();
 
@@ -882,6 +889,6 @@ function EditProfileScreen() {
       )}
     </KeyboardAvoidingScrollView>
   );
-}
+};
 
 export default EditProfileScreen;

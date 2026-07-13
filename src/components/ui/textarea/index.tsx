@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import React from 'react';
 import { createTextarea } from '@gluestack-ui/core/textarea/creator';

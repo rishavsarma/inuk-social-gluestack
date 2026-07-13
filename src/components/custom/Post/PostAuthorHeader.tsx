@@ -41,7 +41,10 @@ function PostAuthorHeader({
       <HStack space="md" className="flex-1 items-center">
         <Avatar className="h-14 w-14 border-2 border-white/30">
           <AvatarFallbackText>{post.author.display_name}</AvatarFallbackText>
-          <AvatarImage source={{ uri: post.author.avatar_url }} />
+          <AvatarImage
+            source={{ uri: post.author.avatar_url }}
+            alt={t("profile.avatar_alt", { name: post.author.display_name })}
+          />
         </Avatar>
         <VStack className="items-start justify-start">
           <Heading size="md" className="text-white">

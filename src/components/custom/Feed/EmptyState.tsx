@@ -44,7 +44,13 @@ export function EmptyState({
       </Text>
       
       {actionLabel && onAction && (
-        <Button variant="outline" size="lg" onPress={onAction} className="min-w-[160px] rounded-full border-border/50">
+        <Button
+          variant="outline"
+          size="lg"
+          onPress={onAction}
+          accessibilityRole="button"
+          accessibilityLabel={actionLabel}
+          className="min-w-[160px] rounded-full border-border/50">
           <Text className="font-semibold text-foreground">{actionLabel}</Text>
         </Button>
       )}

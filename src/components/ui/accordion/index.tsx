@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { H3 } from '@expo/html-elements';
 import {

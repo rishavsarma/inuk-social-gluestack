@@ -11,7 +11,7 @@ const MIN_SPLASH_DURATION_MS = 2200;
  * Waits for Zustand persist rehydration from SecureStore before routing
  * so the persisted auth state is available.
  */
-export default function Index() {
+const Index = () => {
   // const hasLaunchedBefore = useJourneyStore((s) => s.hasLaunchedBefore);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const hasHydrated = useAuthStore((s) => s._hasHydrated);
@@ -41,4 +41,6 @@ export default function Index() {
   }
 
   return <Redirect href={ROUTES.AUTH.HOME} />;
-}
+};
+
+export default Index;

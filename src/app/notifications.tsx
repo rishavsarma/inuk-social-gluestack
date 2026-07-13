@@ -69,7 +69,12 @@ function NotificationRow({ item }: { item: NotificationItem }) {
             <AvatarFallbackText>
               {item.actor?.name ?? item.actor?.username}
             </AvatarFallbackText>
-            <AvatarImage source={{ uri: avatarUrl }} />
+            <AvatarImage
+              source={{ uri: avatarUrl }}
+              alt={t("profile.avatar_alt", {
+                name: item.actor?.name ?? item.actor?.username ?? t("common.user"),
+              })}
+            />
           </Avatar>
         ) : (
           <Box className="h-11 w-11 items-center justify-center rounded-full bg-theme/10">
@@ -100,7 +105,7 @@ function NotificationRow({ item }: { item: NotificationItem }) {
   );
 }
 
-function NotificationsScreen() {
+const NotificationsScreen = () => {
   const { t } = useTranslation();
   const [notifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
   const [refreshing, setRefreshing] = useState(false);
@@ -150,6 +155,6 @@ function NotificationsScreen() {
       )}
     </KeyboardAvoidingScrollView>
   );
-}
+};
 
 export default NotificationsScreen;

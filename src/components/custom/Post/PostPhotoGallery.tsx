@@ -79,6 +79,11 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
                 setCurrentIndex(idx);
                 setIsFullScreen(true);
               }}
+              accessibilityRole="button"
+              accessibilityLabel={t("post_detail.view_photo_a11y", {
+                index: idx + 1,
+                count: media.length,
+              })}
             >
               <Image
                 source={{ uri: m.url || m.uri }}
@@ -97,6 +102,10 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
                     : undefined
                 }
                 transition={500}
+                alt={t("post_detail.photo_alt", {
+                  index: idx + 1,
+                  name: post.author.display_name,
+                })}
               />
             </Pressable>
           ),
@@ -139,6 +148,9 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
                 source={{
                   uri: post.author.avatar_url,
                 }}
+                alt={t("profile.avatar_alt", {
+                  name: post.author.display_name,
+                })}
               />
             </Avatar>
             <HStack className="justify-between items-center w-full flex-1">

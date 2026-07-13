@@ -115,7 +115,7 @@ function SparksEmptyState() {
   );
 }
 
-function SparksScreen() {
+const SparksScreen = () => {
   const { t } = useTranslation();
   const points = useSocialStore((state) => state.points);
   const transactions = useSocialStore((state) => state.transactions);
@@ -174,6 +174,6 @@ function SparksScreen() {
       )}
     </KeyboardAvoidingScrollView>
   );
-}
+};
 
 export default SparksScreen;

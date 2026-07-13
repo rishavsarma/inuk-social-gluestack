@@ -167,6 +167,7 @@ const PasswordLogin = () => {
                     textContentType="password"
                     keyboardType="ascii-capable"
                     placeholder={t("auth.password_placeholder")}
+                    accessibilityLabel={t("auth.password_label")}
                     value={password}
                     clearTextOnFocus={false}
                     onChangeText={(val) => {
@@ -176,7 +177,17 @@ const PasswordLogin = () => {
                     className="flex-1 text-base text-foreground"
                   />
 
-                  <InputSlot onPress={handleToggle} className="pr-3">
+                  <InputSlot
+                    onPress={handleToggle}
+                    className="pr-3"
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      showPassword
+                        ? t("auth.hide_password")
+                        : t("auth.show_password")
+                    }
+                    accessibilityState={{ selected: showPassword }}
+                  >
                     <InputIcon
                       as={showPassword ? EyeOff : Eye}
                       className="w-5 h-5 text-muted-foreground"
@@ -205,6 +216,9 @@ const PasswordLogin = () => {
               onPress={handleSignIn}
               disabled={isPending}
               className="gap-1"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.sign_in")}
+              accessibilityState={{ disabled: isPending }}
             >
               <ButtonText>{t("auth.sign_in")}</ButtonText>
               {isPending ? (
@@ -221,6 +235,8 @@ const PasswordLogin = () => {
                 size="default"
                 onPress={() => router.replace(ROUTES.AUTH.HOME)}
                 className="p-0"
+                accessibilityRole="button"
+                accessibilityLabel={t("auth.back_to_login")}
               >
                 <ButtonIcon as={ArrowLeft} />
                 <ButtonText className="">{t("auth.back_to_login")}</ButtonText>
@@ -238,6 +254,9 @@ const PasswordLogin = () => {
                   });
                 }}
                 className="p-0"
+                accessibilityRole="button"
+                accessibilityLabel={t("auth.login_with_otp")}
+                accessibilityState={{ disabled: isPendingOtp }}
               >
                 <ButtonText className="font-semibold text-primary">
                   {t("auth.login_with_otp")}

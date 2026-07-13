@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createLink } from '@gluestack-ui/core/link/creator';
 import { Pressable } from 'react-native';

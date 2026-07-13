@@ -60,6 +60,8 @@
     "password_placeholder": "Enter your password",
     "back_to_login": "Back to Login",
     "password_helper": "Enter your account password",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
     "password_error_invalid": "Incorrect password. Please try again.",
     "password_error_required": "Password is required",
     "forgot_password": "Forgot Password?",
@@ -159,6 +161,15 @@
     "add_text": "Add Text",
     "type_text": "Type text here...",
     "add_emoji": "Add Stickers / Emoji",
+    "close": "Close",
+    "reset": "Reset",
+    "deselect_item": "Deselect item",
+    "transform": "Transform",
+    "filters": "Filters",
+    "filter_grayscale": "Monochrome",
+    "sticker_label": "Sticker {{emoji}}",
+    "text_color": "Text Color",
+    "delete_item": "Delete item",
     "sign_in_subtitle": "Enter your password to continue",
     "secure_account": "Secure Account",
     "password_required": "Password is required",
@@ -271,7 +282,8 @@
     "privacy_policy": "Privacy Policy",
     "log_out": "Log Out",
     "select_language": "Select Language",
-    "member": "Member"
+    "member": "Member",
+    "theme_selector_a11y": "Selected theme: {{theme}}. Double tap to change"
   },
   "tabs": {
     "feed": "Feed",
@@ -313,7 +325,10 @@
     "share": "Share",
     "mute_video": "Mute video",
     "unmute_video": "Unmute video",
-    "view_post_a11y": "View post"
+    "view_post_a11y": "View post",
+    "category_thumbnail_alt": "{{category}} category thumbnail",
+    "video_thumbnail_alt": "Video thumbnail",
+    "post_image_alt": "Post image"
   },
   "post_options": {
     "menu_a11y": "More options",
@@ -475,7 +490,10 @@
     "sparks_balance": "{{count}} sparks",
     "posts_count": "{{count}} posts",
     "followers_count": "{{count}} followers",
-    "following_count": "{{count}} following"
+    "following_count": "{{count}} following",
+    "avatar_alt": "{{name}}'s profile picture",
+    "cover_photo_alt": "{{name}}'s cover photo",
+    "post_thumbnail_alt": "{{type}} post thumbnail"
   },
   "awards": {
     "title": "Spotlight & Awards",
@@ -621,7 +639,8 @@
     "error_loading": "Something went wrong. Please try again.",
     "not_available": "N/A",
     "user": "User",
-    "go_back": "Go back"
+    "go_back": "Go back",
+    "app_logo_alt": "Inuk logo"
   },
   "post_detail": {
     "loading": "Loading…",
@@ -640,6 +659,10 @@
     "camera_specs": "Camera Specs",
     "environment": "Environment",
     "open_maps": "Open Maps",
+    "open_maps_a11y": "Open location in Maps app",
+    "view_photo_a11y": "View photo {{index}} of {{count}}",
+    "photo_alt": "Photo {{index}} by {{name}}",
+    "video_poster_alt": "Video thumbnail",
     "performance": "Performance",
     "score": "Score",
     "awards": "Awards",
@@ -709,6 +732,7 @@
     "like_error": "Couldn't update your like. Please try again.",
     "play_video": "Play video",
     "pause_video": "Pause video",
+    "seek_video": "Seek video position",
     "fullscreen_video": "Enter fullscreen",
     "close_video": "Close",
     "post_options": "Post options",

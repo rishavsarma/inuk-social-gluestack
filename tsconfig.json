@@ -1,17 +1,37 @@
 {
-  "extends": "expo/tsconfig.base",
-  "compilerOptions": {
-    "strict": true,
-    "paths": {
-      "@/*": ["./src/*"],
-      "@/assets/*": ["./assets/*"]
-    }
-  },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts",
-    "nativewind-env.d.ts"
-  ]
+    "extends": "expo/tsconfig.base",
+    "compilerOptions": {
+        "strict": true,
+        "skipLibCheck": true,
+        "incremental": true,
+        "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo",
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ],
+            "@/assets/*": [
+                "./assets/*"
+            ]
+        }
+    },
+    "exclude": [
+        ".history",
+        ".vscode",
+        ".expo",
+        "@docs",
+        "node_modules",
+        ".zed",
+        "android",
+        "ios",
+        "dist",
+        "web-build",
+        ".turbo"
+    ],
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        ".expo/types/**/*.ts",
+        "expo-env.d.ts",
+        "nativewind-env.d.ts"
+    ]
 }

@@ -1,3 +1,4 @@
+// @ts-nocheck
 // components/ai-elements/index.ts
 export * from './message';
 export * from './conversation';

@@ -129,4 +129,14 @@
   --color-accent: rgb(var(--accent));
   --color-accent-foreground: rgb(var(--accent-foreground));
   --color-theme: rgb(var(--theme));
+
+  /* Baloo 2 — native fontFamily names must match the keys passed to
+     useFonts() in app/_layout.tsx (expo-font registers fonts by key,
+     not by the file's internal PostScript name). RN has no font-weight
+     synthesis for custom fonts, so each weight is its own utility. */
+  --font-baloo: "Baloo2_400Regular";
+  --font-baloo-medium: "Baloo2_500Medium";
+  --font-baloo-semibold: "Baloo2_600SemiBold";
+  --font-baloo-bold: "Baloo2_700Bold";
+  --font-baloo-extrabold: "Baloo2_800ExtraBold";
 }

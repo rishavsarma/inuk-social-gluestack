@@ -62,7 +62,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
   </Box>
 );
 
-export default function PrivacyScreen() {
+const PrivacyScreen = () => {
   const { t } = useTranslation();
 
   const useBullets = [
@@ -174,4 +174,6 @@ export default function PrivacyScreen() {
       </VStack>
     </KeyboardAvoidingScrollView>
   );
-}
+};
+
+export default PrivacyScreen;

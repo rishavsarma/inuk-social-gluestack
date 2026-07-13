@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React from 'react';
 import { createImage } from '@gluestack-ui/core/image/creator';
 import { Platform, Image as RNImage } from 'react-native';

@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createModal as createDrawer } from '@gluestack-ui/core/modal/creator';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';

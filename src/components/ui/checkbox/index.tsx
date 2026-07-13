@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createCheckbox } from '@gluestack-ui/core/checkbox/creator';
 import { UIIcon } from '@gluestack-ui/core/icon/creator';

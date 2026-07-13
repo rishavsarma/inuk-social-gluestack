@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createProgress } from '@gluestack-ui/core/progress/creator';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';

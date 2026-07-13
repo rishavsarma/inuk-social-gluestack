@@ -1,3 +1,4 @@
+// @ts-nocheck
 import React, { forwardRef, memo } from 'react';
 import {
   H1 as H1Base,

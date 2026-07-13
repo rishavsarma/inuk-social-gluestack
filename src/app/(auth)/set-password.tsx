@@ -240,6 +240,7 @@ const SetPassword = () => {
                     textContentType="newPassword"
                     keyboardType="ascii-capable"
                     placeholder={t("auth.new_password_placeholder")}
+                    accessibilityLabel={t("auth.new_password_label")}
                     value={password}
                     onChangeText={(val) => {
                       setPassword(val);
@@ -250,6 +251,13 @@ const SetPassword = () => {
                   <InputSlot
                     onPress={() => setShowPassword((prev) => !prev)}
                     className="pr-3"
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      showPassword
+                        ? t("auth.hide_password")
+                        : t("auth.show_password")
+                    }
+                    accessibilityState={{ selected: showPassword }}
                   >
                     <InputIcon
                       as={showPassword ? EyeOff : Eye}
@@ -361,6 +369,7 @@ const SetPassword = () => {
                     textContentType="newPassword"
                     keyboardType="ascii-capable"
                     placeholder={t("auth.confirm_password_placeholder")}
+                    accessibilityLabel={t("auth.confirm_password_label")}
                     value={confirmPassword}
                     onChangeText={(val) => {
                       setConfirmPassword(val);
@@ -371,6 +380,13 @@ const SetPassword = () => {
                   <InputSlot
                     onPress={() => setShowConfirmPassword((prev) => !prev)}
                     className="pr-3"
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                      showConfirmPassword
+                        ? t("auth.hide_password")
+                        : t("auth.show_password")
+                    }
+                    accessibilityState={{ selected: showConfirmPassword }}
                   >
                     <InputIcon
                       as={showConfirmPassword ? EyeOff : Eye}
@@ -398,6 +414,12 @@ const SetPassword = () => {
                 isResetPasswordUpdatePending || isSignUpSetPasswordPending
               }
               className="gap-1"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.set_password_button")}
+              accessibilityState={{
+                disabled:
+                  isResetPasswordUpdatePending || isSignUpSetPasswordPending,
+              }}
             >
               <ButtonText>{t("auth.set_password_button")}</ButtonText>
               {isResetPasswordUpdatePending || isSignUpSetPasswordPending ? (
@@ -412,6 +434,8 @@ const SetPassword = () => {
                 size="default"
                 onPress={() => router.replace(ROUTES.AUTH.HOME)}
                 className="p-0"
+                accessibilityRole="button"
+                accessibilityLabel={t("auth.back_to_login")}
               >
                 <ButtonIcon as={ArrowLeft} />
                 <ButtonText className="">{t("auth.back_to_login")}</ButtonText>

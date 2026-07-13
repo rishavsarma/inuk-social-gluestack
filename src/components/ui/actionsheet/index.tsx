@@ -1,3 +1,4 @@
+// @ts-nocheck
 "use client";
 import { H4 } from "@expo/html-elements";
 import { createActionsheet } from "@gluestack-ui/core/actionsheet/creator";

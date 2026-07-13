@@ -22,7 +22,22 @@ interface InitiateJourneyPayload {
 
 interface InitiateJourneyResponse {
   status: "VERIFICATION_PENDING" | "BLOCKED" | "ACTIVE" | "WELCOME" | string;
-  data?: string[] | string | any;
+  data?: string[] | string;
+}
+
+interface AuthUserSummary {
+  accountId?: string;
+  accountType?: string;
+  accountStatus?: string;
+  tenantId?: string;
+  profileId?: string;
+  profileStatus?: string;
+  avatar?: string;
+  coverPhoto?: string;
+  name?: string;
+  mobile?: string;
+  email?: string;
+  expiry?: string;
 }
 
 interface VerifyOtpPayload {
@@ -38,7 +53,7 @@ interface VerifyOtpResponse {
     token?: string;
     profileId?: string;
     accountId?: string;
-    user?: any;
+    user?: AuthUserSummary;
   };
 }
 
@@ -49,7 +64,7 @@ interface SetPasswordPayload {
 
 interface SetPasswordResponse {
   status: "PROFILE_PENDING" | string;
-  data?: any;
+  data?: unknown;
 }
 
 interface SetProfilePayload {
@@ -64,7 +79,7 @@ interface SetProfilePayload {
 interface SetProfileResponse {
   status: string;
   data?: {
-    user?: any;
+    user?: AuthUserSummary;
   };
 }
 
@@ -109,7 +124,7 @@ interface SignInOtpInitiatePayload {
 
 interface SignInOtpInitiateResponse {
   status?: string;
-  data?: any;
+  data?: unknown;
 }
 
 interface ResetPasswordInitiatePayload {
@@ -144,7 +159,7 @@ interface ResetPasswordUpdatePayload {
 
 interface ResetPasswordUpdateResponse {
   status?: string;
-  data?: any;
+  data?: unknown;
 }
 
 interface SignInVerifyOtpPayload {
@@ -429,7 +444,7 @@ interface ChangePasswordPayload {
 
 interface ChangePasswordResponse {
   status?: string;
-  data?: any;
+  data?: unknown;
 }
 
 interface ValidateUsernameResponse {

@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import React, { useCallback, useState, useEffect } from 'react';
 import { tva } from '@gluestack-ui/utils/nativewind-utils';

@@ -1,10 +1,14 @@
 import { authService } from "@/services/auth.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 
 export const useInitiateJourney = () => {
-  return useMutation({
-    mutationFn: (payload: { contact: string; accountType: AccountType }) =>
-      authService.initiateJourney(payload),
+  return useMutation<
+    InitiateJourneyResponse,
+    AxiosError<{ message?: string }>,
+    { contact: string; accountType: AccountType }
+  >({
+    mutationFn: (payload) => authService.initiateJourney(payload),
   });
 };
 
@@ -62,9 +66,12 @@ export const useResetPasswordUpdate = () => {
 };
 
 export const useChangePassword = () => {
-  return useMutation({
-    mutationFn: (payload: ChangePasswordPayload) =>
-      authService.changePassword(payload),
+  return useMutation<
+    ChangePasswordResponse,
+    AxiosError<{ message?: string }>,
+    ChangePasswordPayload
+  >({
+    mutationFn: (payload) => authService.changePassword(payload),
   });
 };
 

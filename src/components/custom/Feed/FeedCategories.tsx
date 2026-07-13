@@ -87,6 +87,9 @@ export function FeedCategories() {
                       style={{ width: "100%", height: "100%" }}
                       contentFit="cover"
                       transition={200}
+                      alt={t("feed.category_thumbnail_alt", {
+                        category: t(category.labelKey),
+                      })}
                     />
                   </Box>
                 </Box>

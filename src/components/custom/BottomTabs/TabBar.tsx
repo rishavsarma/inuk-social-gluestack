@@ -137,7 +137,7 @@ function TabItem({
         className="items-center gap-1 justify-center"
       >
         <View className="h-5.5 w-5.5">
-          {isProfile && avatarUrl ? (
+          {/* {isProfile && avatarUrl ? (
             <>
               <Animated.View
                 style={inactiveIconStyle}
@@ -156,36 +156,36 @@ function TabItem({
                 </Avatar>
               </Animated.View>
             </>
-          ) : (
-            <>
-              <Animated.View
-                style={inactiveIconStyle}
-                className="absolute inset-0 items-center justify-center"
-              >
-                <Icon as={tab.icon} className="text-foreground/60 h-7 w-7" />
-              </Animated.View>
-              <Animated.View
-                style={activeIconStyle}
-                className="absolute inset-0 items-center justify-center"
-              >
-                <Icon as={tab.icon} className="h-7  w-7 text-theme" />
-              </Animated.View>
-            </>
-          )}
+          ) : ( */}
+          {/* <> */}
+          <Animated.View
+            style={inactiveIconStyle}
+            className="absolute inset-0 items-center justify-center"
+          >
+            <Icon as={tab.icon} className="text-foreground/60 h-6 w-6" />
+          </Animated.View>
+          <Animated.View
+            style={activeIconStyle}
+            className="absolute inset-0 items-center justify-center"
+          >
+            <Icon as={tab.icon} className="h-6  w-6 text-theme" />
+          </Animated.View>
+          {/* </> */}
+          {/* )} */}
         </View>
 
         {/* Label */}
-        {/* <Text
+        <Text
           size="xs"
           className={cn(
-            " pt-1.5 leading-3 tracking-wide",
+            " pt-1 leading-3 tracking-wide",
             isActive
               ? "font-bold text-theme"
               : "font-medium text-foreground/60",
           )}
         >
           {tab.label ? label : ""}
-        </Text> */}
+        </Text>
       </Animated.View>
     </Pressable>
   );

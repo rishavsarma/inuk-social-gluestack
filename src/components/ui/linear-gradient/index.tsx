@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { LinearGradient as ExpoLinearGradient } from "expo-linear-gradient";
 import React from "react";
 

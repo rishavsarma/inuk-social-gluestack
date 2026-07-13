@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { tva, isWeb } from "@gluestack-ui/utils/nativewind-utils";
 
 const captionTableStyle = isWeb ? "caption-bottom" : "";

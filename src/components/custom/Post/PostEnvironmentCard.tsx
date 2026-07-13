@@ -151,6 +151,8 @@ const MapTile = React.memo(function MapTile({
             Linking.openURL(`maps://?q=${latitude},${longitude}`),
           )
         }
+        accessibilityRole="button"
+        accessibilityLabel={t("post_detail.open_maps_a11y")}
       >
         {/* Map placeholder */}
         <View

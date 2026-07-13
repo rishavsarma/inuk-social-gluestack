@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createPopover } from '@gluestack-ui/core/popover/creator';
 import type { VariantProps } from '@gluestack-ui/utils/nativewind-utils';

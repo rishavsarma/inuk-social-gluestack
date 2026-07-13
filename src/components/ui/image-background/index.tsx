@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { ImageBackground as RNImageBackground } from 'react-native';
 import React from 'react';

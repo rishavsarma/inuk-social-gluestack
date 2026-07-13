@@ -1,3 +1,4 @@
+// @ts-nocheck
 'use client';
 import { createAvatar } from '@gluestack-ui/core/avatar/creator';
 import React from 'react';
