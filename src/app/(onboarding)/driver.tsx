@@ -1,8 +1,10 @@
+import { BlurView } from "expo-blur";
+import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, View, ViewToken } from "react-native";
+import { FlatList, Platform, View, ViewToken } from "react-native";
 import Animated, {
   useAnimatedRef,
   useAnimatedScrollHandler,
@@ -17,7 +19,10 @@ import { OnboardingNextButton } from "@/components/custom/Onboarding/OnboardingN
 import { OnboardingPagination } from "@/components/custom/Onboarding/OnboardingPagination";
 import { OnboardingSlideItem } from "@/components/custom/Onboarding/OnboardingSlideItem";
 import { useAppInsets } from "@/hooks/useAppInsets";
-import { ONBOARDING_SLIDES, type OnboardingSlide } from "@/constants/onboarding";
+import {
+  ONBOARDING_SLIDES,
+  type OnboardingSlide,
+} from "@/constants/onboarding";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
 import { useSettingStore } from "@/stores/setting.store";
@@ -56,6 +61,7 @@ const OnboardingDriver = () => {
   });
 
   const handleFinish = useCallback(() => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setHasCompletedOnboarding(true);
     const isAuthenticated = useAuthStore.getState().isAuthenticated;
     router.replace(isAuthenticated ? ROUTES.TABS.FEED : ROUTES.AUTH.HOME);
@@ -67,18 +73,23 @@ const OnboardingDriver = () => {
 
       <HStack
         className="absolute left-0 right-0 z-10 justify-end px-4"
-        style={{ top: insets.top + 12 }}
+        style={{ top: insets.top + 28 }}
       >
         <Pressable
           onPress={handleFinish}
           accessibilityRole="button"
           accessibilityLabel={t("onboarding.skip")}
+          className="overflow-hidden rounded-full active:opacity-70"
         >
-          <HStack className="items-center justify-center rounded-full bg-black/30 px-4 py-2">
+          <BlurView
+            intensity={Platform.OS === "android" ? 100 : 50}
+            tint="dark"
+            className="items-center justify-center px-4 py-2"
+          >
             <Text className="text-xs font-semibold tracking-wide text-white">
               {t("onboarding.skip")}
             </Text>
-          </HStack>
+          </BlurView>
         </Pressable>
       </HStack>
 
@@ -99,18 +110,20 @@ const OnboardingDriver = () => {
         viewabilityConfig={VIEWABILITY_CONFIG}
       />
 
-      <HStack
-        className="absolute bottom-0 left-0 right-0 items-center justify-between px-4"
-        style={{ paddingBottom: Math.max(insets.bottom, 60) }}
-      >
-        <OnboardingPagination data={ONBOARDING_SLIDES} x={x} />
-        <OnboardingNextButton
-          flatListRef={flatListRef}
-          flatListIndex={flatListIndex}
-          dataLength={ONBOARDING_SLIDES.length}
-          onFinish={handleFinish}
-        />
-      </HStack>
+      <View className="absolute bottom-0 left-0 right-0 overflow-hidden rounded-t-4xl">
+        <HStack
+          className="items-center justify-between px-6 pt-5"
+          style={{ paddingBottom: Math.max(insets.bottom, 24) }}
+        >
+          <OnboardingPagination data={ONBOARDING_SLIDES} x={x} />
+          <OnboardingNextButton
+            flatListRef={flatListRef}
+            flatListIndex={flatListIndex}
+            dataLength={ONBOARDING_SLIDES.length}
+            onFinish={handleFinish}
+          />
+        </HStack>
+      </View>
     </View>
   );
 };

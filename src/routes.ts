@@ -9,6 +9,7 @@ export const ROUTES = {
     HOME: "/(auth)" as const,
     SIGNUP: "/(auth)/signup" as const,
     SET_PASSWORD: "/(auth)/set-password" as const,
+    SET_REFERRAL: "/(auth)/set-referral" as const,
     SET_PROFILE: "/(auth)/set-profile" as const,
     VERIFY_OTP: "/(auth)/verify-otp" as const,
     PASSWORD_LOGIN: "/(auth)/password-login" as const,

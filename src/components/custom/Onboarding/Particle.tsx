@@ -104,7 +104,6 @@ export function Particle({
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 1,
           shadowRadius: size * 2,
-          elevation: 4,
         },
       ]}
     />

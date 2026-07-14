@@ -8,7 +8,6 @@ import {
   AtSign,
   Calendar,
   Camera,
-  Gift,
   MapPin,
   User,
 } from "lucide-react-native";
@@ -66,11 +65,7 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
@@ -83,11 +78,7 @@ import {
 } from "@/components/ui/icon";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { useSearchLocations } from "@/hooks/useLocation";
-import {
-  useValidateReferralCode,
-  useValidateUsername,
-  useSetProfileDetails,
-} from "@/hooks/useAuth";
+import { useValidateUsername, useSetProfileDetails } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
 import { THEME_RGB } from "@/constants";
 import { useSettingStore } from "@/stores/setting.store";
@@ -105,8 +96,15 @@ const SetProfile = () => {
   const bottomInset = useAppBottomInset();
   const { t } = useTranslation();
   const router = useRouter();
+  const { referredBy } = useLocalSearchParams<{ referredBy?: string }>();
   const { uploadMedia } = useUpload();
   const isDark = useSettingStore((state) => state.theme === "dark");
+
+  useEffect(() => {
+    if (!referredBy) {
+      router.replace(ROUTES.AUTH.SET_REFERRAL);
+    }
+  }, [referredBy]);
 
   // Core fields
   const [username, setUsername] = useState("");
@@ -119,8 +117,6 @@ const SetProfile = () => {
     useState<LocationSearchResult | null>(null);
   const [locationQuery, setLocationQuery] = useState("");
   const [debouncedLocationQuery, setDebouncedLocationQuery] = useState("");
-  const [referralCode, setReferralCode] = useState("");
-  const [debouncedReferralCode, setDebouncedReferralCode] = useState("");
   const [debouncedUsername, setDebouncedUsername] = useState("");
 
   const usernameSuggestions = useMemo(
@@ -167,20 +163,6 @@ const SetProfile = () => {
       : selectedLocation.name
     : "";
 
-  useEffect(() => {
-    const timeout = setTimeout(
-      () => setDebouncedReferralCode(referralCode.trim()),
-      400,
-    );
-    return () => clearTimeout(timeout);
-  }, [referralCode]);
-
-  const { data: referralValidation, isFetching: isCheckingReferralCode } =
-    useValidateReferralCode(debouncedReferralCode);
-
-  const referrer =
-    referralValidation?.status === "VALID" ? referralValidation.data : null;
-
   const handleSelectLocation = (item: LocationSearchResult) => {
     setSelectedLocation(item);
     setLocationQuery("");
@@ -200,7 +182,6 @@ const SetProfile = () => {
   const [usernameError, setUsernameError] = useState<string | null>(null);
   const [dobError, setDobError] = useState<string | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
-  const [referralError, setReferralError] = useState<string | null>(null);
 
   const handleImagePickerResponse = async (useCamera: boolean) => {
     setShowAvatarSheet(false);
@@ -268,12 +249,10 @@ const SetProfile = () => {
     setUsernameError(null);
     setDobError(null);
     setLocationError(null);
-    setReferralError(null);
 
     const cleanedUsername = username.trim().toLowerCase();
     const cleanedName = name.trim();
     const cleanedLocation = selectedLocation?.id;
-    const cleanedReferral = referralCode.trim();
 
     let hasError = false;
 
@@ -314,15 +293,6 @@ const SetProfile = () => {
       hasError = true;
     }
 
-    // Validate Referral Code
-    if (!cleanedReferral) {
-      setReferralError(t("auth.referral_code_error_required"));
-      hasError = true;
-    } else if (cleanedReferral.length < 6) {
-      setReferralError(t("auth.referral_code_invalid"));
-      hasError = true;
-    }
-
     if (hasError) return;
     if (!avatarUrl || !cleanedLocation) return;
 
@@ -350,7 +320,7 @@ const SetProfile = () => {
       username: cleanedUsername,
       dob: dob.toISOString().split("T")[0],
       location: cleanedLocation,
-      referredBy: cleanedReferral,
+      referredBy: referredBy ?? "",
     };
 
     setProfileDetails(payload, {
@@ -835,96 +805,6 @@ const SetProfile = () => {
                   {dobError && (
                     <FormControlError>
                       <FormControlErrorText>{dobError}</FormControlErrorText>
-                    </FormControlError>
-                  )}
-                </VStack>
-              </FormControl>
-
-              {/* Referral Code Input */}
-              <FormControl
-                isInvalid={!!referralError}
-                isDisabled={isPending}
-                className="w-full"
-              >
-                <VStack space="xs">
-                  <FormControlLabel>
-                    <FormControlLabelText className="text-sm font-semibold">
-                      {t("auth.referral_code_label")}
-                    </FormControlLabelText>
-                  </FormControlLabel>
-                  <Input>
-                    <InputSlot>
-                      <InputIcon as={Gift} className="text-muted-foreground" />
-                    </InputSlot>
-                    <InputField
-                      autoCapitalize="characters"
-                      placeholder={t("auth.referral_code_placeholder")}
-                      value={referralCode}
-                      onChangeText={(val) => {
-                        setReferralCode(val);
-                        if (referralError) setReferralError(null);
-                      }}
-                      className="text-base  text-foreground"
-                    />
-                    <InputSlot className="pr-3">
-                      {isCheckingReferralCode ? (
-                        <Spinner size="small" />
-                      ) : referrer ? (
-                        <InputIcon
-                          as={CheckCircleIcon}
-                          className="text-green-600"
-                        />
-                      ) : referralValidation ? (
-                        <InputIcon
-                          as={CloseCircleIcon}
-                          className="text-destructive"
-                        />
-                      ) : null}
-                    </InputSlot>
-                  </Input>
-                  {debouncedReferralCode.length >= 6 &&
-                    debouncedReferralCode === referralCode.trim() && (
-                      <>
-                        {referrer ? (
-                          <Card className="p-3 mt-1 bg-card rounded-md">
-                            <HStack space="md" className="items-center">
-                              <Avatar className="h-10 w-10">
-                                <AvatarFallbackText>
-                                  {referrer.givenName ?? referrer.username}
-                                </AvatarFallbackText>
-                                {referrer.avatar ? (
-                                  <AvatarImage
-                                    source={{
-                                      uri: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${referrer.avatar}/jpeg/150`,
-                                    }}
-                                  />
-                                ) : null}
-                              </Avatar>
-                              <VStack className="flex-1">
-                                <Text className="text-sm font-semibold text-foreground">
-                                  {referrer.givenName}
-                                </Text>
-                                {referrer.username ? (
-                                  <Text className="text-xs text-muted-foreground">
-                                    @{referrer.username}
-                                  </Text>
-                                ) : null}
-                              </VStack>
-                            </HStack>
-                          </Card>
-                        ) : referralValidation ? (
-                          <Text className="text-xs text-destructive">
-                            {referralValidation.message ??
-                              t("auth.referral_code_invalid")}
-                          </Text>
-                        ) : null}
-                      </>
-                    )}
-                  {referralError && (
-                    <FormControlError>
-                      <FormControlErrorText>
-                        {referralError}
-                      </FormControlErrorText>
                     </FormControlError>
                   )}
                 </VStack>

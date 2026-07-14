@@ -19,6 +19,7 @@ import { useTranslation } from "react-i18next";
 
 import { useAuthStore } from "@/stores/auth.store";
 import { useFeedVideoStore } from "@/stores/feed-video.store";
+import { useFollowStore } from "@/stores/follow.store";
 
 import { useGetFeedPosts, useLikeFeedPostMutation } from "@/hooks/usePosts";
 import { useFollowUser } from "@/hooks/useProfile";
@@ -60,9 +61,8 @@ const FeedScreen = () => {
     variables: followVariables,
     isPending: isFollowPending,
   } = useFollowUser();
-  const [followOverrides, setFollowOverrides] = useState<
-    Record<string, boolean>
-  >({});
+  const followOverrides = useFollowStore((state) => state.overrides);
+  const setFollowOverride = useFollowStore((state) => state.setFollowOverride);
   // postService.getFeedPosts's declared return type (PostDetail, a nested
   // shape meant for the single-post-detail screen) doesn't match the flat
   // item shape it actually returns for the feed list — re-typed here at the
@@ -141,14 +141,14 @@ const FeedScreen = () => {
   const handleFollowPress = useCallback(
     (authorId: string | undefined, isFollowing: boolean) => {
       if (!authorId || !currentUserId) return;
-      setFollowOverrides((prev) => ({ ...prev, [authorId]: !isFollowing }));
+      setFollowOverride(authorId, !isFollowing);
       toggleFollow({
         followerId: currentUserId,
         followedId: authorId,
         action: isFollowing ? "UNFOLLOW" : "FOLLOW",
       });
     },
-    [currentUserId, toggleFollow],
+    [currentUserId, toggleFollow, setFollowOverride],
   );
 
   const handleWhySeeingThis = useCallback(() => {

@@ -49,8 +49,11 @@ const OnboardingLanguage = () => {
       <VStack space="md" className="items-center mt-10 mb-10">
         <Logo size={40} />
 
-        <VStack space="xs">
-          <Heading size="2xl" className="font-bold text-foreground text-center">
+        <VStack>
+          <Heading
+            size="2xl"
+            className="font-bold text-foreground text-center font-baloo-bold"
+          >
             {t("onboarding.language_title")}
           </Heading>
           <Text size="sm" className="text-muted-foreground text-center">
@@ -69,7 +72,7 @@ const OnboardingLanguage = () => {
                 value={item.id}
                 size="md"
                 className={
-                  "w-full flex-row-reverse items-center justify-between rounded-2xl border px-4 py-4 active:opacity-70 " +
+                  "w-full flex-row-reverse items-center justify-between rounded-lg border px-4 py-4 active:opacity-70 " +
                   (isSelected
                     ? "border-theme bg-theme/10"
                     : "border-border bg-card")
@@ -78,7 +81,7 @@ const OnboardingLanguage = () => {
                 <RadioIndicator>
                   <RadioIcon as={CircleIcon} />
                 </RadioIndicator>
-                <RadioLabel className="flex-1 text-base font-semibold text-foreground">
+                <RadioLabel className="flex-1 text-lg font-semibold text-foreground font-baloo-semibold ">
                   {t(item.labelKey)}
                 </RadioLabel>
               </Radio>

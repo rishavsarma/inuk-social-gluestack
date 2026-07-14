@@ -103,6 +103,8 @@ const ProfileScreen = () => {
         ? isLoadingVideoPosts
         : false;
 
+  console.log("profileData", profileId);
+
   return (
     <KeyboardAvoidingScrollView
       disableTopInset

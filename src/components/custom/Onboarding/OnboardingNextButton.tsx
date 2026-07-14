@@ -1,3 +1,4 @@
+import * as Haptics from "expo-haptics";
 import { ArrowRight } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import type { FlatList } from "react-native";
@@ -5,12 +6,13 @@ import Animated, {
   AnimatedRef,
   SharedValue,
   useAnimatedStyle,
+  useSharedValue,
+  withSpring,
   withTiming,
 } from "react-native-reanimated";
 
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
-import { THEME_ACCENT_COLOR } from "@/constants";
 import type { OnboardingSlide } from "@/constants/onboarding";
 
 type OnboardingNextButtonProps = {
@@ -27,31 +29,46 @@ export function OnboardingNextButton({
   onFinish,
 }: OnboardingNextButtonProps) {
   const { t } = useTranslation();
+  const pressScale = useSharedValue(1);
 
   const buttonAnimationStyle = useAnimatedStyle(() => ({
-    width: flatListIndex.value === dataLength - 1 ? withTiming(150) : withTiming(60),
+    width:
+      flatListIndex.value === dataLength - 1
+        ? withSpring(150, { damping: 15, stiffness: 140 })
+        : withSpring(60, { damping: 15, stiffness: 140 }),
     height: 60,
+    transform: [{ scale: pressScale.value }],
   }));
 
   const arrowAnimationStyle = useAnimatedStyle(() => ({
-    opacity: flatListIndex.value === dataLength - 1 ? withTiming(0) : withTiming(1),
+    opacity:
+      flatListIndex.value === dataLength - 1 ? withTiming(0) : withTiming(1),
     transform: [
       {
-        translateX: flatListIndex.value === dataLength - 1 ? withTiming(100) : withTiming(0),
+        translateX:
+          flatListIndex.value === dataLength - 1
+            ? withSpring(100, { damping: 15, stiffness: 140 })
+            : withSpring(0, { damping: 15, stiffness: 140 }),
       },
     ],
   }));
 
   const textAnimationStyle = useAnimatedStyle(() => ({
-    opacity: flatListIndex.value === dataLength - 1 ? withTiming(1) : withTiming(0),
+    opacity:
+      flatListIndex.value === dataLength - 1 ? withTiming(1) : withTiming(0),
     transform: [
       {
-        translateX: flatListIndex.value === dataLength - 1 ? withTiming(0) : withTiming(-100),
+        translateX:
+          flatListIndex.value === dataLength - 1
+            ? withSpring(0, { damping: 15, stiffness: 140 })
+            : withSpring(-100, { damping: 15, stiffness: 140 }),
       },
     ],
   }));
 
   const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
     if (flatListIndex.value < dataLength - 1) {
       flatListRef.current?.scrollToIndex({ index: flatListIndex.value + 1 });
     } else {
@@ -60,23 +77,25 @@ export function OnboardingNextButton({
   };
 
   return (
-    <Pressable onPress={handlePress} accessibilityRole="button">
+    <Pressable
+      onPress={handlePress}
+      onPressIn={() => {
+        pressScale.value = withSpring(0.95, { damping: 15, stiffness: 300 });
+      }}
+      onPressOut={() => {
+        pressScale.value = withSpring(1, { damping: 15, stiffness: 300 });
+      }}
+      accessibilityRole="button"
+    >
       <Animated.View
-        className="items-center justify-center overflow-hidden rounded-full"
-        style={[
-          buttonAnimationStyle,
-          {
-            backgroundColor: THEME_ACCENT_COLOR,
-            shadowColor: "#000",
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.18,
-            shadowRadius: 8,
-            elevation: 6,
-          },
-        ]}
+        className="bg-theme items-center justify-center overflow-hidden rounded-full"
+        style={[buttonAnimationStyle]}
       >
         <Animated.Text
-          style={[textAnimationStyle, { letterSpacing: 0.3, position: "absolute" }]}
+          style={[
+            textAnimationStyle,
+            { letterSpacing: 0.3, position: "absolute" },
+          ]}
           className="text-base font-bold text-white"
         >
           {t("onboarding.get_started")}

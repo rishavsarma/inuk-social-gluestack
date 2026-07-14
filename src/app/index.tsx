@@ -35,7 +35,7 @@ const Index = () => {
     return <AnimatedSplash />;
   }
 
-  if (hasCompletedOnboarding) {
+  if (!hasCompletedOnboarding) {
     return <Redirect href={ROUTES.ONBOARDING.LANGUAGE} />;
   }
 

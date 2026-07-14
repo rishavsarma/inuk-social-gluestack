@@ -158,7 +158,7 @@ const SetPassword = () => {
         },
         {
           onSuccess: (res) => {
-            router.replace(ROUTES.AUTH.SET_PROFILE);
+            router.replace(ROUTES.AUTH.SET_REFERRAL);
           },
           onError: (err: any) => {
             setPasswordError(

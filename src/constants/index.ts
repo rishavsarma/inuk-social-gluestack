@@ -24,7 +24,7 @@ export const COUNTRY_CODES = [
 
 /** Matches the `--theme` accent token in globals.css — for native props
  * (e.g. Switch trackColor) that need a runtime color value, not a class. */
-export const THEME_ACCENT_COLOR = "rgb(207, 43, 19)";
+export const THEME_ACCENT_COLOR = "rgb(192, 57, 42)";
 
 /** Mirrors the `--primary`/`--card`/`--foreground`/`--border`/`--background`
  * tokens in globals.css — for consumers that can't read NativeWind classes
@@ -97,3 +97,10 @@ export const POST_CONSTANTS = {
 /** Minimum Sparks balance kept back and not offered for redemption in the
  * Arena Rewards catalog — shown as "Redeemable: N" on the balance card. */
 export const MIN_REDEEMABLE_SPARKS = 500;
+
+/** Sparks awarded on a successful referral signup — shown on the Set
+ * Referral screen's incentive card. */
+export const REFERRAL_REWARD_POINTS = {
+  REFERRER: 100,
+  REFEREE: 50,
+} as const;

@@ -32,7 +32,7 @@ export function OnboardingStepHeader({
         </HStack>
       </Pressable>
 
-      <HStack space="xs" className="items-center">
+      {/* <HStack space="xs" className="items-center">
         {Array.from({ length: totalSteps }).map((_, index) => (
           <VStack
             key={index}
@@ -45,7 +45,7 @@ export function OnboardingStepHeader({
         ))}
       </HStack>
 
-      <VStack className="h-10 w-10" />
+      <VStack className="h-10 w-10" /> */}
     </HStack>
   );
 }

@@ -52,6 +52,7 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
 
   const bgPanX = useSharedValue(0);
   const bgPanY = useSharedValue(0);
+  const bgScale = useSharedValue(1);
 
   const [activeState, setActiveState] = useState(false);
 
@@ -95,6 +96,16 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
       -1,
       false,
     );
+
+    // Slow cinematic Ken Burns breathing, layered on top of the parallax scale
+    bgScale.value = withRepeat(
+      withSequence(
+        withTiming(1.05, { duration: 9000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 9000, easing: Easing.inOut(Easing.ease) }),
+      ),
+      -1,
+      false,
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps -- shared values are stable refs
   }, [W, H]);
 
@@ -113,6 +124,7 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
     subTy.value = withTiming(20, f(110));
     bgPanX.value = withTiming(0, f(600));
     bgPanY.value = withTiming(0, f(600));
+    bgScale.value = withTiming(1, f(600));
     // eslint-disable-next-line react-hooks/exhaustive-deps -- shared values are stable refs
   }, []);
 
@@ -144,7 +156,7 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
       transform: [
         { translateX: parallaxX + bgPanX.value },
         { translateY: bgPanY.value },
-        { scale: parallaxS },
+        { scale: parallaxS * bgScale.value },
       ],
     };
   });
@@ -259,7 +271,6 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
               shadowOffset: { width: 0, height: 0 },
               shadowOpacity: 0.9,
               shadowRadius: 8,
-              elevation: 5,
             },
           ]}
         />

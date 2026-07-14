@@ -32,6 +32,7 @@ import {
 } from "@/hooks/usePosts";
 import { useFollowUser } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
+import { useFollowStore } from "@/stores/follow.store";
 import { BlurView } from "expo-blur";
 import { useLocalSearchParams } from "expo-router";
 import {
@@ -309,19 +310,12 @@ const PostDetail = () => {
         () => openComments === "true",
     );
     const [commentText, setCommentText] = useState("");
-    const [followOverride, setFollowOverride] = useState<boolean | null>(null);
+    const followOverrides = useFollowStore((state) => state.overrides);
+    const setFollowOverride = useFollowStore((state) => state.setFollowOverride);
 
     const likeMutation = useLikePostMutation(postId, mediaId);
     const { mutate: toggleFollow, isPending: isFollowPending } = useFollowUser();
 
-    // Reset the optimistic override when navigating to a different profile's
-    // post, per React's "adjusting state when a prop changes" pattern.
-    const [followOverrideProfileId, setFollowOverrideProfileId] =
-        useState(profile_id);
-    if (profile_id !== followOverrideProfileId) {
-        setFollowOverrideProfileId(profile_id);
-        setFollowOverride(null);
-    }
     const commentsQuery = useCommentsQuery(postId, showComments);
     const addCommentMutation = useAddCommentMutation(postId);
 
@@ -490,7 +484,7 @@ const PostDetail = () => {
                     ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${apiProfile.avatar}/jpeg/720`
                     : "https://randomuser.me/api/portraits/men/32.jpg",
             is_following:
-                followOverride ??
+                followOverrides[apiProfile?.id ?? ""] ??
                 (apiFollowing?.status === "ACTIVE" ||
                     apiFollowing?.status === "PENDING"),
             date_joined: apiProfile?.dateCreated
@@ -564,18 +558,18 @@ const PostDetail = () => {
                 place: apiPost.place,
             },
         };
-    }, [postDetails, id, type, isVideoPost, my_profile_id, followOverride, t]);
+    }, [postDetails, id, type, isVideoPost, my_profile_id, followOverrides, t]);
 
     const handleFollowToggle = useCallback(() => {
         if (!formattedPost?.author.profile_id || !my_profile_id) return;
         const currentlyFollowing = formattedPost.author.is_following;
-        setFollowOverride(!currentlyFollowing);
+        setFollowOverride(formattedPost.author.profile_id, !currentlyFollowing);
         toggleFollow({
             followerId: my_profile_id,
             followedId: formattedPost.author.profile_id,
             action: currentlyFollowing ? "UNFOLLOW" : "FOLLOW",
         });
-    }, [formattedPost, my_profile_id, toggleFollow]);
+    }, [formattedPost, my_profile_id, toggleFollow, setFollowOverride]);
 
     const handleLike = useCallback(() => {
         if (!formattedPost) return;

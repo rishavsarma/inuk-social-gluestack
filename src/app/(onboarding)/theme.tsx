@@ -22,6 +22,7 @@ import { useAppInsets } from "@/hooks/useAppInsets";
 import { THEMES } from "@/constants";
 import { ROUTES } from "@/routes";
 import { useSettingStore } from "@/stores/setting.store";
+import Logo from "@/components/custom/Logo";
 
 function ThemeSwatch({ id }: { id: AppTheme }) {
   if (id === "system") {
@@ -64,15 +65,25 @@ const OnboardingTheme = () => {
       className="flex-1 bg-background px-6"
       style={{ paddingTop: insets.top + 16, paddingBottom: insets.bottom + 24 }}
     >
-      <OnboardingStepHeader step={2} totalSteps={2} onBack={() => router.back()} />
+      <OnboardingStepHeader
+        step={2}
+        totalSteps={2}
+        onBack={() => router.back()}
+      />
+      <VStack space="md" className="items-center mt-10 mb-10">
+        <Logo size={40} />
 
-      <VStack space="xs" className="items-center mt-10 mb-10">
-        <Heading size="2xl" className="font-bold text-foreground text-center">
-          {t("onboarding.theme_title")}
-        </Heading>
-        <Text size="sm" className="text-muted-foreground text-center">
-          {t("onboarding.theme_subtitle")}
-        </Text>
+        <VStack>
+          <Heading
+            size="2xl"
+            className="font-bold text-foreground text-center font-baloo-bold"
+          >
+            {t("onboarding.theme_title")}
+          </Heading>
+          <Text size="sm" className="text-muted-foreground text-center">
+            {t("onboarding.theme_subtitle")}
+          </Text>
+        </VStack>
       </VStack>
 
       <RadioGroup
@@ -88,7 +99,7 @@ const OnboardingTheme = () => {
                 value={item.id}
                 size="md"
                 className={
-                  "w-full flex-row-reverse items-center justify-between rounded-2xl border px-4 py-4 active:opacity-70 " +
+                  "w-full flex-row-reverse items-center justify-between rounded-lg border px-4 py-4 active:opacity-70 " +
                   (isSelected
                     ? "border-theme bg-theme/10"
                     : "border-border bg-card")
@@ -99,7 +110,7 @@ const OnboardingTheme = () => {
                 </RadioIndicator>
                 <HStack space="md" className="flex-1 items-center">
                   <ThemeSwatch id={item.id} />
-                  <RadioLabel className="text-base font-semibold text-foreground">
+                  <RadioLabel className="flex-1 text-lg font-semibold text-foreground font-baloo-semibold ">
                     {t(item.labelKey)}
                   </RadioLabel>
                 </HStack>
