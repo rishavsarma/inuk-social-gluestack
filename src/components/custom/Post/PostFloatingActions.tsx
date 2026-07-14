@@ -21,7 +21,6 @@ interface PostFloatingActionsProps {
   likesCount?: number;
   commentsCount?: number;
   isLiked?: boolean;
-  isDark?: boolean;
   bottomInset?: number;
   likeAnimStyle?: any;
   onLike?: () => void;
@@ -33,7 +32,6 @@ export function PostFloatingActions({
   likesCount = 0,
   commentsCount = 0,
   isLiked = false,
-  isDark = false,
   bottomInset = 0,
   likeAnimStyle,
   onLike,
@@ -76,8 +74,7 @@ export function PostFloatingActions({
           >
             <Icon
               as={HeartIcon}
-              color={isLiked ? "#E50914" : isDark ? "#fff" : "#000"}
-              fill={isLiked ? "#E50914" : "transparent"}
+              className={isLiked ? "text-theme fill-theme" : "text-foreground"}
             />
             <Text
               size="sm"

@@ -4,6 +4,7 @@ import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import {
   CompassIcon,
@@ -38,23 +39,23 @@ interface EnvStyle {
 function getEnvStyle(type: string): EnvStyle {
   if (type === "location")
     return {
-      iconBg: "bg-rose-100 dark:bg-[#2D0A0A]",
-      iconColor: "text-[#FB7185]",
+      iconBg: POST_METADATA_TINTS.rose.iconBg,
+      iconColor: POST_METADATA_TINTS.rose.iconColor,
     };
   if (type === "coordinates")
     return {
-      iconBg: "bg-violet-100 dark:bg-[#1A0D33]",
-      iconColor: "text-[#A78BFA]",
+      iconBg: POST_METADATA_TINTS.violet.iconBg,
+      iconColor: POST_METADATA_TINTS.violet.iconColor,
     };
   if (type === "altitude")
     return {
-      iconBg: "bg-emerald-100 dark:bg-[#0A2D14]",
-      iconColor: "text-[#34D399]",
+      iconBg: POST_METADATA_TINTS.emerald.iconBg,
+      iconColor: POST_METADATA_TINTS.emerald.iconColor,
     };
   if (type === "direction")
     return {
-      iconBg: "bg-sky-100 dark:bg-[#0C2D3A]",
-      iconColor: "text-[#38BDF8]",
+      iconBg: POST_METADATA_TINTS.sky.iconBg,
+      iconColor: POST_METADATA_TINTS.sky.iconColor,
     };
   return {
     iconBg: "bg-background",
@@ -155,10 +156,7 @@ const MapTile = React.memo(function MapTile({
         accessibilityLabel={t("post_detail.open_maps_a11y")}
       >
         {/* Map placeholder */}
-        <View
-          style={{ width: "100%", height: 130 }}
-          className="items-center justify-center bg-[#E5E7EB] dark:bg-[#1C1C1E] "
-        >
+        <View className="h-32.5 w-full items-center justify-center bg-muted">
           {/* Grid lines */}
           <View className="absolute inset-0 opacity-20">
             <View className="h-full w-full border-0 border-black/30 dark:border-white/30" />
@@ -171,7 +169,7 @@ const MapTile = React.memo(function MapTile({
 
           {/* Crosshair ring */}
           <View className="h-14 w-14 items-center justify-center rounded-full border-2 border-[#FB7185]/40 bg-[#FB7185]/10">
-            <Icon as={MapPinIcon} size="xl" className="text-[#FB7185]" />
+            <Icon as={MapPinIcon} size="xl" className={POST_METADATA_TINTS.rose.iconColor} />
           </View>
 
           {/* Coords badge */}

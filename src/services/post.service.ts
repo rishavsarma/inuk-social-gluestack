@@ -52,7 +52,9 @@ export const postService = {
           profile: profileMap.get(c.profileId),
         }));
       } catch (error) {
-        console.warn("Failed to fetch some profiles for comments:", error);
+        if (__DEV__) {
+          console.warn("Failed to fetch some profiles for comments:", error);
+        }
       }
     }
     return data;
@@ -86,10 +88,12 @@ export const postService = {
         return awardsArray;
       }
     } catch (error) {
-      console.warn(
-        `[postService.getPostAwards] Failed to fetch awards from API for post ${postId}, falling back to mock data:`,
-        error,
-      );
+      if (__DEV__) {
+        console.warn(
+          `[postService.getPostAwards] Failed to fetch awards from API for post ${postId}, falling back to mock data:`,
+          error,
+        );
+      }
     }
 
     // Mock fallback data based on postId
@@ -408,7 +412,9 @@ export const postService = {
           );
           return profileRes?.data?.[0] || profileRes?.data || profileRes;
         } catch (e) {
-          console.warn(`Failed to fetch profile for ID ${profileId}:`, e);
+          if (__DEV__) {
+            console.warn(`Failed to fetch profile for ID ${profileId}:`, e);
+          }
           return null;
         }
       })();

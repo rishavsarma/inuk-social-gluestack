@@ -40,8 +40,6 @@ const ProfileScreen = () => {
     refetch,
   } = useGetProfile(profileId);
 
-  console.log("profileData", profileId, profileData?.stats);
-
   const {
     data: postsPhotoData,
     isLoading: isLoadingPhotoPosts,
@@ -115,8 +113,7 @@ const ProfileScreen = () => {
       <SwipeableTabContent activeTab={activeTab} onTabChange={setActiveTab}>
         <Animated.View
           entering={FadeIn.duration(280)}
-          style={{ flex: 1 }}
-          className="bg-background pb-40"
+          className="flex-1 bg-background pb-40"
         >
           <AnimatedFlashList
             data={posts}
@@ -146,7 +143,6 @@ const ProfileScreen = () => {
             initialNumToRender={12}
             windowSize={5}
             renderItem={renderItem}
-            estimatedItemSize={width / 3}
           />
         </Animated.View>
       </SwipeableTabContent>

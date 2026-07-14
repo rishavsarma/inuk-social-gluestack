@@ -11,9 +11,9 @@ import {
   Text,
   TouchableOpacity,
   Alert,
-  Image,
   ViewStyle,
 } from 'react-native';
+import { Image } from 'expo-image';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import type { UIMessage } from 'ai';
 import Animated from 'react-native-reanimated';
@@ -248,7 +248,7 @@ export const MessageResponse = memo(({ message }: { message: UIMessage }) => {
               key={index}
               source={{ uri }}
               className="w-40 h-40 rounded-xl mt-1.5"
-              resizeMode="cover"
+              contentFit="cover"
             />
           );
         }

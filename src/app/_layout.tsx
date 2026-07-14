@@ -8,7 +8,14 @@ import {
   Baloo2_800ExtraBold,
   useFonts,
 } from "@expo-google-fonts/baloo-2";
+import {
+  Inter_400Regular,
+  Inter_500Medium,
+  Inter_600SemiBold,
+  Inter_700Bold,
+} from "@expo-google-fonts/inter";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+import { THEME_RGB } from "@/constants";
 import { useSettingStore } from "@/stores/setting.store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
@@ -29,11 +36,11 @@ const CustomDarkTheme = {
   ...DarkTheme,
   colors: {
     ...DarkTheme.colors,
-    background: "rgb(10, 10, 10)",
-    card: "rgb(23, 23, 23)",
-    text: "rgb(250, 250, 250)",
-    border: "rgb(46, 46, 46)",
-    primary: "rgb(255, 245, 245)",
+    background: THEME_RGB.dark.background,
+    card: THEME_RGB.dark.card,
+    text: THEME_RGB.dark.foreground,
+    border: THEME_RGB.dark.border,
+    primary: THEME_RGB.dark.primary,
   },
 };
 
@@ -41,11 +48,11 @@ const CustomDefaultTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: "rgb(255, 255, 255)",
-    card: "rgb(255, 255, 255)",
-    text: "rgb(10, 10, 10)",
-    border: "rgb(229, 229, 229)",
-    primary: "rgb(23, 23, 23)",
+    background: THEME_RGB.light.background,
+    card: THEME_RGB.light.card,
+    text: THEME_RGB.light.foreground,
+    border: THEME_RGB.light.border,
+    primary: THEME_RGB.light.primary,
   },
 };
 
@@ -59,6 +66,10 @@ const RootLayout = () => {
     Baloo2_600SemiBold,
     Baloo2_700Bold,
     Baloo2_800ExtraBold,
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
   });
 
   useEffect(() => {
@@ -80,7 +91,10 @@ const RootLayout = () => {
               value={theme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
             >
               {Platform.OS === "android" && <StatusBar animated />}
-              <Stack key={language} screenOptions={{ headerShown: false }} />
+              <Stack
+                key={language}
+                screenOptions={{ headerShown: false, animation: "fade" }}
+              />
             </ThemeProvider>
           </GluestackUIProvider>
         </KeyboardProvider>

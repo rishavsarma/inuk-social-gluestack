@@ -178,7 +178,7 @@ const SearchScreen = () => {
   ]);
 
   return (
-    <View style={{ flex: 1 }} className="bg-background">
+    <View className="flex-1 bg-background">
       <HStack
         space="sm"
         style={{ paddingTop: Math.max(topInset, 12) }}

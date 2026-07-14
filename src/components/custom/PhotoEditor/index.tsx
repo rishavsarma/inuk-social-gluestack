@@ -495,7 +495,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 accessibilityLabel={t("auth.reset")}
               >
                 <ButtonIcon as={RotateCcw} className="text-zinc-300 mr-1" />
-                <ButtonText className="text-zinc-300 text-xs">Reset</ButtonText>
+                <ButtonText className="text-zinc-300 text-xs">
+                  {t("auth.reset")}
+                </ButtonText>
               </Button>
               <Button
                 size="sm"
@@ -679,7 +681,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     accessibilityRole="button"
                     accessibilityLabel={t("auth.crop_ratio_16_9")}
                   >
-                    <ButtonText className="text-zinc-300">16:9 Wide</ButtonText>
+                    <ButtonText className="text-zinc-300">
+                      {t("auth.crop_ratio_16_9")}
+                    </ButtonText>
                   </Button>
                   <Button
                     size="xs"
@@ -690,7 +694,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     accessibilityLabel={t("auth.crop_ratio_4_3")}
                   >
                     <ButtonText className="text-zinc-300">
-                      4:3 Aspect
+                      {t("auth.crop_ratio_4_3")}
                     </ButtonText>
                   </Button>
                 </ScrollView>
@@ -847,7 +851,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
 
                 {/* Radial Pixel */}
                 <Box className="flex-row items-center gap-4">
-                  <Text className="text-zinc-400 text-xs w-20">Radial Pix</Text>
+                  <Text className="text-zinc-400 text-xs w-20">
+                    {t("auth.radial_pixel")}
+                  </Text>
                   <View className="flex-1">
                     <Slider
                       value={editorState.radialPixelRadius}
@@ -873,7 +879,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 {/* Liquid Distortion Ripple */}
                 <Box className="flex-row items-center gap-4">
                   <Text className="text-zinc-400 text-xs w-20">
-                    Liquid Warp
+                    {t("auth.liquid_warp")}
                   </Text>
                   <View className="flex-1">
                     <Slider
@@ -1050,7 +1056,9 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                   </ScrollView>
 
                   <Box className="flex-row items-center gap-2">
-                    <Text className="text-zinc-500 text-2xs">Size</Text>
+                    <Text className="text-zinc-500 text-2xs">
+                      {t("auth.brush_size")}
+                    </Text>
                     <Slider
                       value={brushWidth}
                       minValue={2}
@@ -1114,7 +1122,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
               <Text
                 className={`text-[10px] mt-1 ${activeTab === "transform" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
-                Transform
+                {t("auth.transform")}
               </Text>
             </Pressable>
 
@@ -1154,7 +1162,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
               <Text
                 className={`text-[10px] mt-1 ${activeTab === "filters" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
-                Filters
+                {t("auth.filters")}
               </Text>
             </Pressable>
 
@@ -1174,7 +1182,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
               <Text
                 className={`text-[10px] mt-1 ${activeTab === "effects" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
-                Effects
+                {t("auth.effects")}
               </Text>
             </Pressable>
 
@@ -1298,7 +1306,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
 
               {/* Color selectors */}
               <Text className="text-zinc-400 text-xs font-semibold mb-3">
-                Text Color
+                {t("auth.text_color")}
               </Text>
               <ScrollView
                 horizontal

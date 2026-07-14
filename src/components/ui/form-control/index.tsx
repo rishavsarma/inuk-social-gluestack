@@ -200,6 +200,8 @@ const FormControlError = React.forwardRef<
   return (
     <UIFormControl.Error
       ref={ref}
+      accessibilityRole="alert"
+      accessibilityLiveRegion="polite"
       className={formControlErrorStyle({ class: className })}
       {...props}
     />

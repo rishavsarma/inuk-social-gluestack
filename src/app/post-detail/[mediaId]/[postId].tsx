@@ -56,7 +56,6 @@ import {
     Pressable,
     Share,
     StyleSheet,
-    useColorScheme,
     View,
 } from "react-native";
 import Animated, {
@@ -297,8 +296,6 @@ const PostDetail = () => {
         comments?: string;
     }>();
 
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
     const user = useAuthStore((s) => s.user);
     const my_profile_id = user?.profileId || profile_id;
     const bottomInset = useAppBottomInset();
@@ -693,7 +690,6 @@ const PostDetail = () => {
                 likesCount={formattedPost.post.likes_count}
                 commentsCount={formattedPost.post.comments_count}
                 isLiked={formattedPost.post.is_liked}
-                isDark={isDark}
                 bottomInset={bottomInset}
                 onLike={handleLike}
                 onShare={handleShare}

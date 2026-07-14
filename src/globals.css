@@ -4,6 +4,10 @@
 @import "nativewind/theme";
 
 /* ─── Theme: design tokens (light / dark) ─────────────────────────
+   INUKSocial brand palette — navy / red / snow / mist. Strict palette:
+   every color below is one of palette.{navy,red,snow,mist,redSoftDark}
+   or a tinted/alpha variant of one, no colors outside the brand set.
+
    Three selectors, two purposes:
    1. :root              — light defaults (all platforms)
    2. @media dark :root  — dark defaults; nativewind converts this to
@@ -139,4 +143,15 @@
   --font-baloo-semibold: "Baloo2_600SemiBold";
   --font-baloo-bold: "Baloo2_700Bold";
   --font-baloo-extrabold: "Baloo2_800ExtraBold";
+
+  --font-inter: "Inter_400Regular";
+  --font-inter-medium: "Inter_500Medium";
+  --font-inter-semibold: "Inter_600SemiBold";
+  --font-inter-bold: "Inter_700Bold";
+
+  /* Corner radii — rounded-field, rounded-box, rounded-card, rounded-btn */
+  --radius-field: 13px;
+  --radius-box: 12px;
+  --radius-card: 14px;
+  --radius-btn: 14px;
 }

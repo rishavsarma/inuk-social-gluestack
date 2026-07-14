@@ -9,7 +9,6 @@ import {
   PlusCircleIcon,
   VideoIcon,
 } from "lucide-react-native";
-import { useColorScheme } from "nativewind";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 
@@ -25,8 +24,6 @@ export function ProfileEmptyState({
   imageSize,
 }: ProfileEmptyStateProps) {
   const router = useRouter();
-  const { colorScheme } = useColorScheme();
-  const isDark = colorScheme === "dark";
   const { t } = useTranslation();
 
   if (isLoadingPosts) {
@@ -48,16 +45,16 @@ export function ProfileEmptyState({
     <View className="mt-12 items-center px-8">
       <View className="mb-6 h-24 w-24 items-center justify-center rounded-full border border-border bg-muted">
         {activeTab === "image" && (
-          <Icon as={CameraIcon} size={40} color={isDark ? "#555" : "#ccc"} />
+          <Icon as={CameraIcon} size={40} className="text-muted-foreground/50" />
         )}
         {activeTab === "video" && (
-          <Icon as={VideoIcon} size={40} color={isDark ? "#555" : "#ccc"} />
+          <Icon as={VideoIcon} size={40} className="text-muted-foreground/50" />
         )}
         {activeTab === "audio" && (
-          <Icon as={MusicIcon} size={40} color={isDark ? "#555" : "#ccc"} />
+          <Icon as={MusicIcon} size={40} className="text-muted-foreground/50" />
         )}
         {activeTab === "text" && (
-          <Icon as={FileTextIcon} size={40} color={isDark ? "#555" : "#ccc"} />
+          <Icon as={FileTextIcon} size={40} className="text-muted-foreground/50" />
         )}
       </View>
       <Text className="text-center text-[20px] font-extrabold tracking-tight text-foreground">
@@ -72,9 +69,9 @@ export function ProfileEmptyState({
         accessibilityLabel={t("profile.create_post_a11y", {
           type: t(`profile.${activeTab}`),
         })}
-        className="mt-8 flex-row items-center gap-2 rounded-full bg-[#E50914] px-6 py-3.5 shadow-md shadow-red-500/20 active:opacity-80"
+        className="mt-8 flex-row items-center gap-2 rounded-full bg-theme px-6 py-3.5 shadow-md shadow-red-500/20 active:opacity-80"
       >
-        <Icon as={PlusCircleIcon} size={20} color="#fff" />
+        <Icon as={PlusCircleIcon} size={20} className="text-white" />
         <Text className="text-[15px] font-extrabold tracking-wide text-white">
           {t("profile.create_post", { type: t(`profile.${activeTab}`) })}
         </Text>

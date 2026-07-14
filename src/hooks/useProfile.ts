@@ -8,7 +8,7 @@ import {
 
 const NETWORK_PAGE_LIMIT = 20;
 
-export const useGetProfile = (profileId: string) => {
+export function useGetProfile(profileId: string) {
   return useQuery({
     queryKey: ["profile", profileId],
     queryFn: async () => {
@@ -20,7 +20,7 @@ export const useGetProfile = (profileId: string) => {
     },
     enabled: !!profileId,
   });
-};
+}
 
 export function useUpdateProfile(profileId: string) {
   const queryClient = useQueryClient();

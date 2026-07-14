@@ -25,6 +25,27 @@ interface InitiateJourneyResponse {
   data?: string[] | string;
 }
 
+interface User {
+  accountId: string;
+  accountType: string;
+  accountStatus: string;
+  tenantId: string;
+  profileId: string;
+  profileStatus: string;
+  avatar: string;
+  coverPhoto: string;
+  name: string;
+  mobile: string;
+  email: string;
+  expiry: string;
+}
+
+interface AuthResponse {
+  user: User;
+  token: string;
+  isNewUser?: boolean;
+}
+
 interface AuthUserSummary {
   accountId?: string;
   accountType?: string;
@@ -417,16 +438,99 @@ interface DiscoverPost {
   likesCount: number;
 }
 
-type ContestStatus = "ACTIVE" | "UPCOMING" | "ENDED";
+type ArenaContestStatus = "ACTIVE" | "UPCOMING" | "ENDED";
 
-interface ContestItem {
+/** Mirrors the keys of `POST_METADATA_TINTS` in
+ * `src/constants/post-metadata-tints.ts` — kept as a literal union here
+ * (rather than imported) since this file is an ambient global script. */
+type MetadataTintKey =
+  | "blue"
+  | "violet"
+  | "rose"
+  | "red"
+  | "orange"
+  | "amber"
+  | "sky"
+  | "emerald"
+  | "green";
+
+interface ArenaContestItem {
   id: string;
   title: string;
   description: string;
-  status: ContestStatus;
+  status: ArenaContestStatus;
   prize: string;
   entriesCount: number;
   endsAt: number;
+  category?: string;
+  location?: string;
+  tint?: MetadataTintKey;
+}
+
+interface ArenaQuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctIndex: number;
+}
+
+interface ArenaQuiz {
+  id: string;
+  title: string;
+  questionsCount: number;
+  streakDays: number;
+  sparksPerCorrect: number;
+}
+
+interface ArenaLeaderboardEntry {
+  id: string;
+  rank: number;
+  username: string;
+  avatarUrl?: string;
+  categoryLabel: string;
+  score: number;
+}
+
+interface ArenaReward {
+  id: string;
+  title: string;
+  cost: number;
+  tint: MetadataTintKey;
+}
+
+interface ArenaWinning {
+  id: string;
+  label: string;
+  amountLabel: string;
+  sparksValue: number;
+}
+
+interface DiscoverRegion {
+  id: string;
+  name: string;
+  postsCount: number;
+  districtsCount: number;
+}
+
+interface DiscoverPlace {
+  id: string;
+  name: string;
+  type: "Village" | "Town";
+  region: string;
+  district: string;
+  coveragePercent: number;
+  postsCount: number;
+  contributorsCount: number;
+  themesCount: number;
+  tint: MetadataTintKey;
+}
+
+interface DiscoverCategory {
+  id: string;
+  labelKey: string;
+  icon: string;
+  subcategories: string[];
+  tint: MetadataTintKey;
 }
 
 interface PaginatedListResponse<T> {

@@ -1,23 +1,10 @@
-import { ROUTES } from "@/routes";
 import { router } from "expo-router";
 import * as SecureStore from "expo-secure-store";
+
 import { create } from "zustand";
 import { createJSONStorage, persist, StateStorage } from "zustand/middleware";
 
-export interface User {
-  accountId: string;
-  accountType: string;
-  accountStatus: string;
-  tenantId: string;
-  profileId: string;
-  profileStatus: string;
-  avatar: string;
-  coverPhoto: string;
-  name: string;
-  mobile: string;
-  email: string;
-  expiry: string;
-}
+import { ROUTES } from "@/routes";
 
 interface AuthState {
   user: User | null;

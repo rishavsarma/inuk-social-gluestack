@@ -32,10 +32,10 @@ export const TABS = [
   },
   { name: "create", href: ROUTES.TABS.CREATE, icon: Plus, label: "" },
   {
-    name: "contest",
-    href: ROUTES.TABS.CONTEST,
+    name: "arena",
+    href: ROUTES.TABS.ARENA,
     icon: Gamepad2,
-    label: "Contest",
+    label: "Arena",
   },
   {
     name: "profile",

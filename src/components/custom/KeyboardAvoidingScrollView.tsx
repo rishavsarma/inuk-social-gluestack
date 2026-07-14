@@ -206,7 +206,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
         ) => React.ReactNode;
 
         return (
-          <View style={{ flex: 1 }} className="bg-background">
+          <View className="flex-1 bg-background">
             <UiHeader
               scrollY={scrollY}
               topInset={topInset}
@@ -239,7 +239,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
       }
 
       return (
-        <View style={{ flex: 1 }} className="bg-background">
+        <View className="flex-1 bg-background">
           <UiHeader
             scrollY={scrollY}
             topInset={topInset}

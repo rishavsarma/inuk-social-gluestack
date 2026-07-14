@@ -50,6 +50,10 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+// Local file:// URIs are read directly, not through the shared Axios
+// instance — there's no server round trip here, just decoding the file
+// already on-device, so the interceptor stack (auth header, 401 handling)
+// doesn't apply.
 async function fetchFileAsArrayBuffer(uri: string): Promise<ArrayBuffer> {
   const response = await fetch(uri);
   if (!response.ok) {
@@ -82,7 +86,9 @@ async function uploadPart(
 
   for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
     try {
-      // Use fetch for presigned S3 URLs; it is generally more reliable in RN.
+      // Presigned S3 URLs are uploaded to directly with fetch — they don't
+      // go through our API and don't need the shared Axios instance's auth
+      // header or 401 handling.
       const response = await fetch(url, {
         method: 'PUT',
         headers: { 'Content-Type': contentType },
@@ -94,16 +100,20 @@ async function uploadPart(
         if (!etag) {
           throw new Error('ETag missing in response headers');
         }
-        console.log(`✅ Part ${partNumber} uploaded, ETag=${etag}`);
+        if (__DEV__) {
+          console.log(`Part ${partNumber} uploaded, ETag=${etag}`);
+        }
         return { ETag: etag, PartNumber: partNumber };
-      } else {
-        console.log(`❌ Part ${partNumber} failed (status ${response.status})`);
+      } else if (__DEV__) {
+        console.log(`Part ${partNumber} failed (status ${response.status})`);
       }
     } catch (error: any) {
-      console.log(
-        `⚠️ Error uploading part ${partNumber}, attempt ${attempt}:`,
-        error?.message || String(error)
-      );
+      if (__DEV__) {
+        console.log(
+          `Error uploading part ${partNumber}, attempt ${attempt}:`,
+          error?.message || String(error)
+        );
+      }
     }
 
     await sleep(Math.pow(2, attempt) * 1000); // exponential backoff
@@ -128,8 +138,6 @@ export async function uploadFileMultipart(options: UploadOptions): Promise<strin
     onProgress,
   } = options;
 
-  // Get auth token from store
-  // const token = useAuthStore.getState().token;
   if (!token) {
     throw new Error('Authentication token not found');
   }
@@ -158,8 +166,6 @@ export async function uploadFileMultipart(options: UploadOptions): Promise<strin
       mediaId: options.mediaId,
     };
 
-    console.log('initPayload', initPayload);
-    // console.log('Initiating multipart upload...');
     onProgress?.(0);
 
     const initResponse = await axios.post<InitiateResponse>(INITIATE_URL, initPayload, {
@@ -174,7 +180,6 @@ export async function uploadFileMultipart(options: UploadOptions): Promise<strin
     }
 
     const data = initResponse.data;
-    console.log('data', data);
     const { uploadId, key, partSize, parts: partsInfo } = data;
 
     // Try to get mediaId from response first; if missing, extract from key
@@ -183,15 +188,9 @@ export async function uploadFileMultipart(options: UploadOptions): Promise<strin
       throw new Error('Could not determine mediaId');
     }
 
-    // console.log(
-    //   `✅ Initiated uploadId=${uploadId}, key=${key}, mediaId=${mediaId}, parts=${partsInfo.length}`
-    // );
-
     // --------------------------
     // STEP 2: Upload parts
     // --------------------------
-    // console.log('Uploading parts...');
-
     const allEtags: PartResult[] = [];
     let completedParts = 0;
 
@@ -216,7 +215,6 @@ export async function uploadFileMultipart(options: UploadOptions): Promise<strin
     // --------------------------
     // STEP 3: Complete upload
     // --------------------------
-    console.log('Completing upload...');
     onProgress?.(98);
 
     const completePayload = {
@@ -235,20 +233,19 @@ export async function uploadFileMultipart(options: UploadOptions): Promise<strin
       },
     });
 
-    // console.log('completeResponse', completeResponse);
-
     if (completeResponse.status !== 200) {
       throw new Error(`Complete failed: ${completeResponse.status}`);
     }
 
     onProgress?.(100);
-    console.log('✅ Upload complete:', completeResponse.data);
 
     return mediaId;
   } catch (error: any) {
-    console.error('Upload failed:', error.message);
-    if (error.response) {
-      console.error('Response data:', error.response.data);
+    if (__DEV__) {
+      console.error('Upload failed:', error.message);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+      }
     }
     throw error;
   }

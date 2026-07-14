@@ -61,15 +61,14 @@ import { useGetProfile, useUpdateProfile } from "@/hooks/useProfile";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 
-import { LANGUAGES, THEME_ACCENT_COLOR } from "@/constants";
+import { LANGUAGES, MENU_ROW_TINTS, THEME_ACCENT_COLOR } from "@/constants";
 
 import { ROUTES } from "@/routes";
 
 // ─── One settings row: pastel icon circle, title/subtitle, chevron/switch ──
 interface SettingsRowProps {
   icon: React.ComponentType<any>;
-  iconColor: string;
-  iconBgClassName: string;
+  tint: keyof typeof MENU_ROW_TINTS;
   title: string;
   subtitle?: string;
   onPress?: () => void;
@@ -79,14 +78,14 @@ interface SettingsRowProps {
 
 function SettingsRow({
   icon,
-  iconColor,
-  iconBgClassName,
+  tint,
   title,
   subtitle,
   onPress,
   rightElement,
   destructive = false,
 }: SettingsRowProps) {
+  const { iconBg, iconColor } = MENU_ROW_TINTS[tint];
   return (
     <Pressable
       onPress={onPress}
@@ -95,10 +94,8 @@ function SettingsRow({
       className={onPress ? "active:opacity-70" : undefined}
     >
       <HStack space="sm" className="items-center px-4 py-2.5">
-        <Box
-          className={`p-2 items-center justify-center rounded-full ${iconBgClassName}`}
-        >
-          <Icon as={icon} size="sm" color={iconColor} />
+        <Box className={`p-2 items-center justify-center rounded-full ${iconBg}`}>
+          <Icon as={icon} size="sm" className={iconColor} />
         </Box>
         <VStack className="flex-1">
           <Text
@@ -281,43 +278,14 @@ const SettingsScreen = () => {
           <SectionHeader title={t("settings.account")} />
           <SettingsRow
             icon={Shield}
-            iconColor="#22C55E"
-            iconBgClassName="bg-green-500/10 dark:bg-green-500/20"
+            tint="green"
             title={t("settings.privacy")}
             subtitle={t("settings.privacy_sub")}
             onPress={() => router.push(ROUTES.USER.EDIT_PROFILE)}
           />
           <SettingsRow
             icon={Eye}
-            iconColor="#6366F1"
-            iconBgClassName="bg-indigo-500/10 dark:bg-indigo-500/20"
-            title={t("settings.public_profile")}
-            subtitle={t("settings.public_profile_sub")}
-            rightElement={
-              <Switch
-                value={isPublicProfile}
-                onValueChange={handleTogglePublicProfile}
-                trackColor={switchColors}
-                accessibilityRole="switch"
-                accessibilityLabel={t("settings.public_profile")}
-              />
-            }
-          />
-        </VStack>
-        <VStack space="xs" className=" bg-card">
-          <SectionHeader title={t("settings.account")} />
-          <SettingsRow
-            icon={Shield}
-            iconColor="#22C55E"
-            iconBgClassName="bg-green-500/10 dark:bg-green-500/20"
-            title={t("settings.privacy")}
-            subtitle={t("settings.privacy_sub")}
-            onPress={() => router.push(ROUTES.USER.EDIT_PROFILE)}
-          />
-          <SettingsRow
-            icon={Eye}
-            iconColor="#6366F1"
-            iconBgClassName="bg-indigo-500/10 dark:bg-indigo-500/20"
+            tint="indigo"
             title={t("settings.public_profile")}
             subtitle={t("settings.public_profile_sub")}
             rightElement={
@@ -336,8 +304,7 @@ const SettingsScreen = () => {
           <SectionHeader title={t("settings.notifications")} />
           <SettingsRow
             icon={Bell}
-            iconColor="#F59E0B"
-            iconBgClassName="bg-amber-500/10 dark:bg-amber-500/20"
+            tint="amber"
             title={t("settings.push_notifications")}
             subtitle={t("settings.push_notifications_sub")}
             rightElement={
@@ -352,8 +319,7 @@ const SettingsScreen = () => {
           />
           <SettingsRow
             icon={SlidersHorizontal}
-            iconColor="#8B5CF6"
-            iconBgClassName="bg-violet-500/10 dark:bg-violet-500/20"
+            tint="violet"
             title={t("settings.voting_alerts")}
             subtitle={t("settings.voting_alerts_sub")}
             rightElement={
@@ -372,8 +338,7 @@ const SettingsScreen = () => {
           <SectionHeader title={t("settings.appearance")} />
           <SettingsRow
             icon={Moon}
-            iconColor="#8B5CF6"
-            iconBgClassName="bg-violet-500/10 dark:bg-violet-500/20"
+            tint="violet"
             title={t("settings.dark_mode")}
             rightElement={
               <Switch
@@ -387,8 +352,7 @@ const SettingsScreen = () => {
           />
           <SettingsRow
             icon={Globe}
-            iconColor="#06B6D4"
-            iconBgClassName="bg-cyan-500/10 dark:bg-cyan-500/20"
+            tint="cyan"
             title={t("settings.language")}
             subtitle={t(selectedLanguage.labelKey)}
             onPress={() => {
@@ -403,15 +367,13 @@ const SettingsScreen = () => {
           <SectionHeader title={t("settings.support")} />
           <SettingsRow
             icon={CircleHelp}
-            iconColor="#64748B"
-            iconBgClassName="bg-slate-500/10 dark:bg-slate-500/20"
+            tint="slate"
             title={t("settings.help_faq")}
             onPress={() => {}}
           />
           <SettingsRow
             icon={Smartphone}
-            iconColor="#64748B"
-            iconBgClassName="bg-slate-500/10 dark:bg-slate-500/20"
+            tint="slate"
             title={t("settings.app_version")}
             subtitle={appVersion}
             rightElement={
@@ -429,15 +391,13 @@ const SettingsScreen = () => {
           <SectionHeader title={t("settings.legal")} />
           <SettingsRow
             icon={FileText}
-            iconColor="#64748B"
-            iconBgClassName="bg-slate-500/10 dark:bg-slate-500/20"
+            tint="slate"
             title={t("settings.terms_of_service")}
             onPress={() => router.push(ROUTES.LEGAL.TERMS)}
           />
           <SettingsRow
             icon={ShieldCheck}
-            iconColor="#64748B"
-            iconBgClassName="bg-slate-500/10 dark:bg-slate-500/20"
+            tint="slate"
             title={t("settings.privacy_policy")}
             onPress={() => router.push(ROUTES.LEGAL.PRIVACY)}
           />

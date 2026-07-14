@@ -1,11 +1,4 @@
-import { User } from "@/stores/auth.store";
 import { api } from "./api";
-
-export interface AuthResponse {
-  user: User;
-  token: string;
-  isNewUser?: boolean;
-}
 
 export const authService = {
   initiateJourney: async (payload: InitiateJourneyPayload) => {

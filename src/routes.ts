@@ -14,7 +14,7 @@ export const ROUTES = {
   },
   TABS: {
     FEED: "/feed" as const,
-    CONTEST: "/contest" as const,
+    ARENA: "/arena" as const,
     CREATE: "/create" as const,
     AWARDS: "/awards" as const,
     DISCOVER: "/discover" as const,
@@ -27,7 +27,14 @@ export const ROUTES = {
       `/post-detail/${mediaId}/${postId}` as const,
     POST_COMMENTS: (mediaId: string | number, postId: string | number) =>
       `/post/${mediaId}/${postId}?comments=true` as const,
-    CONTEST_DETAILS: (id: string | number) => `/contest/${id}` as const,
+  },
+  ARENA: {
+    QUIZ: "/arena/quiz" as const,
+    REWARDS: "/arena/rewards" as const,
+    CONTEST_DETAILS: (id: string | number) => `/arena/contest/${id}` as const,
+  },
+  DISCOVER: {
+    PLACE_DETAILS: (id: string | number) => `/place/${id}` as const,
   },
   USER: {
     PROFILE: (id: string | number) => `/(tabs)/profile?id=${id}` as const,

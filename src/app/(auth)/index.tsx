@@ -3,7 +3,6 @@ import { ChevronRightIcon, Globe, Moon, Sun } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import switchTheme from "react-native-theme-switch-animation";
-import { AxiosError } from "axios";
 
 import {
   Button,
@@ -45,6 +44,7 @@ import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
 import { COUNTRY_CODES, LANGUAGES } from "@/constants";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { useInitiateJourney } from "@/hooks/useAuth";
+import type { ApiError } from "@/services/api";
 import { ROUTES } from "@/routes";
 import { useJourneyStore } from "@/stores/journey.store";
 import { useSettingStore } from "@/stores/setting.store";
@@ -183,8 +183,7 @@ const AuthHome = () => {
             router.push(ROUTES.AUTH.HOME);
           }
         },
-        onError: (err: AxiosError<{ message?: string }>) => {
-          console.log("err message", err?.response?.data?.message);
+        onError: (err: ApiError) => {
           const msg =
             err?.response?.data?.message ??
             err?.message ??

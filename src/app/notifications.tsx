@@ -33,7 +33,7 @@ const NOTIFICATION_ICONS: Record<string, React.ComponentType<any>> = {
   AWARD: Trophy,
 };
 
-function NotificationRow({ item }: { item: NotificationItem }) {
+const NotificationRow = ({ item }: { item: NotificationItem }) => {
   const { t } = useTranslation();
   const timeAgo = useTimeAgo(item.createdAt ?? item.dateCreated);
   const isUnread = item.isRead === false || item.read === false;
@@ -103,7 +103,7 @@ function NotificationRow({ item }: { item: NotificationItem }) {
       </HStack>
     </Pressable>
   );
-}
+};
 
 const NotificationsScreen = () => {
   const { t } = useTranslation();

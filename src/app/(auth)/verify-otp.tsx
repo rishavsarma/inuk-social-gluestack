@@ -27,6 +27,7 @@ import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoiding
 import { ChevronRightIcon, Icon } from "@/components/ui/icon";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
+import { THEME_RGB } from "@/constants";
 
 import {
   useInitiateJourney,
@@ -124,7 +125,6 @@ const VerifyOtp = () => {
             router.replace(ROUTES.TABS.FEED);
           },
           onError: (err: any) => {
-            console.log("err", err?.response);
             setError(err?.response?.message || t("auth.invalid_phone_error"));
           },
         },
@@ -140,14 +140,13 @@ const VerifyOtp = () => {
         },
         {
           onSuccess: (res) => {
-            setToken(res?.data?.token); // Log the token for debugging
+            setToken(res?.data?.token);
             router.push({
               pathname: ROUTES.AUTH.SET_PASSWORD,
               params: { mode: "set-password" },
             });
           },
           onError: (err: any) => {
-            console.log("err", err?.response?.message);
             setError(err?.response?.message || t("auth.invalid_phone_error"));
           },
         },
@@ -168,7 +167,6 @@ const VerifyOtp = () => {
           setTimer(30);
         },
         onError: (err: any) => {
-          console.log("err", err?.response?.message);
           setError(err?.response?.message || t("auth.invalid_phone_error"));
         },
       },
@@ -259,7 +257,7 @@ const VerifyOtp = () => {
                 {/* 6-digit styled OTP Input */}
                 <OtpInput
                   numberOfDigits={6}
-                  focusColor={isDark ? "rgb(255, 245, 245)" : "rgb(23, 23, 23)"}
+                  focusColor={isDark ? THEME_RGB.dark.primary : THEME_RGB.light.primary}
                   onTextChange={(val) => {
                     setCode(val);
                     if (error) setError(null);
@@ -267,11 +265,11 @@ const VerifyOtp = () => {
                   theme={{
                     pinCodeContainerStyle: {
                       borderColor: isDark
-                        ? "rgb(46, 46, 46)"
-                        : "rgb(229, 229, 229)",
+                        ? THEME_RGB.dark.border
+                        : THEME_RGB.light.border,
                       backgroundColor: isDark
-                        ? "rgb(23, 23, 23)"
-                        : "rgb(255, 255, 255)",
+                        ? THEME_RGB.dark.card
+                        : THEME_RGB.light.card,
                       borderRadius: 8,
                       borderWidth: 1,
                       width: 45,
@@ -279,18 +277,18 @@ const VerifyOtp = () => {
                     },
                     focusedPinCodeContainerStyle: {
                       borderColor: isDark
-                        ? "rgb(255, 245, 245)"
-                        : "rgb(23, 23, 23)",
+                        ? THEME_RGB.dark.primary
+                        : THEME_RGB.light.primary,
                     },
                     pinCodeTextStyle: {
-                      color: isDark ? "rgb(250, 250, 250)" : "rgb(10, 10, 10)",
+                      color: isDark ? THEME_RGB.dark.foreground : THEME_RGB.light.foreground,
                       fontSize: 18,
                       fontWeight: "600",
                     },
                     focusStickStyle: {
                       backgroundColor: isDark
-                        ? "rgb(255, 245, 245)"
-                        : "rgb(23, 23, 23)",
+                        ? THEME_RGB.dark.primary
+                        : THEME_RGB.light.primary,
                     },
                   }}
                   type="numeric"

@@ -143,12 +143,9 @@ export function UiHeader({
         {showBackButton && (
           <HStack
             space="sm"
-            className="items-center justify-between"
-            style={{ minHeight: BACK_BUTTON_SIZE }}
+            className="min-h-10 items-center justify-between"
           >
-            <Box
-              style={{ width: BACK_BUTTON_SIZE, height: BACK_BUTTON_SIZE }}
-            />
+            <Box className="h-10 w-10" />
             <Text
               numberOfLines={1}
               className={cn(
@@ -158,10 +155,7 @@ export function UiHeader({
             >
               {title}
             </Text>
-            <Box
-              style={{ width: BACK_BUTTON_SIZE, height: BACK_BUTTON_SIZE }}
-              className="items-center justify-center"
-            >
+            <Box className="h-10 w-10 items-center justify-center">
               {rightElement}
             </Box>
           </HStack>
@@ -172,12 +166,8 @@ export function UiHeader({
       {showBackButton && (
         <Box
           pointerEvents="box-none"
-          style={{
-            position: "absolute",
-            top: topInset > 0 ? topInset : 8,
-            left: 16,
-            zIndex: 60,
-          }}
+          className="absolute left-4 z-60"
+          style={{ top: topInset > 0 ? topInset : 8 }}
         >
           {customBackButton ?? (
             <Button

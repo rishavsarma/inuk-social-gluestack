@@ -4,6 +4,7 @@ import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import {
   ApertureIcon,
@@ -35,33 +36,33 @@ interface ExifStyle {
 function getExifStyle(type: string): ExifStyle {
   if (type === "camera")
     return {
-      iconBg: "bg-blue-100 dark:bg-[#0D1B33]",
-      iconColor: "text-[#3B82F6]",
+      iconBg: POST_METADATA_TINTS.blue.iconBg,
+      iconColor: POST_METADATA_TINTS.blue.iconColor,
     };
   if (type === "lens" || type === "focal_length")
     return {
-      iconBg: "bg-violet-100 dark:bg-[#1A0D33]",
-      iconColor: "text-[#A78BFA]",
+      iconBg: POST_METADATA_TINTS.violet.iconBg,
+      iconColor: POST_METADATA_TINTS.violet.iconColor,
     };
   if (type === "aperture")
     return {
-      iconBg: "bg-rose-100 dark:bg-[#2D0A0A]",
-      iconColor: "text-[#FB7185]",
+      iconBg: POST_METADATA_TINTS.rose.iconBg,
+      iconColor: POST_METADATA_TINTS.rose.iconColor,
     };
   if (type === "shutter")
     return {
-      iconBg: "bg-orange-100 dark:bg-[#2D1400]",
-      iconColor: "text-[#FB923C]",
+      iconBg: POST_METADATA_TINTS.orange.iconBg,
+      iconColor: POST_METADATA_TINTS.orange.iconColor,
     };
   if (type === "iso")
     return {
-      iconBg: "bg-amber-100 dark:bg-[#3B2B00]",
-      iconColor: "text-[#F59E0B]",
+      iconBg: POST_METADATA_TINTS.amber.iconBg,
+      iconColor: POST_METADATA_TINTS.amber.iconColor,
     };
   if (type === "date_taken" || type === "date_uploaded")
     return {
-      iconBg: "bg-sky-100 dark:bg-[#0C2D3A]",
-      iconColor: "text-[#38BDF8]",
+      iconBg: POST_METADATA_TINTS.sky.iconBg,
+      iconColor: POST_METADATA_TINTS.sky.iconColor,
     };
   return {
     iconBg: "bg-background",

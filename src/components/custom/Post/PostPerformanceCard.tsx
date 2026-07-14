@@ -4,6 +4,7 @@ import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import type { LucideIcon } from "lucide-react-native";
 import {
@@ -88,49 +89,49 @@ export const PostPerformanceCard = React.memo(function PostPerformanceCard({
     [
       {
         icon: Star,
-        iconBgClassName: "bg-amber-100 dark:bg-[#3B2B00]",
+        iconBgClassName: POST_METADATA_TINTS.amber.iconBg,
         value: formatCount(score),
         label: t("post_detail.score"),
-        iconClassName: "text-[#F59E0B] fill-[#F59E0B]",
+        iconClassName: POST_METADATA_TINTS.amber.iconColorFilled,
       },
       {
         icon: Trophy,
-        iconBgClassName: "bg-violet-100 dark:bg-[#1A0D33]",
+        iconBgClassName: POST_METADATA_TINTS.violet.iconBg,
         value: awardsCount.toString(),
         label: t("post_detail.awards"),
-        iconClassName: "text-[#A78BFA] fill-[#A78BFA]",
+        iconClassName: POST_METADATA_TINTS.violet.iconColorFilled,
       },
     ],
     [
       {
         icon: Heart,
-        iconBgClassName: "bg-red-100 dark:bg-[#2D0A0A]",
+        iconBgClassName: POST_METADATA_TINTS.red.iconBg,
         value: formatCount(likesCount),
         label: t("post_detail.likes"),
-        iconClassName: "text-[#EF4444] fill-[#EF4444]",
+        iconClassName: POST_METADATA_TINTS.red.iconColorFilled,
       },
       {
         icon: MessageCircle,
-        iconBgClassName: "bg-sky-100 dark:bg-[#0C2D3A]",
+        iconBgClassName: POST_METADATA_TINTS.sky.iconBg,
         value: formatCount(commentsCount),
         label: t("post_detail.comments"),
-        iconClassName: "text-[#38BDF8] fill-[#38BDF8]",
+        iconClassName: POST_METADATA_TINTS.sky.iconColorFilled,
       },
     ],
     [
       {
         icon: Eye,
-        iconBgClassName: "bg-blue-100 dark:bg-[#0D1B33]",
+        iconBgClassName: POST_METADATA_TINTS.blue.iconBg,
         value: formatCount(viewsCount),
         label: t("post_detail.views"),
-        iconClassName: "text-[#3B82F6]",
+        iconClassName: POST_METADATA_TINTS.blue.iconColor,
       },
       {
         icon: Share2,
-        iconBgClassName: "bg-green-100 dark:bg-[#0A2D14]",
+        iconBgClassName: POST_METADATA_TINTS.green.iconBg,
         value: formatCount(sharesCount),
         label: t("post_detail.shares"),
-        iconClassName: "text-[#22C55E]",
+        iconClassName: POST_METADATA_TINTS.green.iconColor,
       },
     ],
   ];

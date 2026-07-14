@@ -145,7 +145,6 @@ export function PostCommentsModal({
             <FlashList
               data={comments}
               keyExtractor={(item) => item.id}
-              estimatedItemSize={84}
               renderItem={({ item }) => <CommentRow comment={item} />}
               onEndReached={onEndReached}
               onEndReachedThreshold={0.5}

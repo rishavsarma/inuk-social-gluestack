@@ -1,38 +1,36 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
-import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
-import { CompassIcon, SearchIcon } from "lucide-react-native";
+import { SearchIcon } from "lucide-react-native";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { ScrollView } from "react-native";
 
-import { EmptyState } from "@/components/custom/Feed/EmptyState";
-import DiscoverCreatorCard from "@/components/custom/Discover/DiscoverCreatorCard";
-import DiscoverPostTile from "@/components/custom/Discover/DiscoverPostTile";
+import DiscoverCategoryTab from "@/components/custom/Discover/DiscoverCategoryTab";
+import DiscoverLocationTab from "@/components/custom/Discover/DiscoverLocationTab";
+import DiscoverTagTab from "@/components/custom/Discover/DiscoverTagTab";
+import DiscoverTrendingTab from "@/components/custom/Discover/DiscoverTrendingTab";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
-import { Badge, BadgeText } from "@/components/ui/badge";
-import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
-import { Text } from "@/components/ui/text";
+import {
+  Tabs,
+  TabsIndicator,
+  TabsList,
+  TabsTrigger,
+  TabsTriggerText,
+} from "@/components/ui/tabs";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
-import {
-  MOCK_DISCOVER_POSTS,
-  MOCK_SEARCH_PROFILES,
-  MOCK_TRENDING_TOPICS,
-} from "@/constants/mock-data";
 import { ROUTES } from "@/routes";
+
+type DiscoverTab = "location" | "category" | "tag" | "trending";
+const TABS: DiscoverTab[] = ["location", "category", "tag", "trending"];
 
 const DiscoverScreen = () => {
   const { t } = useTranslation();
   const toast = useToast();
-
-  const [creators, setCreators] = useState<NetworkProfileItem[]>(
-    MOCK_SEARCH_PROFILES,
-  );
+  const [activeTab, setActiveTab] = useState<DiscoverTab>("location");
 
   const showComingSoonToast = useCallback(() => {
     toast.show({
@@ -45,119 +43,66 @@ const DiscoverScreen = () => {
     });
   }, [t, toast]);
 
-  const handleToggleFollow = useCallback((profile: NetworkProfileItem) => {
-    setCreators((prev) =>
-      prev.map((item) =>
-        item.id === profile.id
-          ? { ...item, isFollowing: !item.isFollowing }
-          : item,
-      ),
-    );
-  }, []);
-
-  const renderPostTile = useCallback(
-    ({ item }: ListRenderItemInfo<DiscoverPost>) => (
-      <Box className="flex-1 p-1">
-        <DiscoverPostTile post={item} onPress={showComingSoonToast} />
-      </Box>
-    ),
-    [showComingSoonToast],
-  );
-
-  const listHeader = useMemo(
-    () => (
-      <VStack space="lg" className="pb-2">
-        <HStack className="items-center justify-between px-4 pt-2">
-          <Heading size="xl">{t("discover.title")}</Heading>
-        </HStack>
-
+  const header = (
+    <VStack space="md" className="pb-2">
+      <HStack className="items-center justify-between px-4 pt-2">
+        <Heading size="xl">{t("discover.title")}</Heading>
         <Button
-          variant="outline"
+          variant="secondary"
+          size="icon"
           onPress={() => router.push(ROUTES.TABS.EXPLORE)}
           accessibilityRole="button"
-          accessibilityLabel={t("search.placeholder")}
-          className="mx-4 justify-start gap-2 rounded-full bg-muted/50"
+          accessibilityLabel={t("discover.search_a11y")}
+          className="h-10 w-10 rounded-full"
         >
-          <ButtonIcon as={SearchIcon} className="text-muted-foreground" />
-          <Text className="text-muted-foreground">
-            {t("search.placeholder")}
-          </Text>
+          <ButtonIcon as={SearchIcon} />
         </Button>
+      </HStack>
 
-        <VStack space="sm">
-          <Heading size="sm" className="px-4 text-foreground">
-            {t("discover.creators_to_follow")}
-          </Heading>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 12, paddingHorizontal: 16 }}
-          >
-            {creators.map((profile) => (
-              <DiscoverCreatorCard
-                key={profile.id}
-                profile={profile}
-                onToggleFollow={handleToggleFollow}
-              />
-            ))}
-          </ScrollView>
-        </VStack>
-
-        <VStack space="sm">
-          <Heading size="sm" className="px-4 text-foreground">
-            {t("discover.trending_topics")}
-          </Heading>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ gap: 8, paddingHorizontal: 16 }}
-          >
-            {MOCK_TRENDING_TOPICS.map((topic) => (
-              <Badge
-                key={topic.id}
-                variant="outline"
-                className="rounded-full px-3 py-1.5"
-              >
-                <BadgeText className="normal-case">#{topic.tag}</BadgeText>
-              </Badge>
-            ))}
-          </ScrollView>
-        </VStack>
-
-        <Heading size="sm" className="px-4 text-foreground">
-          {t("discover.trending_posts")}
-        </Heading>
-      </VStack>
-    ),
-    [creators, handleToggleFollow, t],
+      <Tabs
+        value={activeTab}
+        onValueChange={(value: DiscoverTab) => setActiveTab(value)}
+        variant="filled"
+        orientation="horizontal"
+        className="px-4"
+      >
+        <TabsList className="rounded-full">
+          {TABS.map((tabKey) => (
+            <TabsTrigger key={tabKey} value={tabKey} className="flex-1 rounded-full">
+              <TabsTriggerText className="data-[selected=true]:text-white">
+                {t(`discover.tab_${tabKey}`)}
+              </TabsTriggerText>
+            </TabsTrigger>
+          ))}
+          <TabsIndicator className="rounded-full bg-theme" />
+        </TabsList>
+      </Tabs>
+    </VStack>
   );
 
+  if (activeTab === "trending") {
+    return (
+      <KeyboardAvoidingScrollView variant="list">
+        {({ scrollProps, topInset }) => (
+          <DiscoverTrendingTab
+            onPostPress={showComingSoonToast}
+            topInset={topInset}
+            scrollProps={scrollProps}
+            headerContent={header}
+          />
+        )}
+      </KeyboardAvoidingScrollView>
+    );
+  }
+
   return (
-    <KeyboardAvoidingScrollView variant="list">
-      {({ scrollProps, topInset }) => (
-        <FlashList
-          data={MOCK_DISCOVER_POSTS}
-          keyExtractor={(item) => item.id}
-          renderItem={renderPostTile}
-          numColumns={2}
-          {...scrollProps}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{
-            paddingTop: topInset,
-            paddingHorizontal: 12,
-            paddingBottom: 160,
-          }}
-          ListHeaderComponent={listHeader}
-          ListEmptyComponent={
-            <EmptyState
-              icon={CompassIcon}
-              title={t("discover.empty_title")}
-              description={t("discover.empty_description")}
-              fullScreen={false}
-            />
-          }
-        />
-      )}
+    <KeyboardAvoidingScrollView contentContainerStyle={{ paddingBottom: 160 }}>
+      <VStack className="pb-2">
+        {header}
+        {activeTab === "location" && <DiscoverLocationTab />}
+        {activeTab === "category" && <DiscoverCategoryTab />}
+        {activeTab === "tag" && <DiscoverTagTab />}
+      </VStack>
     </KeyboardAvoidingScrollView>
   );
 };

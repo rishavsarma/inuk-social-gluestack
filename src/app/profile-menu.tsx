@@ -36,6 +36,7 @@ import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
+import { MENU_ROW_TINTS } from "@/constants";
 import { useGetProfile } from "@/hooks/useProfile";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
@@ -43,8 +44,7 @@ import { useAuthStore } from "@/stores/auth.store";
 // ─── One menu row: pastel icon circle, title/subtitle, chevron ─────────
 interface MenuRowProps {
   icon: React.ComponentType<any>;
-  iconColor: string;
-  iconBgClassName: string;
+  tint: keyof typeof MENU_ROW_TINTS;
   title: string;
   subtitle?: string;
   onPress: () => void;
@@ -53,13 +53,13 @@ interface MenuRowProps {
 
 function MenuRow({
   icon,
-  iconColor,
-  iconBgClassName,
+  tint,
   title,
   subtitle,
   onPress,
   destructive = false,
 }: MenuRowProps) {
+  const { iconBg, iconColor } = MENU_ROW_TINTS[tint];
   return (
     <Pressable
       onPress={onPress}
@@ -68,10 +68,8 @@ function MenuRow({
       className="active:opacity-70"
     >
       <HStack space="sm" className="items-center px-4 py-2.5">
-        <Box
-          className={`p-2 items-center justify-center rounded-full ${iconBgClassName}`}
-        >
-          <Icon as={icon} size="sm" color={iconColor} />
+        <Box className={`p-2 items-center justify-center rounded-full ${iconBg}`}>
+          <Icon as={icon} size="sm" className={iconColor} />
         </Box>
         <VStack className="flex-1">
           <Text
@@ -197,40 +195,35 @@ const ProfileMenuScreen = () => {
         <VStack space="xs" className="bg-card">
           <MenuRow
             icon={User}
-            iconColor="#3B82F6"
-            iconBgClassName="bg-blue-500/10 dark:bg-blue-500/20"
+            tint="blue"
             title={t("profile_bottom_sheet.edit_profile")}
             subtitle={t("profile_bottom_sheet.update_name_avatar")}
             onPress={() => router.push(ROUTES.USER.EDIT_PROFILE)}
           />
           <MenuRow
             icon={Settings}
-            iconColor="#64748B"
-            iconBgClassName="bg-slate-500/10 dark:bg-slate-500/20"
+            tint="slate"
             title={t("profile_bottom_sheet.settings")}
             subtitle={t("profile_bottom_sheet.preferences_controls")}
             onPress={() => router.push(ROUTES.USER.SETTINGS)}
           />
           <MenuRow
             icon={Star}
-            iconColor="#F59E0B"
-            iconBgClassName="bg-amber-500/10 dark:bg-amber-500/20"
+            tint="amber"
             title={t("profile_bottom_sheet.sparks_coins")}
             subtitle={t("profile_bottom_sheet.view_points_history")}
             onPress={() => router.push(ROUTES.USER.POINTS)}
           />
           <MenuRow
             icon={KeyRound}
-            iconColor="#8B5CF6"
-            iconBgClassName="bg-violet-500/10 dark:bg-violet-500/20"
+            tint="violet"
             title={t("profile_bottom_sheet.change_password")}
             subtitle={t("profile_bottom_sheet.change_password_sub")}
             onPress={() => router.push(ROUTES.USER.CHANGE_PASSWORD)}
           />
           <MenuRow
             icon={LogOut}
-            iconColor="#EF4444"
-            iconBgClassName="bg-red-500/10 dark:bg-red-500/20"
+            tint="red"
             title={t("profile_bottom_sheet.log_out")}
             subtitle={t("profile_bottom_sheet.sign_out_app")}
             onPress={() => setShowLogoutConfirm(true)}

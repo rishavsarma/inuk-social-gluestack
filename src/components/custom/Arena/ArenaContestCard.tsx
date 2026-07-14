@@ -14,7 +14,7 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 const STATUS_BADGE_VARIANT: Record<
-  ContestStatus,
+  ArenaContestStatus,
   "default" | "outline" | "secondary"
 > = {
   ACTIVE: "default",
@@ -22,20 +22,20 @@ const STATUS_BADGE_VARIANT: Record<
   ENDED: "secondary",
 };
 
-interface ContestCardProps {
-  contest: ContestItem;
-  onPress: (contest: ContestItem) => void;
+interface ArenaContestCardProps {
+  contest: ArenaContestItem;
+  onPress: (contest: ArenaContestItem) => void;
 }
 
-function ContestCard({ contest, onPress }: ContestCardProps) {
+function ArenaContestCard({ contest, onPress }: ArenaContestCardProps) {
   const { t } = useTranslation();
   const isEnded = contest.status === "ENDED";
 
   const timeLabel = isEnded
-    ? t("contest_tab.ended_ago", {
+    ? t("arena.ended_ago", {
         time: formatDistanceToNowStrict(contest.endsAt, { addSuffix: false }),
       })
-    : t("contest_tab.ends_in", {
+    : t("arena.ends_in", {
         time: formatDistanceToNowStrict(contest.endsAt, { addSuffix: false }),
       });
 
@@ -54,7 +54,7 @@ function ContestCard({ contest, onPress }: ContestCardProps) {
           variant={STATUS_BADGE_VARIANT[contest.status]}
           className="rounded-full"
         >
-          <BadgeText>{t(`contest_tab.status_${contest.status}`)}</BadgeText>
+          <BadgeText>{t(`arena.status_${contest.status}`)}</BadgeText>
         </Badge>
       </HStack>
 
@@ -62,13 +62,13 @@ function ContestCard({ contest, onPress }: ContestCardProps) {
         <HStack space="xs" className="items-center">
           <Icon as={Gift} size="sm" className="text-theme" />
           <Text size="xs" className="text-muted-foreground">
-            {t("contest_tab.prize_pool", { prize: contest.prize })}
+            {t("arena.prize_pool", { prize: contest.prize })}
           </Text>
         </HStack>
         <HStack space="xs" className="items-center">
           <Icon as={Users} size="sm" className="text-muted-foreground" />
           <Text size="xs" className="text-muted-foreground">
-            {t("contest_tab.participants", { count: contest.entriesCount })}
+            {t("arena.participants", { count: contest.entriesCount })}
           </Text>
         </HStack>
         <HStack space="xs" className="items-center">
@@ -85,17 +85,17 @@ function ContestCard({ contest, onPress }: ContestCardProps) {
         onPress={() => onPress(contest)}
         accessibilityRole="button"
         accessibilityLabel={t(
-          isEnded ? "contest_tab.view_results_a11y" : "contest_tab.join_a11y",
+          isEnded ? "arena.view_results_a11y" : "arena.join_a11y",
           { title: contest.title },
         )}
         className="rounded-full"
       >
         <ButtonText className={isEnded ? "" : "text-white"}>
-          {t(isEnded ? "contest_tab.view_results" : "contest_tab.join_contest")}
+          {t(isEnded ? "arena.view_results" : "arena.join_contest")}
         </ButtonText>
       </Button>
     </Card>
   );
 }
 
-export default React.memo(ContestCard);
+export default React.memo(ArenaContestCard);

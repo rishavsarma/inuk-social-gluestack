@@ -106,11 +106,7 @@ const PasswordLogin = () => {
         profileType: "USER",
       },
       {
-        onSuccess: (res) => {
-          console.log("res", res);
-        },
         onError: (err: any) => {
-          console.log("err", err?.response?.message);
           setError(err?.response?.message || t("auth.invalid_phone_error"));
         },
       },

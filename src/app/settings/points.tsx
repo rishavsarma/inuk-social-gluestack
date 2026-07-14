@@ -4,6 +4,7 @@ import { Sparkles, TrendingDown, TrendingUp } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
 import { FlashList } from "@shopify/flash-list";
+import { compareDesc } from "date-fns";
 
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
@@ -13,7 +14,7 @@ import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
-import { useSocialStore, SparkTransactionItem } from "@/stores/social.store";
+import { useWalletStore, SparkTransactionItem } from "@/stores/wallet.store";
 
 import { useTimeAgo } from "@/hooks/useTimeAgo";
 
@@ -117,15 +118,14 @@ function SparksEmptyState() {
 
 const SparksScreen = () => {
   const { t } = useTranslation();
-  const points = useSocialStore((state) => state.points);
-  const transactions = useSocialStore((state) => state.transactions);
+  const points = useWalletStore((state) => state.points);
+  const transactions = useWalletStore((state) => state.transactions);
   const [refreshing, setRefreshing] = useState(false);
 
   const sortedTransactions = useMemo(
     () =>
-      [...transactions].sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
+      [...transactions].sort((a, b) =>
+        compareDesc(new Date(a.timestamp), new Date(b.timestamp)),
       ),
     [transactions],
   );

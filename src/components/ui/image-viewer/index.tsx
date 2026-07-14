@@ -7,11 +7,11 @@ import {
   Dimensions,
   FlatList,
   Pressable,
-  Image as RNImage,
   Text,
   TouchableOpacity,
   View,
 } from "react-native";
+import { Image as ExpoImage } from "expo-image";
 import {
   Gesture,
   GestureDetector,
@@ -33,7 +33,7 @@ import Animated, {
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const AnimatedView = Animated.createAnimatedComponent(View);
-const AnimatedImage = Animated.createAnimatedComponent(RNImage);
+const AnimatedImage = Animated.createAnimatedComponent(ExpoImage);
 
 const imageViewerStyle = tva({
   base: "w-full",
@@ -345,7 +345,7 @@ const ZoomableImage = React.memo(
         <AnimatedImage
           source={{ uri: image.url }}
           alt={image.alt}
-          resizeMode="contain"
+          contentFit="contain"
           style={[
             { width: SCREEN_WIDTH, height: SCREEN_HEIGHT },
             animatedStyle,

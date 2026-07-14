@@ -13,7 +13,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-const ProfileGridItem = ({
+function ProfileGridItem({
   item,
   type,
   imageSize,
@@ -25,7 +25,7 @@ const ProfileGridItem = ({
   imageSize: number;
   isDark: boolean;
   onPress: () => void;
-}) => {
+}) {
   const { t } = useTranslation();
   const scale = useSharedValue(1);
 
@@ -122,22 +122,12 @@ const ProfileGridItem = ({
             )}
             {isVideo && !hasImageError && (
               <Box className="absolute right-2 top-2 flex-row items-center gap-1 rounded-full border border-white/10 bg-black/50 p-1 backdrop-blur-md">
-                <Icon
-                  as={PlayIcon}
-                  className="size-2"
-                  color="#fff"
-                  fill="#fff"
-                />
+                <Icon as={PlayIcon} className="size-2 text-white fill-white" />
               </Box>
             )}
             {isCarousel && !isVideo && !hasImageError && (
               <View className="absolute right-2 top-2 flex-row items-center justify-center rounded-full border border-white/10 bg-black/50 p-1 backdrop-blur-md">
-                <Icon
-                  as={LayersIcon}
-                  className="size-2"
-                  color="#fff"
-                  fill="#fff"
-                />
+                <Icon as={LayersIcon} className="size-2 text-white fill-white" />
               </View>
             )}
           </View>
@@ -145,6 +135,6 @@ const ProfileGridItem = ({
       </Animated.View>
     </Pressable>
   );
-};
+}
 
 export default memo(ProfileGridItem);

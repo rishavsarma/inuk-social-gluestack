@@ -2,6 +2,7 @@
 'use client';
 
 import React, { useState, useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { View, Pressable, TextInput } from 'react-native';
 import { Calendar } from '@/components/ui/calendar';
 import { PrimitiveIcon } from '@gluestack-ui/core/icon/creator';
@@ -37,6 +38,7 @@ const DateTimePicker = React.forwardRef<
   },
   ref
 ) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [tempDate, setTempDate] = useState<Date | undefined>(value);
   const [tempTime, setTempTime] = useState(
@@ -171,13 +173,17 @@ const DateTimePicker = React.forwardRef<
               onPress={handleCancel}
               className="px-4 py-2 rounded bg-muted"
             >
-              <span className="text-muted-foreground text-sm">Cancel</span>
+              <span className="text-muted-foreground text-sm">
+                {t('edit_profile.cancel')}
+              </span>
             </Pressable>
             <Pressable
               onPress={handleConfirm}
               className="px-4 py-2 rounded bg-primary"
             >
-              <span className="text-primary-foreground text-sm">Confirm</span>
+              <span className="text-primary-foreground text-sm">
+                {t('edit_profile.done')}
+              </span>
             </Pressable>
           </View>
         </View>

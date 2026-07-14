@@ -38,7 +38,15 @@ export function useAppInsets(): EdgeInsets {
   }
 }
 
-export const useAppTopInset = (): number => useAppInsets().top;
-export const useAppBottomInset = (): number => useAppInsets().bottom;
-export const useAppLeftInset = (): number => useAppInsets().left;
-export const useAppRightInset = (): number => useAppInsets().right;
+export function useAppTopInset(): number {
+  return useAppInsets().top;
+}
+export function useAppBottomInset(): number {
+  return useAppInsets().bottom;
+}
+export function useAppLeftInset(): number {
+  return useAppInsets().left;
+}
+export function useAppRightInset(): number {
+  return useAppInsets().right;
+}

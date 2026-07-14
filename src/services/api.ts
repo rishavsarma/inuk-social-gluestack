@@ -1,10 +1,16 @@
 import { useAuthStore } from "@/stores/auth.store";
-import { create } from "axios";
+import { create, type AxiosError } from "axios";
 
 const API_BASE_URL =
   process.env.EXPO_PUBLIC_API_URL ?? "https://dev.apiv2.inuk.in";
 
 export { API_BASE_URL };
+
+export interface ApiErrorData {
+  message?: string;
+}
+
+export type ApiError = AxiosError<ApiErrorData>;
 
 export const api = create({
   baseURL: API_BASE_URL,

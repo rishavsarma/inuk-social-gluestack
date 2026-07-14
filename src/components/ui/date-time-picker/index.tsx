@@ -14,6 +14,7 @@ import {
 } from '@gluestack-ui/utils/nativewind-utils';
 import { styled } from 'nativewind';
 import React, { useMemo, useState, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Modal,
   Pressable,
@@ -150,6 +151,7 @@ function CalendarPickerModal({
   maximumDate?: Date;
   onChange?: (date: Date | undefined) => void;
 }) {
+  const { t } = useTranslation();
   const { isOpen, setIsOpen, value } = useDateTimePicker();
   const [tempValue, setTempValue] = useState<Date>(value || new Date());
 
@@ -168,28 +170,42 @@ function CalendarPickerModal({
       animationType="slide"
       onRequestClose={() => setIsOpen(false)}
     >
-      <View style={{ flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.5)' }}>
+      <View className="flex-1 justify-end bg-black/50">
         <Pressable
-          style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+          className="absolute inset-0"
           onPress={() => setIsOpen(false)}
+          accessibilityRole="button"
+          accessibilityLabel={t('edit_profile.cancel')}
         />
-        <View style={{ backgroundColor: '#18181b', borderTopLeftRadius: 16, borderTopRightRadius: 16, padding: 16, paddingBottom: 32 }}>
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, borderBottomWidth: 1, borderBottomColor: '#27272a', paddingBottom: 8 }}>
-            <Pressable onPress={() => setIsOpen(false)}>
-              <Text style={{ color: '#6366f1', fontWeight: '600', fontSize: 16 }}>Cancel</Text>
+        <View className="bg-card rounded-t-2xl p-4 pb-8">
+          <View className="flex-row justify-between items-center mb-4 border-b border-border pb-2">
+            <Pressable
+              onPress={() => setIsOpen(false)}
+              accessibilityRole="button"
+              accessibilityLabel={t('edit_profile.cancel')}
+            >
+              <Text className="text-theme font-semibold text-base">
+                {t('edit_profile.cancel')}
+              </Text>
             </Pressable>
-            <Text style={{ fontWeight: '600', fontSize: 16, color: '#f8fafc' }}>Select Date</Text>
+            <Text className="font-semibold text-base text-foreground">
+              {t('edit_profile.select_date')}
+            </Text>
             <Pressable
               onPress={() => {
                 setIsOpen(false);
                 onChange?.(tempValue);
               }}
+              accessibilityRole="button"
+              accessibilityLabel={t('edit_profile.done')}
             >
-              <Text style={{ color: '#6366f1', fontWeight: '600', fontSize: 16 }}>Done</Text>
+              <Text className="text-theme font-semibold text-base">
+                {t('edit_profile.done')}
+              </Text>
             </Pressable>
           </View>
-          
-          <View style={{ backgroundColor: '#18181b', borderRadius: 8 }}>
+
+          <View className="bg-card rounded-lg">
             {/* @ts-ignore */}
             <Calendar
               mode="single"
@@ -202,11 +218,11 @@ function CalendarPickerModal({
             >
               <CalendarHeader>
                 <CalendarHeaderPrevButton>
-                  <ChevronLeftIcon color="#fff" size={20} />
+                  <ChevronLeftIcon className="text-foreground" size={20} />
                 </CalendarHeaderPrevButton>
                 <CalendarHeaderTitle />
                 <CalendarHeaderNextButton>
-                  <ChevronRightIcon color="#fff" size={20} />
+                  <ChevronRightIcon className="text-foreground" size={20} />
                 </CalendarHeaderNextButton>
               </CalendarHeader>
               <CalendarBody>

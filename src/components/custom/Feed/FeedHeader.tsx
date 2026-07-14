@@ -1,14 +1,20 @@
-import { View } from "react-native";
 import React from "react";
-import { useTranslation } from "react-i18next";
-import { Button } from "@/components/ui/button";
+
 import { router } from "expo-router";
-import { ROUTES } from "@/routes";
+
+import { View } from "react-native";
+
+import { Button } from "@/components/ui/button";
 import { BellIcon, Icon } from "@/components/ui/icon";
+
 import { SearchIcon } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+
 import Logo from "@/components/custom/Logo";
 
-const FeedHeader = () => {
+import { ROUTES } from "@/routes";
+
+function FeedHeader() {
   const { t } = useTranslation();
 
   return (
@@ -41,6 +47,6 @@ const FeedHeader = () => {
       </View>
     </View>
   );
-};
+}
 
 export default FeedHeader;

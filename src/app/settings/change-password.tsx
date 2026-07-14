@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { Check, Eye, EyeOff, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
-import { AxiosError } from "axios";
 
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 
@@ -23,6 +22,7 @@ import { Text } from "@/components/ui/text";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
+import type { ApiError } from "@/services/api";
 import { useChangePassword } from "@/hooks/useAuth";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
@@ -152,7 +152,7 @@ const ChangePasswordScreen = () => {
           });
           router.back();
         },
-        onError: (err: AxiosError<{ message?: string }>) => {
+        onError: (err: ApiError) => {
           setCurrentPasswordError(
             err?.response?.data?.message ||
               t("change_password.current_password_incorrect"),
@@ -204,6 +204,12 @@ const ChangePasswordScreen = () => {
               <InputSlot
                 onPress={() => setShowCurrentPassword((prev) => !prev)}
                 className="pr-3"
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showCurrentPassword
+                    ? t("auth.hide_password")
+                    : t("auth.show_password")
+                }
               >
                 <InputIcon
                   as={showCurrentPassword ? EyeOff : Eye}
@@ -252,6 +258,12 @@ const ChangePasswordScreen = () => {
               <InputSlot
                 onPress={() => setShowNewPassword((prev) => !prev)}
                 className="pr-3"
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showNewPassword
+                    ? t("auth.hide_password")
+                    : t("auth.show_password")
+                }
               >
                 <InputIcon
                   as={showNewPassword ? EyeOff : Eye}
@@ -361,6 +373,12 @@ const ChangePasswordScreen = () => {
               <InputSlot
                 onPress={() => setShowConfirmPassword((prev) => !prev)}
                 className="pr-3"
+                accessibilityRole="button"
+                accessibilityLabel={
+                  showConfirmPassword
+                    ? t("auth.hide_password")
+                    : t("auth.show_password")
+                }
               >
                 <InputIcon
                   as={showConfirmPassword ? EyeOff : Eye}

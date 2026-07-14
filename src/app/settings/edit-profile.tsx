@@ -77,15 +77,11 @@ import { Text } from "@/components/ui/text";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
-import {
-  getContentTypeFromExtension,
-  uploadFileMultipart,
-} from "@/services/upload";
-
 import { useAuthStore } from "@/stores/auth.store";
 
 import { useGetProfile, useUpdateProfile } from "@/hooks/useProfile";
 import { useSearchLocations } from "@/hooks/useLocation";
+import { useUpload } from "@/hooks/useUpload";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 
@@ -165,7 +161,7 @@ interface EditProfileFormProps {
 function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
   const { t } = useTranslation();
   const toast = useToast();
-  const token = useAuthStore((state) => state.token);
+  const { uploadMedia } = useUpload();
 
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile(profileId);
 
@@ -239,14 +235,11 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
     setUploading(true);
     try {
       const fileName = asset.fileName || `${target}-${Date.now()}.jpg`;
-      const contentType = getContentTypeFromExtension(fileName);
-      const mediaId = await uploadFileMultipart({
+      const mediaId = await uploadMedia({
         fileUri: asset.uri,
         fileName,
-        contentType,
         mediaType: target === "avatar" ? "AVATAR" : "ILLUSTRATION",
         visibility: "ALL",
-        token: token || "",
       });
 
       await updateProfile(
@@ -872,8 +865,6 @@ const EditProfileScreen = () => {
   const profileId = user?.profileId || "";
 
   const { data: profileData, isLoading } = useGetProfile(profileId);
-
-  console.log("profileData", profileData?.profile);
 
   return (
     <KeyboardAvoidingScrollView

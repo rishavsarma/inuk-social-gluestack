@@ -1,26 +1,27 @@
-import { authService } from "@/services/auth.service";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 
-export const useInitiateJourney = () => {
+import type { ApiError } from "@/services/api";
+import { authService } from "@/services/auth.service";
+
+export function useInitiateJourney() {
   return useMutation<
     InitiateJourneyResponse,
-    AxiosError<{ message?: string }>,
+    ApiError,
     { contact: string; accountType: AccountType }
   >({
     mutationFn: (payload) => authService.initiateJourney(payload),
   });
-};
+}
 
-export const useSignInInitiateOtp = () => {
+export function useSignInInitiateOtp() {
   return useMutation({
     mutationFn: (payload: { contact: string; profileType: AccountType }) =>
       // console.log('payload', payload)
       authService.signInInitiateOtp(payload), //TODO There should be only one api to send otp and another api to verify it. Also requestId is needed for validation
   });
-};
+}
 
-export const useSignInVerifyOtp = () => {
+export function useSignInVerifyOtp() {
   return useMutation({
     mutationFn: (payload: {
       contact: string;
@@ -29,9 +30,9 @@ export const useSignInVerifyOtp = () => {
       profileType: AccountType;
     }) => authService.signInVerifyOtp(payload),
   });
-};
+}
 
-export const useSignUpVerifyOtp = () => {
+export function useSignUpVerifyOtp() {
   return useMutation({
     mutationFn: (payload: {
       contact: string;
@@ -40,9 +41,9 @@ export const useSignUpVerifyOtp = () => {
       profileType: AccountType;
     }) => authService.signUpVerifyOtp(payload),
   });
-};
+}
 
-export const useVerifyPassword = () => {
+export function useVerifyPassword() {
   return useMutation({
     mutationFn: (payload: {
       contact: string;
@@ -50,41 +51,38 @@ export const useVerifyPassword = () => {
       profileType: AccountType; //TODO /initiate-journey its accountType but here its profile type
     }) => authService.signInVerifyPassword(payload),
   });
-};
+}
 
-export const useSignUpSetPassword = () => {
+export function useSignUpSetPassword() {
   return useMutation({
     mutationFn: (payload: SetPasswordPayload) =>
       authService.signUpSetPassword(payload),
   });
-};
-export const useResetPasswordUpdate = () => {
+}
+
+export function useResetPasswordUpdate() {
   return useMutation({
     mutationFn: (payload: ResetPasswordUpdatePayload) =>
       authService.resetPasswordUpdate(payload),
   });
-};
+}
 
-export const useChangePassword = () => {
-  return useMutation<
-    ChangePasswordResponse,
-    AxiosError<{ message?: string }>,
-    ChangePasswordPayload
-  >({
+export function useChangePassword() {
+  return useMutation<ChangePasswordResponse, ApiError, ChangePasswordPayload>({
     mutationFn: (payload) => authService.changePassword(payload),
   });
-};
+}
 
-export const useSetProfileDetails = () => {
+export function useSetProfileDetails() {
   return useMutation({
     mutationFn: (payload: SetProfilePayload) =>
       authService.signUpSetProfile(payload),
   });
-};
+}
 
 const USERNAME_REGEX = /^[a-z0-9_]{3,}$/;
 
-export const useValidateUsername = (username: string) => {
+export function useValidateUsername(username: string) {
   const trimmed = username.trim().toLowerCase();
 
   return useQuery({
@@ -93,9 +91,9 @@ export const useValidateUsername = (username: string) => {
     enabled: USERNAME_REGEX.test(trimmed),
     staleTime: 30_000,
   });
-};
+}
 
-export const useValidateReferralCode = (code: string) => {
+export function useValidateReferralCode(code: string) {
   const trimmed = code.trim();
 
   return useQuery({
@@ -104,4 +102,4 @@ export const useValidateReferralCode = (code: string) => {
     enabled: trimmed.length >= 6,
     staleTime: 30_000,
   });
-};
+}

@@ -1,23 +1,15 @@
 import React, { useCallback } from "react";
 
-import {
-    ArrowLeftIcon,
-    FileText,
-    ImageIcon,
-    MoreHorizontal,
-    Music,
-    Pencil,
-    Star,
-    Video,
-} from "lucide-react-native";
+import { Image } from "expo-image";
+import { Href, router } from "expo-router";
+
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import { runOnJS } from "react-native-worklets";
 
+import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Grid, GridItem } from "@/components/ui/grid";
-
-import { Badge, BadgeText } from "@/components/ui/badge";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
@@ -30,13 +22,26 @@ import {
 } from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useAppTopInset } from "@/hooks/useAppInsets";
-import { useSocialStore } from "@/stores/social.store";
-import { formatCompactNumber } from "@/utils/formatNumber";
-import { Image } from "expo-image";
-import { Href, router } from "expo-router";
+
+import {
+    ArrowLeftIcon,
+    FileText,
+    ImageIcon,
+    MoreHorizontal,
+    Music,
+    Pencil,
+    Star,
+    Video,
+} from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+
+import { useWalletStore } from "@/stores/wallet.store";
+
+import { useAppTopInset } from "@/hooks/useAppInsets";
+
 import { AnimatedStatNumber } from "../NumberFormatter";
+
+import { formatCompactNumber } from "@/utils/formatNumber";
 import { ROUTES } from "@/routes";
 
 const PROFILE_TABS = ["image", "video", "text"] as const;
@@ -99,14 +104,14 @@ export interface ListHeaderProps {
     showBackButton?: any;
 }
 
-const ListHeader = ({
+function ListHeader({
     profile,
     stats,
     isOtherUser,
     setActiveTab,
     activeTab,
     showBackButton,
-}: ListHeaderProps) => {
+}: ListHeaderProps) {
     const userDetail = {
         name: profile.givenName,
         cover: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.coverPhoto}/jpeg/720`,
@@ -119,7 +124,7 @@ const ListHeader = ({
     };
     const { t } = useTranslation();
     const topInset = useAppTopInset();
-    const points = useSocialStore((state) => state.points);
+    const points = useWalletStore((state) => state.points);
 
     return (
         <VStack space="sm" className="">
@@ -326,6 +331,6 @@ const ListHeader = ({
             </Tabs>
         </VStack>
     );
-};
+}
 
 export default ListHeader;

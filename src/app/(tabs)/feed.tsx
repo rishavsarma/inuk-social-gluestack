@@ -1,67 +1,37 @@
-import { EmptyState } from "@/components/custom/Feed/EmptyState";
-import { FeedCategories } from "@/components/custom/Feed/FeedCategories";
-import FeedHeader from "@/components/custom/Feed/FeedHeader";
-import { FeedPostVideo } from "@/components/custom/Feed/FeedPostVideo";
-import { PostSkeleton } from "@/components/custom/Feed/PostSkeleton";
-import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
-import { PostOptionsActionsheet } from "@/components/custom/Post/PostOptionsActionsheet";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { useCallback, useMemo, useState } from "react";
+
+import { Href, router } from "expo-router";
+
+import { Share } from "react-native";
+
 import { Box } from "@/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Divider } from "@/components/ui/divider";
-import { HStack } from "@/components/ui/hstack";
-import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
-import { useGetFeedPosts, useLikeFeedPostMutation } from "@/hooks/usePosts";
-import { useFollowUser } from "@/hooks/useProfile";
-import { ROUTES } from "@/routes";
-import { useAuthStore } from "@/stores/auth.store";
-import { useFeedVideoStore } from "@/stores/feed-video.store";
-import { useSettingStore } from "@/stores/setting.store";
+
 import {
   FlashList,
   type ListRenderItemInfo,
   type ViewToken,
 } from "@shopify/flash-list";
-import { formatDistanceToNow } from "date-fns";
-import { BlurView } from "expo-blur";
-import { Image } from "expo-image";
-import { Href, router } from "expo-router";
-import {
-  Heart,
-  ImageOff,
-  MessageCircle,
-  MoreHorizontal,
-  Share2,
-} from "lucide-react-native";
-import { useCallback, useMemo, useState } from "react";
+import { ImageOff } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Platform, Pressable, Share, StyleSheet, View } from "react-native";
 
-interface FeedPostItem {
-  id: string | number;
-  type: string;
-  profileId?: string;
-  author?: {
-    id?: string;
-    avatar_url?: string;
-    display_name?: string;
-    username?: string;
-    is_me?: boolean;
-    is_following?: boolean;
-  };
-  created_at?: string;
-  caption?: string;
-  media?: { id?: string; url?: string; thumbnail_url?: string }[];
-  is_liked?: boolean;
-  likes_count?: number;
-  comments_count?: number;
-  shares_count?: number;
-}
+import { useAuthStore } from "@/stores/auth.store";
+import { useFeedVideoStore } from "@/stores/feed-video.store";
+
+import { useGetFeedPosts, useLikeFeedPostMutation } from "@/hooks/usePosts";
+import { useFollowUser } from "@/hooks/useProfile";
+
+import { EmptyState } from "@/components/custom/Feed/EmptyState";
+import { FeedCategories } from "@/components/custom/Feed/FeedCategories";
+import FeedHeader from "@/components/custom/Feed/FeedHeader";
+import { FeedPostCard, type FeedPostItem } from "@/components/custom/Feed/FeedPostCard";
+import { PostSkeleton } from "@/components/custom/Feed/PostSkeleton";
+import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
+import { PostOptionsActionsheet } from "@/components/custom/Post/PostOptionsActionsheet";
+
+import { ROUTES } from "@/routes";
 
 interface FeedPostsPage {
   data?: FeedPostItem[];
@@ -72,8 +42,6 @@ interface FeedPostsPage {
 
 const FeedScreen = () => {
   const { t } = useTranslation();
-  const { theme } = useSettingStore();
-  const isDark = theme === "dark";
   const toast = useToast();
 
   const {
@@ -221,265 +189,95 @@ const FeedScreen = () => {
     [setActiveVideoId],
   );
 
+  const handlePostPress = useCallback((post: FeedPostItem) => {
+    const postMediaId = post.media?.[0]?.id;
+    if (!postMediaId || !post.id) return;
+    router.push(
+      `${ROUTES.CONTENT.POST_DETAILS(
+        postMediaId,
+        String(post.id),
+      )}?id=${postMediaId}&profile_id=${post.author?.id}&type=${post.type}` as Href,
+    );
+  }, []);
+
+  const handleCommentPress = useCallback((post: FeedPostItem) => {
+    const postMediaId = post.media?.[0]?.id;
+    if (!postMediaId || !post.id) return;
+    router.push(
+      `${ROUTES.CONTENT.POST_DETAILS(
+        postMediaId,
+        String(post.id),
+      )}?id=${postMediaId}&profile_id=${post.author?.id}&type=${post.type}&comments=true` as Href,
+    );
+  }, []);
+
+  const handleLikePress = useCallback(
+    (post: FeedPostItem) => {
+      if (!post.id) return;
+      likeMutation.mutate({ postId: String(post.id), isLiked: !!post.is_liked });
+    },
+    [likeMutation],
+  );
+
+  const handleMorePress = useCallback(
+    (post: FeedPostItem) => {
+      if (!post.id) return;
+      handleOptionsPress(String(post.id), post.author?.id);
+    },
+    [handleOptionsPress],
+  );
+
+  const handleSharePress = useCallback(async (post: FeedPostItem) => {
+    try {
+      const mediaUrl = post.media?.[0]?.url;
+      await Share.share({
+        message: post.caption || "",
+        ...(mediaUrl ? { url: mediaUrl } : {}),
+      });
+    } catch {
+      // user dismissed the share sheet — nothing to do
+    }
+  }, []);
+
+  const handleCardFollowPress = useCallback(
+    (post: FeedPostItem, isFollowing: boolean) => {
+      handleFollowPress(post.author?.id, isFollowing);
+    },
+    [handleFollowPress],
+  );
+
   const renderItem = useCallback(
     ({ item }: ListRenderItemInfo<FeedPostItem>) => {
-      const type = item.type;
-      const avatarUrl = item.author?.avatar_url;
-      const displayName =
-        item.author?.display_name || item.author?.username || t("common.user");
-      const createdAt = item.created_at
-        ? formatDistanceToNow(new Date(item.created_at), { addSuffix: true })
-        : "";
-      const caption = item.caption || "";
-      const mediaItem = item.media?.[0] ?? null;
-      const mediaUrl = mediaItem?.url ?? null;
-      const isLiked = !!item.is_liked;
-      const likesCount = item.likes_count ?? 0;
-      const commentsCount = item.comments_count ?? 0;
-      const sharesCount = item.shares_count ?? 0;
-      const postMediaId = mediaItem?.id;
       const authorId = item.author?.id;
-      const isMe =
-        item.author?.is_me ?? (!!currentUserId && authorId === currentUserId);
       const isFollowing =
         followOverrides[authorId ?? ""] ?? !!item.author?.is_following;
-
-      const handlePress = () => {
-        if (!postMediaId || !item.id) return;
-        router.push(
-          `${ROUTES.CONTENT.POST_DETAILS(
-            postMediaId,
-            String(item.id),
-          )}?id=${postMediaId}&profile_id=${item.author?.id}&type=${type}` as Href,
-        );
-      };
-
-      const handleCommentPress = () => {
-        if (!postMediaId || !item.id) return;
-        router.push(
-          `${ROUTES.CONTENT.POST_DETAILS(
-            postMediaId,
-            String(item.id),
-          )}?id=${postMediaId}&profile_id=${item.author?.id}&type=${type}&comments=true` as Href,
-        );
-      };
-
-      const handleLikePress = () => {
-        if (!item.id) return;
-        likeMutation.mutate({ postId: String(item.id), isLiked });
-      };
-
-      const handleMorePress = () => {
-        if (!item.id) return;
-        handleOptionsPress(String(item.id), item.author?.id);
-      };
-
-      const handleSharePress = async () => {
-        try {
-          await Share.share({
-            message: caption || "",
-            ...(mediaUrl ? { url: mediaUrl } : {}),
-          });
-        } catch {
-          // user dismissed the share sheet — nothing to do
-        }
-      };
+      const isFollowLoading =
+        isFollowPending && followVariables?.followedId === authorId;
 
       return (
-        <Card className="gap-3 overflow-hidden rounded-md border-0 px-0 pb-0 ">
-          <Pressable
-            onPress={handlePress}
-            accessibilityRole="button"
-            accessibilityLabel={t("feed.view_post_a11y")}
-          >
-            <VStack space="sm">
-              <HStack space="lg" className="justify-between items-center px-4">
-                <HStack space="sm" className="flex-1 items-center ">
-                  <Avatar className="h-12 w-12">
-                    <AvatarImage
-                      source={{ uri: avatarUrl }}
-                      alt={t("profile.avatar_alt", { name: displayName })}
-                      className=""
-                    />
-                  </Avatar>
-                  <VStack className="">
-                    <Text
-                      size="md"
-                      bold
-                      className="leading-none py-0 leading-0 font-baloo-bold "
-                    >
-                      {displayName}
-                    </Text>
-                    <Text
-                      size="xs"
-                      className="leading-none text-muted-foreground"
-                    >
-                      {createdAt}
-                    </Text>
-                  </VStack>
-                </HStack>
-                {!isMe && (
-                  <Button
-                    variant={isFollowing ? "outline" : "ghost"}
-                    size="sm"
-                    onPress={() => handleFollowPress(authorId, isFollowing)}
-                    disabled={
-                      isFollowPending &&
-                      followVariables?.followedId === authorId
-                    }
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      isFollowing
-                        ? t("network.unfollow_a11y", { name: displayName })
-                        : t("network.follow_a11y", { name: displayName })
-                    }
-                    className="border border-border/40"
-                  >
-                    <ButtonText className="">
-                      {isFollowing
-                        ? t("network.following_btn")
-                        : t("network.follow")}
-                    </ButtonText>
-                  </Button>
-                )}
-                <Button
-                  size="default"
-                  variant="ghost"
-                  onPress={handleMorePress}
-                  accessibilityRole="button"
-                  accessibilityLabel={t("post_options.menu_a11y")}
-                  className="rounded-full p-0 data-[active=true]:bg-transparent"
-                >
-                  <ButtonIcon as={MoreHorizontal} size="lg" className="" />
-                </Button>
-              </HStack>
-              {caption && (
-                <Text size="md" className="px-4">
-                  {caption.trim()}
-                </Text>
-              )}
-              {!!mediaUrl && (
-                <Box className="relative h-96 w-full overflow-hidden rounded-none bg-card">
-                  {type === "video" ? (
-                    <FeedPostVideo
-                      id={String(item.id)}
-                      uri={mediaUrl}
-                      posterUri={mediaItem?.thumbnail_url}
-                    />
-                  ) : (
-                    <Image
-                      source={{ uri: mediaUrl }}
-                      alt={t("feed.post_image_alt")}
-                      style={{ width: "100%", height: "100%" }}
-                      contentFit="cover"
-                      transition={300}
-                    />
-                  )}
-                  <VStack className="absolute bottom-3 left-4 right-4 items-center">
-                    <View className="overflow-hidden rounded-full shadow-lg">
-                      <BlurView
-                        intensity={Platform.OS === "android" ? 100 : 70}
-                        tint={isDark ? "dark" : "light"}
-                        style={StyleSheet.absoluteFill}
-                      />
-
-                      <HStack className="items-center bg-white/40 px-1 dark:bg-black/30">
-                        <Pressable
-                          onPress={handleLikePress}
-                          hitSlop={8}
-                          accessibilityRole="button"
-                          accessibilityLabel={
-                            isLiked
-                              ? t("post_detail.unlike_post")
-                              : t("post_detail.like_post")
-                          }
-                        >
-                          <HStack space="sm" className="items-center px-3 py-2">
-                            <Icon
-                              as={Heart}
-                              size="sm"
-                              className={
-                                isLiked
-                                  ? "text-theme fill-theme"
-                                  : "text-foreground"
-                              }
-                            />
-                            <Text
-                              size="sm"
-                              className="font-semibold text-foreground"
-                            >
-                              {likesCount}
-                            </Text>
-                          </HStack>
-                        </Pressable>
-                        <Divider
-                          orientation="vertical"
-                          className="h-4 w-px bg-foreground/20"
-                        />
-                        <Pressable
-                          onPress={handleCommentPress}
-                          hitSlop={8}
-                          accessibilityRole="button"
-                          accessibilityLabel={t("post_detail.comments")}
-                        >
-                          <HStack space="sm" className="items-center px-3 py-2">
-                            <Icon
-                              as={MessageCircle}
-                              size="sm"
-                              className="text-foreground"
-                            />
-                            <Text
-                              size="sm"
-                              className="font-semibold text-foreground"
-                            >
-                              {commentsCount}
-                            </Text>
-                          </HStack>
-                        </Pressable>
-                        <Divider
-                          orientation="vertical"
-                          className="h-4 w-px bg-foreground/20"
-                        />
-                        <Pressable
-                          onPress={handleSharePress}
-                          hitSlop={8}
-                          accessibilityRole="button"
-                          accessibilityLabel={t("post_detail.share_post")}
-                        >
-                          <HStack space="sm" className="items-center px-3 py-2">
-                            <Icon
-                              as={Share2}
-                              size="sm"
-                              className="text-foreground"
-                            />
-                            <Text
-                              size="sm"
-                              className=" font-semibold text-foreground"
-                            >
-                              {sharesCount}
-                            </Text>
-                          </HStack>
-                        </Pressable>
-                      </HStack>
-                    </View>
-                  </VStack>
-                </Box>
-              )}
-            </VStack>
-          </Pressable>
-        </Card>
+        <FeedPostCard
+          post={item}
+          isFollowing={isFollowing}
+          isFollowLoading={isFollowLoading}
+          onPress={handlePostPress}
+          onCommentPress={handleCommentPress}
+          onLikePress={handleLikePress}
+          onFollowPress={handleCardFollowPress}
+          onMorePress={handleMorePress}
+          onSharePress={handleSharePress}
+        />
       );
     },
     [
-      isDark,
-      t,
-      likeMutation,
-      handleOptionsPress,
-      currentUserId,
       followOverrides,
-      followVariables,
       isFollowPending,
-      handleFollowPress,
+      followVariables,
+      handlePostPress,
+      handleCommentPress,
+      handleLikePress,
+      handleCardFollowPress,
+      handleMorePress,
+      handleSharePress,
     ],
   );
 
@@ -519,7 +317,7 @@ const FeedScreen = () => {
                 />
               )
             }
-            // refreshing={isRefetching}
+            refreshing={isRefetching}
             onRefresh={refetch}
             onEndReached={() => {
               if (hasNextPage && !isFetchingNextPage) fetchNextPage();

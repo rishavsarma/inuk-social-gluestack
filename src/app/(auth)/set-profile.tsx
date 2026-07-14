@@ -14,7 +14,7 @@ import {
 } from "lucide-react-native";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Modal, Platform, Pressable, useColorScheme, View } from "react-native";
+import { Modal, Platform, Pressable, View } from "react-native";
 import switchTheme from "react-native-theme-switch-animation";
 
 import {
@@ -89,16 +89,13 @@ import {
   useSetProfileDetails,
 } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
-import { useAuthStore } from "@/stores/auth.store";
+import { THEME_RGB } from "@/constants";
 import { useSettingStore } from "@/stores/setting.store";
 import { useUpdateProfile } from "@/hooks/useProfile";
+import { useUpload } from "@/hooks/useUpload";
 import Logo from "@/components/custom/Logo";
 import { buildUsernameSuggestions } from "@/utils/username";
 import { Badge, BadgeText } from "@/components/ui/badge";
-import {
-  getContentTypeFromExtension,
-  uploadFileMultipart,
-} from "@/services/upload";
 import { differenceInYears, format, subYears } from "date-fns";
 
 const AVATAR_SIZE = 512;
@@ -108,7 +105,8 @@ const SetProfile = () => {
   const bottomInset = useAppBottomInset();
   const { t } = useTranslation();
   const router = useRouter();
-  const token = useAuthStore((state) => state.token);
+  const { uploadMedia } = useUpload();
+  const isDark = useSettingStore((state) => state.theme === "dark");
 
   // Core fields
   const [username, setUsername] = useState("");
@@ -332,13 +330,11 @@ const SetProfile = () => {
     let avatarMediaId: string;
     try {
       const fileName = `avatar-${Date.now()}.jpg`;
-      avatarMediaId = await uploadFileMultipart({
+      avatarMediaId = await uploadMedia({
         fileUri: avatarUrl,
         fileName,
-        contentType: getContentTypeFromExtension(fileName),
         mediaType: "AVATAR",
         visibility: "ALL",
-        token: token || "",
       });
     } catch (error) {
       console.warn("Avatar upload failed:", error);
@@ -357,13 +353,9 @@ const SetProfile = () => {
       referredBy: cleanedReferral,
     };
 
-    console.log("payload", payload);
     setProfileDetails(payload, {
       onSuccess: () => {
         router.replace(ROUTES.AUTH.HOME);
-      },
-      onError: (error) => {
-        console.error("Error setting profile details:", error);
       },
     });
   };
@@ -784,26 +776,14 @@ const SetProfile = () => {
                       animationType="slide"
                       onRequestClose={() => setShowDatePicker(false)}
                     >
-                      <View
-                        style={{
-                          flex: 1,
-                          justifyContent: "flex-end",
-                          backgroundColor: "rgba(0,0,0,0.5)",
-                        }}
-                      >
+                      <View className="flex-1 justify-end bg-black/50">
                         <Pressable
-                          style={{
-                            position: "absolute",
-                            top: 0,
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                          }}
+                          className="absolute inset-0"
                           onPress={() => setShowDatePicker(false)}
                           accessibilityRole="button"
                           accessibilityLabel={t("auth.cancel")}
                         />
-                        <View className="bg-zinc-900 rounded-t-2xl p-4 pb-8 border-t border-zinc-800">
+                        <View className="bg-card rounded-t-2xl p-4 pb-8 border-t border-border">
                           <HStack className="justify-between items-center mb-4">
                             <Pressable
                               onPress={() => setShowDatePicker(false)}
@@ -814,7 +794,7 @@ const SetProfile = () => {
                                 {t("auth.cancel")}
                               </Text>
                             </Pressable>
-                            <Text className="text-white font-bold text-base">
+                            <Text className="text-foreground font-bold text-base">
                               {t("auth.dob_label")}
                             </Text>
                             <Pressable
@@ -833,8 +813,12 @@ const SetProfile = () => {
                             value={dob || maxDob}
                             mode="date"
                             display="spinner"
-                            themeVariant="dark"
-                            textColor="#ffffff"
+                            themeVariant={isDark ? "dark" : "light"}
+                            textColor={
+                              isDark
+                                ? THEME_RGB.dark.foreground
+                                : THEME_RGB.light.foreground
+                            }
                             maximumDate={maxDob}
                             style={{ height: 216 }}
                             onChange={(event: any, date?: Date) => {

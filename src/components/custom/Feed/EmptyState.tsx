@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Text } from '@/components/ui/text';
+import { THEME_RGB } from '@/constants';
 import { LucideIcon } from 'lucide-react-native';
 import { useColorScheme } from 'nativewind';
 import * as React from 'react';
@@ -24,7 +25,9 @@ export function EmptyState({
 }: EmptyStateProps) {
   const { colorScheme } = useColorScheme();
   const isDark = colorScheme === 'dark';
-  const iconColor = isDark ? '#6b7280' : '#9ca3af';
+  const iconColor = isDark
+    ? THEME_RGB.dark.mutedForeground
+    : THEME_RGB.light.mutedForeground;
 
   return (
     <View

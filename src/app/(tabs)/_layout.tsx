@@ -15,7 +15,7 @@ const TabLayout = () => {
         <Tabs.Screen name="feed" />
         <Tabs.Screen name="discover" />
         <Tabs.Screen name="create" />
-        <Tabs.Screen name="contest" />
+        <Tabs.Screen name="arena" />
         <Tabs.Screen name="awards" />
         <Tabs.Screen name="profile" />
       </Tabs>
