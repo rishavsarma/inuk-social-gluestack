@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
+import { useSettingStore } from "@/stores/setting.store";
 import { Redirect } from "expo-router";
 import AnimatedSplash from "@/components/custom/AnimatedSplash";
 
@@ -12,7 +13,9 @@ const MIN_SPLASH_DURATION_MS = 2200;
  * so the persisted auth state is available.
  */
 const Index = () => {
-  // const hasLaunchedBefore = useJourneyStore((s) => s.hasLaunchedBefore);
+  const hasCompletedOnboarding = useSettingStore(
+    (s) => s.hasCompletedOnboarding,
+  );
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const hasHydrated = useAuthStore((s) => s._hasHydrated);
   const [minDurationPassed, setMinDurationPassed] = useState(false);
@@ -32,9 +35,9 @@ const Index = () => {
     return <AnimatedSplash />;
   }
 
-  // if (!hasLaunchedBefore) {
-  //   return <Redirect href={ROUTES.ONBOARDING.LANGUAGE} />;
-  // }
+  if (hasCompletedOnboarding) {
+    return <Redirect href={ROUTES.ONBOARDING.LANGUAGE} />;
+  }
 
   if (isAuthenticated) {
     return <Redirect href={ROUTES.TABS.FEED} />;

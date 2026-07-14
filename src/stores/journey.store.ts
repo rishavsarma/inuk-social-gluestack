@@ -7,7 +7,6 @@ interface JourneyState {
   tempToken: string | null;
   tempProfileId: string | null;
   tempAccountId: string | null;
-  hasLaunchedBefore: boolean;
   setOtpId: (otpId: string) => void;
   setPhone: (phone: string) => void;
   setCountry: (country: { dial: string }) => void;
@@ -23,7 +22,6 @@ export const useJourneyStore = create<JourneyState>((set) => ({
   tempToken: null,
   tempProfileId: null,
   tempAccountId: null,
-  hasLaunchedBefore: false,
   setOtpId: (otpId) => set({ otpId }),
   setPhone: (phone) => set({ phone }),
   setCountry: (country) => set({ country }),

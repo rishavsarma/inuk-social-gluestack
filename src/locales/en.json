@@ -233,6 +233,11 @@
     "password_secure": "Your password is encrypted and secure"
   },
   "onboarding": {
+    "theme_title": "Pick your look",
+    "theme_subtitle": "Choose how inuk appears — you can change this anytime in settings.",
+    "language_title": "Choose your language",
+    "language_subtitle": "Select the language you're most comfortable with.",
+    "continue": "Continue",
     "slide1": {
       "title": "Share Uttarakhand",
       "subtitle": "Capture and share the hidden beauty of the Himalayas with millions."

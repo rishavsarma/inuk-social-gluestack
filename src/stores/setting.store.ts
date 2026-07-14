@@ -8,10 +8,12 @@ interface SettingState {
   language: string;
   pushNotificationsEnabled: boolean;
   votingAlertsEnabled: boolean;
+  hasCompletedOnboarding: boolean;
   setTheme: (theme: AppTheme) => void;
   setLanguage: (language: string) => void;
   setPushNotificationsEnabled: (enabled: boolean) => void;
   setVotingAlertsEnabled: (enabled: boolean) => void;
+  setHasCompletedOnboarding: (completed: boolean) => void;
 }
 
 export const useSettingStore = create<SettingState>()(
@@ -21,12 +23,15 @@ export const useSettingStore = create<SettingState>()(
       language: 'en',
       pushNotificationsEnabled: true,
       votingAlertsEnabled: true,
+      hasCompletedOnboarding: false,
       setTheme: (theme) => set({ theme }),
       setLanguage: (language) => set({ language }),
       setPushNotificationsEnabled: (pushNotificationsEnabled) =>
         set({ pushNotificationsEnabled }),
       setVotingAlertsEnabled: (votingAlertsEnabled) =>
         set({ votingAlertsEnabled }),
+      setHasCompletedOnboarding: (hasCompletedOnboarding) =>
+        set({ hasCompletedOnboarding }),
     }),
     {
       name: 'setting-storage',

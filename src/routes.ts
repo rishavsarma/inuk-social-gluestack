@@ -1,6 +1,7 @@
 export const ROUTES = {
   ROOT: "/" as const,
   ONBOARDING: {
+    THEME: "/(onboarding)/theme",
     LANGUAGE: "/(onboarding)/language",
     DRIVER: "/(onboarding)/driver",
   } as const,
