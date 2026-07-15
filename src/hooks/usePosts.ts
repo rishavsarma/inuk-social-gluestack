@@ -177,13 +177,13 @@ function patchFeedPostsLikeCache(
         data: (page.data ?? []).map((post) =>
           post.id === postId
             ? {
-                ...post,
-                is_liked: !isLiked,
-                likes_count: Math.max(
-                  0,
-                  (post.likes_count ?? 0) + (isLiked ? -1 : 1),
-                ),
-              }
+              ...post,
+              is_liked: !isLiked,
+              likes_count: Math.max(
+                0,
+                (post.likes_count ?? 0) + (isLiked ? -1 : 1),
+              ),
+            }
             : post,
         ),
       })),

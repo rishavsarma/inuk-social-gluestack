@@ -949,6 +949,8 @@
     "gallery_permission_desc": "Enable gallery permissions to select media directly.",
     "grant_access": "Grant Access",
     "no_media_found": "No media found in your gallery",
+    "select_multiple": "Multiple",
+    "select_single": "Single",
     "text_placeholder": "Share a story from the trail…",
     "rte_bold_a11y": "Bold",
     "rte_italic_a11y": "Italic",

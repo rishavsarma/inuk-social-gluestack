@@ -57,12 +57,13 @@ export interface KeyboardAvoidingScrollViewProps extends Omit<
   "contentContainerStyle" | "children"
 > {
   children:
-    | React.ReactNode
-    | ((props: KeyboardAvoidingListRenderProps) => React.ReactNode);
+  | React.ReactNode
+  | ((props: KeyboardAvoidingListRenderProps) => React.ReactNode);
   contentContainerStyle?: StyleProp<ViewStyle>;
   innerStyle?: StyleProp<ViewStyle>;
   disableTopInset?: boolean;
   keyboardMode?: "insets" | "layout";
+  hideHeader?: boolean;
   disableTabBarHide?: boolean;
   title?: string;
   showBackButton?: boolean;
@@ -97,6 +98,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
       contentContainerStyle,
       innerStyle,
       disableTopInset = false,
+      hideHeader = false,
       keyboardMode = "layout",
       keyboardShouldPersistTaps = "handled",
       keyboardDismissMode = "interactive",
@@ -165,10 +167,10 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
 
       const clonedRefreshControl = refreshControl
         ? React.cloneElement(refreshControl as React.ReactElement<any>, {
-            progressViewOffset:
-              (refreshControl as React.ReactElement<any>).props
-                .progressViewOffset ?? (disableTopInset ? 40 : topInset + 20),
-          })
+          progressViewOffset:
+            (refreshControl as React.ReactElement<any>).props
+              .progressViewOffset ?? (disableTopInset ? 40 : topInset + 20),
+        })
         : undefined;
 
       const settleTabBar = useCallback(() => {
@@ -207,15 +209,17 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
 
         return (
           <View className="flex-1 bg-background">
-            <UiHeader
-              scrollY={scrollY}
-              topInset={topInset}
-              title={title}
-              showBackButton={showBackButton}
-              backAction={backAction}
-              alwaysShowBar={alwaysShowBar}
-              hideBorder
-            />
+            {!hideHeader &&
+              <UiHeader
+                scrollY={scrollY}
+                topInset={topInset}
+                title={title}
+                showBackButton={showBackButton}
+                backAction={backAction}
+                alwaysShowBar={alwaysShowBar}
+                hideBorder
+              />
+            }
             <KeyboardAvoidingView
               behavior="padding"
               keyboardVerticalOffset={bottomInset}
@@ -240,15 +244,17 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
 
       return (
         <View className="flex-1 bg-background">
-          <UiHeader
-            scrollY={scrollY}
-            topInset={topInset}
-            title={title}
-            showBackButton={showBackButton}
-            backAction={backAction}
-            alwaysShowBar={alwaysShowBar}
-            hideBorder
-          />
+          {!hideHeader &&
+            <UiHeader
+              scrollY={scrollY}
+              topInset={topInset}
+              title={title}
+              showBackButton={showBackButton}
+              backAction={backAction}
+              alwaysShowBar={alwaysShowBar}
+              hideBorder
+            />
+          }
           <AnimatedKeyboardAwareScrollView
             onScroll={scrollHandler}
             scrollEventThrottle={16}

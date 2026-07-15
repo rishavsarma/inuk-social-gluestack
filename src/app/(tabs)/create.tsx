@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useRouter } from "expo-router";
+import { useRouter, useIsFocused } from "expo-router";
 
 import { ArrowLeft, Camera, Type, Video, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -25,7 +25,7 @@ import {
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
-import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
+import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { Pressable } from "@/components/ui/pressable";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
@@ -129,6 +129,7 @@ const CreateScreen = () => {
     const settingsTheme = useSettingStore((state) => state.theme);
     const isDark = settingsTheme === "dark";
     const { width } = useWindowDimensions();
+    const isFocused = useIsFocused();
 
     const [currentStep, setCurrentStep] = useState(1);
     const [isPosting, setIsPosting] = useState(false);
@@ -136,7 +137,16 @@ const CreateScreen = () => {
     const [mode, setMode] = useState<CreatePostMode>("photo");
     const [photos, setPhotos] = useState<string[]>([]);
     const [videoUri, setVideoUri] = useState<string | null>(null);
+    const [videoUris, setVideoUris] = useState<string[]>([]);
+    const [multiSelect, setMultiSelect] = useState(false);
     const [text, setText] = useState("");
+
+    useEffect(() => {
+        setPhotos([]);
+        setVideoUri(null);
+        setVideoUris([]);
+        setMultiSelect(false);
+    }, [mode]);
 
     const [title, setTitle] = useState("");
     const [caption, setCaption] = useState("");
@@ -182,6 +192,8 @@ const CreateScreen = () => {
         setMode("photo");
         setPhotos([]);
         setVideoUri(null);
+        setVideoUris([]);
+        setMultiSelect(false);
         setText("");
         setTitle("");
         setCaption("");
@@ -194,6 +206,12 @@ const CreateScreen = () => {
         setVisibility("ALL");
     }, []);
 
+    useEffect(() => {
+        if (!isFocused) {
+            resetForm();
+        }
+    }, [isFocused, resetForm]);
+
     const handleSelectLocation = useCallback((item: LocationSearchResult) => {
         const label = item.breadcrumb ? `${item.name}, ${item.breadcrumb}` : item.name;
         setSelectedLocation(item);
@@ -201,6 +219,7 @@ const CreateScreen = () => {
     }, []);
 
     const handleClose = useCallback(() => {
+        resetForm();
         router.push((previousTab ?? ROUTES.TABS.FEED) as never);
     }, [router, previousTab]);
 
@@ -218,29 +237,109 @@ const CreateScreen = () => {
             return;
         }
 
-        setIsPosting(true);
-        // No post-creation endpoint is wired up yet — this simulates the
-        // submit → success round trip so the flow reads complete end to end.
-        setTimeout(() => {
-            setIsPosting(false);
-            toast.show({
-                placement: "top",
-                render: ({ id }) => (
-                    <Toast nativeID={`toast-${id}`} action="success" variant="solid">
-                        <ToastDescription>{t("create_post.post_success")}</ToastDescription>
-                    </Toast>
-                ),
-            });
-            resetForm();
-            router.push(ROUTES.TABS.FEED as never);
-        }, 900);
-    }, [currentStep, toast, t, resetForm, router]);
+        // console.log("Posting Post Data:", {
+        //     mode,
+        //     photos,
+        //     videoUri,
+        //     videoUris,
+        //     multiSelect,
+        //     text,
+        //     title,
+        //     caption,
+        //     categoryId,
+        //     subcategoryKey,
+        //     theme,
+        //     tags,
+        //     location,
+        //     selectedLocation,
+        //     visibility,
+        // });
+
+        const postData = {
+            "title": title,
+            "description": caption,
+            "categoryId": categoryId,
+            "subCategoryId": subcategoryKey,
+            "locationId": selectedLocation?.id ?? null,
+            "tags": tags,
+            "visibility": visibility,
+            "status": "DRAFT",
+            "postType": mode.toUpperCase(),
+            "mediaUrl": mode === "video" ? videoUri : mode === "text" ? text : photos,
+        }
+
+        console.log("postData", postData)
+
+        // setIsPosting(true);
+        // // No post-creation endpoint is wired up yet — this simulates the
+        // // submit → success round trip so the flow reads complete end to end.
+        // setTimeout(() => {
+        //     setIsPosting(false);
+        //     toast.show({
+        //         placement: "top",
+        //         render: ({ id }) => (
+        //             <Toast nativeID={`toast-${id}`} action="success" variant="solid">
+        //                 <ToastDescription>{t("create_post.post_success")}</ToastDescription>
+        //             </Toast>
+        //         ),
+        //     });
+        //     resetForm();
+        //     router.push(ROUTES.TABS.FEED as never);
+        // }, 900);
+    }, [
+        currentStep,
+        toast,
+        t,
+        resetForm,
+        router,
+        mode,
+        photos,
+        videoUri,
+        videoUris,
+        multiSelect,
+        text,
+        title,
+        caption,
+        categoryId,
+        subcategoryKey,
+        theme,
+        tags,
+        location,
+        selectedLocation,
+        visibility,
+    ]);
 
     const selectedThemeSwatch = useMemo(
         () =>
             POST_THEME_SWATCHES.find((sw) => sw.name === theme) ?? POST_THEME_SWATCHES[0],
         [theme],
     );
+
+    const isNextDisabled = useMemo(() => {
+        if (currentStep === 1) {
+            if (mode === "photo") {
+                return photos.length === 0;
+            }
+            if (mode === "video") {
+                return !videoUri && videoUris.length === 0;
+            }
+            if (mode === "text") {
+                const cleanText = text.replace(/<[^>]*>/g, "").trim();
+                return cleanText.length === 0;
+            }
+        }
+        if (currentStep === 2) {
+            return (
+                title.trim().length === 0 ||
+                caption.trim().length === 0 ||
+                tags.length === 0
+            );
+        }
+        if (currentStep === 3) {
+            return !selectedLocation;
+        }
+        return false;
+    }, [currentStep, mode, photos, videoUri, videoUris, text, title, caption, tags, selectedLocation]);
 
     // Sliding Indicator Logic
     const TAB_BAR_WIDTH = width - 32; // left: 16, right: 16
@@ -266,66 +365,81 @@ const CreateScreen = () => {
     const meta = STEP_META[currentStep as 1 | 2 | 3 | 4];
 
     return (
-        <KeyboardAvoidingView className="flex-1 bg-background" behavior="padding">
-            <VStack
-                className="flex-1"
-                style={{ paddingTop: insets.top }}
-            >
-                <HStack className="items-center justify-between pb-2 px-4 pt-1">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onPress={handleBack}
-                        accessibilityRole="button"
-                        accessibilityLabel={
-                            currentStep === 1
-                                ? t("create_post.close_a11y")
-                                : t("create_post.back_a11y")
+        <VStack
+            className="flex-1"
+            style={{ paddingTop: insets.top }}
+        >
+            <HStack className="items-center justify-between px-4 pb-1">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onPress={handleBack}
+                    accessibilityRole="button"
+                    accessibilityLabel={
+                        currentStep === 1
+                            ? t("create_post.close_a11y")
+                            : t("create_post.back_a11y")
 
-                        }
-                        className="rounded-full bg-background "
-                    >
-                        <ButtonIcon
-                            as={currentStep === 1 ? X : ArrowLeft}
-                            // size="lg"
-                            className="text-foreground"
-                        />
-                    </Button>
-                    <Heading size="lg" className="font-baloo-bold text-foreground">
-                        {meta.title}
-                    </Heading>
-                    <Button
-                        variant="theme"
-                        // size="sm"
-                        className="rounded-full px-4"
-                        onPress={handlePrimary}
-                        disabled={isPosting}
-                        accessibilityLabel={
-                            currentStep < TOTAL_STEPS
+                    }
+                    className="rounded-full bg-background h-10 w-10"
+                >
+                    <ButtonIcon
+                        as={currentStep === 1 ? X : ArrowLeft}
+                        size="lg"
+                        className="text-foreground"
+                    />
+                </Button>
+                <Heading size="lg" className="font-baloo-bold text-foreground">
+                    {meta.title}
+                </Heading>
+                <Button
+                    variant="theme"
+                    size="lg"
+                    className="rounded-full px-4 disabled:bg-theme/40"
+                    onPress={handlePrimary}
+                    disabled={isPosting || isNextDisabled}
+                    accessibilityLabel={
+                        currentStep < TOTAL_STEPS
+                            ? t("create_post.next")
+                            : t("create_post.post")
+                    }
+                >
+                    {isPosting ? <ButtonSpinner /> : null}
+                    <ButtonText className="font-baloo-semibold">
+                        {isPosting
+                            ? t("create_post.posting")
+                            : currentStep < TOTAL_STEPS
                                 ? t("create_post.next")
-                                : t("create_post.post")
-                        }
-                    >
-                        {isPosting ? <ButtonSpinner /> : null}
-                        <ButtonText className="font-baloo-semibold">
-                            {isPosting
-                                ? t("create_post.posting")
-                                : currentStep < TOTAL_STEPS
-                                    ? t("create_post.next")
-                                    : t("create_post.post")}
-                        </ButtonText>
-                    </Button>
-                </HStack>
+                                : t("create_post.post")}
+                    </ButtonText>
+                </Button>
+            </HStack>
 
-                <CreateStepProgress
-                    currentStep={currentStep}
-                    totalSteps={TOTAL_STEPS}
-                    caption={t("create_post.step_of", {
-                        current: currentStep,
-                        total: TOTAL_STEPS,
-                    }).concat(` — ${meta.caption}`)}
+            <CreateStepProgress
+                currentStep={currentStep}
+                totalSteps={TOTAL_STEPS}
+                caption={t("create_post.step_of", {
+                    current: currentStep,
+                    total: TOTAL_STEPS,
+                }).concat(` — ${meta.caption}`)}
+            />
+
+            {currentStep === 2 ? (
+                <CreateDetailsForm
+                    title={title}
+                    onTitleChange={setTitle}
+                    caption={caption}
+                    onCaptionChange={setCaption}
+                    categoryId={categoryId}
+                    onCategoryChange={setCategoryId}
+                    subcategoryKey={subcategoryKey}
+                    onSubcategoryChange={setSubcategoryKey}
+                    theme={theme}
+                    onThemeChange={setTheme}
+                    tags={tags}
+                    onTagsChange={setTags}
                 />
-
+            ) : (
                 <ScrollView
                     className="flex-1"
                     contentContainerClassName={currentStep === 1 ? "pb-28" : "pb-10"}
@@ -340,25 +454,12 @@ const CreateScreen = () => {
                             onPhotosChange={setPhotos}
                             videoUri={videoUri}
                             onVideoChange={setVideoUri}
+                            videoUris={videoUris}
+                            onVideoUrisChange={setVideoUris}
                             text={text}
                             onTextChange={setText}
-                        />
-                    ) : null}
-
-                    {currentStep === 2 ? (
-                        <CreateDetailsForm
-                            title={title}
-                            onTitleChange={setTitle}
-                            caption={caption}
-                            onCaptionChange={setCaption}
-                            categoryId={categoryId}
-                            onCategoryChange={setCategoryId}
-                            subcategoryKey={subcategoryKey}
-                            onSubcategoryChange={setSubcategoryKey}
-                            theme={theme}
-                            onThemeChange={setTheme}
-                            tags={tags}
-                            onTagsChange={setTags}
+                            multiSelect={multiSelect}
+                            onMultiSelectChange={setMultiSelect}
                         />
                     ) : null}
 
@@ -375,6 +476,7 @@ const CreateScreen = () => {
                             mode={mode}
                             photos={photos}
                             videoUri={videoUri}
+                            videoUris={videoUris}
                             text={text}
                             caption={caption}
                             categoryId={categoryId}
@@ -386,114 +488,114 @@ const CreateScreen = () => {
                         />
                     ) : null}
                 </ScrollView>
+            )}
 
-                {currentStep === 1 ? (
-                    <Animated.View
-                        pointerEvents="box-none"
-                        style={{
-                            position: "absolute",
-                            left: 0,
-                            right: 0,
-                            bottom: 0,
-                        }}
-                    >
-                        {Platform.OS === "ios" ? (
-                            <GlassView
-                                isInteractive
-                                glassEffectStyle="regular"
-                                style={{
-                                    marginHorizontal: 16,
-                                    marginBottom: Platform.OS === "ios" ? 30 : insets.bottom || 16,
-                                    borderRadius: 9999,
-                                    overflow: "hidden",
-                                    borderWidth: 0.1,
-                                    borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
-                                    backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(245,245,247,0.5)",
-                                    shadowColor: "#000",
-                                    shadowOffset: { width: 0, height: 12 },
-                                    shadowRadius: 32,
-                                    shadowOpacity: isDark ? 0.6 : 0.14,
-                                    elevation: 180,
-                                }}
-                            >
-                                <View className="relative flex-row px-1.5 py-1">
-                                    <Animated.View
-                                        style={[
-                                            {
-                                                position: "absolute",
-                                                top: 4,
-                                                bottom: 4,
-                                                left: 6,
-                                                width: TAB_WIDTH,
-                                                borderRadius: 9999,
-                                                backgroundColor: isDark
-                                                    ? "rgba(255,255,255,0.08)"
-                                                    : "rgba(0,0,0,0.05)",
-                                            },
-                                            indicatorStyle,
-                                        ]}
+            {currentStep === 1 ? (
+                <Animated.View
+                    pointerEvents="box-none"
+                    style={{
+                        position: "absolute",
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                    }}
+                >
+                    {Platform.OS === "ios" ? (
+                        <GlassView
+                            isInteractive
+                            glassEffectStyle="regular"
+                            style={{
+                                marginHorizontal: 16,
+                                marginBottom: Platform.OS === "ios" ? 30 : insets.bottom || 16,
+                                borderRadius: 9999,
+                                overflow: "hidden",
+                                borderWidth: 0.1,
+                                borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
+                                backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(245,245,247,0.5)",
+                                shadowColor: "#000",
+                                shadowOffset: { width: 0, height: 12 },
+                                shadowRadius: 32,
+                                shadowOpacity: isDark ? 0.6 : 0.14,
+                                elevation: 180,
+                            }}
+                        >
+                            <View className="relative flex-row px-1.5 py-1">
+                                <Animated.View
+                                    style={[
+                                        {
+                                            position: "absolute",
+                                            top: 4,
+                                            bottom: 4,
+                                            left: 6,
+                                            width: TAB_WIDTH,
+                                            borderRadius: 9999,
+                                            backgroundColor: isDark
+                                                ? "rgba(255,255,255,0.08)"
+                                                : "rgba(0,0,0,0.05)",
+                                        },
+                                        indicatorStyle,
+                                    ]}
+                                />
+                                {MODES.map((m, i) => (
+                                    <SwitcherItem
+                                        key={m.id}
+                                        item={m}
+                                        isActive={i === safeIndex}
+                                        isDark={isDark}
+                                        onPress={() => setMode(m.id)}
                                     />
-                                    {MODES.map((m, i) => (
-                                        <SwitcherItem
-                                            key={m.id}
-                                            item={m}
-                                            isActive={i === safeIndex}
-                                            isDark={isDark}
-                                            onPress={() => setMode(m.id)}
-                                        />
-                                    ))}
-                                </View>
-                            </GlassView>
-                        ) : (
-                            <View
-                                style={{
-                                    marginHorizontal: 16,
-                                    marginBottom: insets.bottom || 16,
-                                    borderRadius: 9999,
-                                    overflow: "hidden",
-                                    borderWidth: 0.1,
-                                    borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
-                                    backgroundColor: isDark ? "rgba(14,14,14,0.96)" : "rgba(245,245,247,0.96)",
-                                    shadowColor: "#000",
-                                    shadowOffset: { width: 0, height: 12 },
-                                    shadowRadius: 32,
-                                    shadowOpacity: isDark ? 0.6 : 0.14,
-                                    elevation: 180,
-                                }}
-                            >
-                                <View className="relative flex-row px-1.5 py-1">
-                                    <Animated.View
-                                        style={[
-                                            {
-                                                position: "absolute",
-                                                top: 4,
-                                                bottom: 4,
-                                                left: 6,
-                                                width: TAB_WIDTH,
-                                                borderRadius: 9999,
-                                                backgroundColor: isDark
-                                                    ? "rgba(255,255,255,0.08)"
-                                                    : "rgba(0,0,0,0.05)",
-                                            },
-                                            indicatorStyle,
-                                        ]}
-                                    />
-                                    {MODES.map((m, i) => (
-                                        <SwitcherItem
-                                            key={m.id}
-                                            item={m}
-                                            isActive={i === safeIndex}
-                                            isDark={isDark}
-                                            onPress={() => setMode(m.id)}
-                                        />
-                                    ))}
-                                </View>
+                                ))}
                             </View>
-                        )}
-                    </Animated.View>
-                ) : null}
-            </VStack>
-        </KeyboardAvoidingView>
+                        </GlassView>
+                    ) : (
+                        <View
+                            style={{
+                                marginHorizontal: 16,
+                                marginBottom: insets.bottom || 16,
+                                borderRadius: 9999,
+                                overflow: "hidden",
+                                borderWidth: 0.1,
+                                borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
+                                backgroundColor: isDark ? "rgba(14,14,14,0.96)" : "rgba(245,245,247,0.96)",
+                                shadowColor: "#000",
+                                shadowOffset: { width: 0, height: 12 },
+                                shadowRadius: 32,
+                                shadowOpacity: isDark ? 0.6 : 0.14,
+                                elevation: 180,
+                            }}
+                        >
+                            <View className="relative flex-row px-1.5 py-1">
+                                <Animated.View
+                                    style={[
+                                        {
+                                            position: "absolute",
+                                            top: 4,
+                                            bottom: 4,
+                                            left: 6,
+                                            width: TAB_WIDTH,
+                                            borderRadius: 9999,
+                                            backgroundColor: isDark
+                                                ? "rgba(255,255,255,0.08)"
+                                                : "rgba(0,0,0,0.05)",
+                                        },
+                                        indicatorStyle,
+                                    ]}
+                                />
+                                {MODES.map((m, i) => (
+                                    <SwitcherItem
+                                        key={m.id}
+                                        item={m}
+                                        isActive={i === safeIndex}
+                                        isDark={isDark}
+                                        onPress={() => setMode(m.id)}
+                                    />
+                                ))}
+                            </View>
+                        </View>
+                    )}
+                </Animated.View>
+            ) : null}
+        </VStack>
     );
 };
 

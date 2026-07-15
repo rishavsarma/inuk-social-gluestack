@@ -948,6 +948,8 @@
     "gallery_permission_desc": "सीधे मीडिया चुनने के लिए गैलरी अनुमतियां सक्षम करें।",
     "grant_access": "अनुमति दें",
     "no_media_found": "आपकी गैलरी में कोई मीडिया नहीं मिला",
+    "select_multiple": "मल्टीपल",
+    "select_single": "एकल",
     "text_placeholder": "यात्रा की कोई कहानी साझा करें…",
     "rte_bold_a11y": "बोल्ड",
     "rte_italic_a11y": "इटैलिक",

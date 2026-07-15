@@ -94,14 +94,14 @@ function FeedPostCardComponent({
                 <Text size="md" className="py-0 font-baloo-bold ">
                   {displayName}
                 </Text>
-                <HStack space="xxs">
+                <HStack space="xxs" className="items-center">
                   <Text
                     size="xs"
                     className="leading-none text-muted-foreground"
                   >
                     Kunja
                   </Text>
-                  <Icon as={Dot} size="xs" />
+                  <Icon as={Dot} size="sm" className="" />
                   <Text
                     size="xs"
                     className="leading-none text-muted-foreground"
