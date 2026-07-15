@@ -5,9 +5,9 @@ import { CompassIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView } from "react-native";
 
-import { EmptyState } from "@/components/custom/Feed/EmptyState";
-import DiscoverCreatorCard from "@/components/custom/Discover/DiscoverCreatorCard";
-import DiscoverPostTile from "@/components/custom/Discover/DiscoverPostTile";
+import { EmptyState } from "@/components/custom/feed/EmptyState";
+import DiscoverCreatorCard from "@/components/custom/discover/DiscoverCreatorCard";
+import DiscoverPostTile from "@/components/custom/discover/DiscoverPostTile";
 import type { KeyboardAvoidingListScrollProps } from "@/components/custom/KeyboardAvoidingScrollView";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";

@@ -17,7 +17,7 @@ import {
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
-import { OnboardingStepHeader } from "@/components/custom/Onboarding/OnboardingStepHeader";
+import { OnboardingStepHeader } from "@/components/custom/onboarding/OnboardingStepHeader";
 import { useAppInsets } from "@/hooks/useAppInsets";
 import { THEMES } from "@/constants";
 import { ROUTES } from "@/routes";
@@ -29,7 +29,7 @@ function ThemeSwatch({ id }: { id: AppTheme }) {
     return (
       <HStack className="h-11 w-16 overflow-hidden rounded-lg border border-border">
         <View className="flex-1 bg-white" />
-        <View className="flex-1 bg-[#0a0a0a]" />
+        <View className="flex-1 bg-neutral-950" />
       </HStack>
     );
   }
@@ -39,7 +39,7 @@ function ThemeSwatch({ id }: { id: AppTheme }) {
       className={
         id === "light"
           ? "h-11 w-16 rounded-lg border border-border bg-white"
-          : "h-11 w-16 rounded-lg border border-border bg-[#0a0a0a]"
+          : "h-11 w-16 rounded-lg border border-border bg-neutral-950"
       }
     />
   );

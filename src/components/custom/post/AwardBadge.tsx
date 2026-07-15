@@ -21,7 +21,8 @@ import Svg, {
 } from 'react-native-svg';
 
 // ─── Types ──────────────────────────────────────────────────────────────────
-export type AwardShape = 'shield' | 'octagon' | 'octagon-round' | 'scallop' | 'circle';
+// AwardShape is declared globally in src/types/global.d.ts — shared with the
+// `Award` interface so every producer/consumer agrees on the same shapes.
 
 export type AwardTheme =
   | 'gold'

@@ -56,35 +56,35 @@ export const THEME_RGB = {
 export const MENU_ROW_TINTS = {
   blue: {
     iconBg: "bg-blue-500/10 dark:bg-blue-500/20",
-    iconColor: "text-[#3B82F6]",
+    iconColor: "text-blue-500",
   },
   slate: {
     iconBg: "bg-slate-500/10 dark:bg-slate-500/20",
-    iconColor: "text-[#64748B]",
+    iconColor: "text-slate-500",
   },
   amber: {
     iconBg: "bg-amber-500/10 dark:bg-amber-500/20",
-    iconColor: "text-[#F59E0B]",
+    iconColor: "text-amber-500",
   },
   violet: {
     iconBg: "bg-violet-500/10 dark:bg-violet-500/20",
-    iconColor: "text-[#8B5CF6]",
+    iconColor: "text-violet-500",
   },
   red: {
     iconBg: "bg-red-500/10 dark:bg-red-500/20",
-    iconColor: "text-[#EF4444]",
+    iconColor: "text-red-500",
   },
   green: {
     iconBg: "bg-green-500/10 dark:bg-green-500/20",
-    iconColor: "text-[#22C55E]",
+    iconColor: "text-green-500",
   },
   indigo: {
     iconBg: "bg-indigo-500/10 dark:bg-indigo-500/20",
-    iconColor: "text-[#6366F1]",
+    iconColor: "text-indigo-500",
   },
   cyan: {
     iconBg: "bg-cyan-500/10 dark:bg-cyan-500/20",
-    iconColor: "text-[#06B6D4]",
+    iconColor: "text-cyan-500",
   },
 } as const;
 

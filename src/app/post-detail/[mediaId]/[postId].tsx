@@ -2,20 +2,20 @@ import {
     KeyboardAvoidingScrollView,
     useKeyboardAvoidingScrollViewScrollY,
 } from "@/components/custom/KeyboardAvoidingScrollView";
-import { PostCameraCard } from "@/components/custom/Post/PostCameraCard";
-import PostCaption from "@/components/custom/Post/PostCaption";
-import { PostEnvironmentCard } from "@/components/custom/Post/PostEnvironmentCard";
-import PostAuthorHeader from "@/components/custom/Post/PostAuthorHeader";
-import { PostAwardsCard } from "@/components/custom/Post/PostAwardsCard";
-import { PostBadgesCard } from "@/components/custom/Post/PostBadgesCard";
-import { PostCommentsModal } from "@/components/custom/Post/PostCommentsModal";
-import { PostDetailSkeleton } from "@/components/custom/Post/PostDetailSkeleton";
-import { PostFloatingActions } from "@/components/custom/Post/PostFloatingActions";
-import { PostPerformanceCard } from "@/components/custom/Post/PostPerformanceCard";
-import PostPhotoGallery from "@/components/custom/Post/PostPhotoGallery";
+import { PostCameraCard } from "@/components/custom/post/PostCameraCard";
+import PostCaption from "@/components/custom/post/PostCaption";
+import { PostEnvironmentCard } from "@/components/custom/post/PostEnvironmentCard";
+import PostAuthorHeader from "@/components/custom/post/PostAuthorHeader";
+import { PostAwardsCard } from "@/components/custom/post/PostAwardsCard";
+import { PostBadgesCard } from "@/components/custom/post/PostBadgesCard";
+import { PostCommentsModal } from "@/components/custom/post/PostCommentsModal";
+import { PostDetailSkeleton } from "@/components/custom/post/PostDetailSkeleton";
+import { PostFloatingActions } from "@/components/custom/post/PostFloatingActions";
+import { PostPerformanceCard } from "@/components/custom/post/PostPerformanceCard";
+import PostPhotoGallery from "@/components/custom/post/PostPhotoGallery";
 import PostVideoHero, {
     VideoControlsState,
-} from "@/components/custom/Post/PostVideoHero";
+} from "@/components/custom/post/PostVideoHero";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";

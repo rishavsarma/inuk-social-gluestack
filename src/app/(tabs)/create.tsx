@@ -1,15 +1,500 @@
-import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
+import { useCallback, useEffect, useMemo, useState } from "react";
+
+import { useRouter } from "expo-router";
+
+import { ArrowLeft, Camera, Type, Video, X } from "lucide-react-native";
+import { useTranslation } from "react-i18next";
+import { Platform, View, useWindowDimensions } from "react-native";
+import { GlassView } from "expo-glass-effect";
+import Animated, {
+    Easing,
+    useAnimatedStyle,
+    useSharedValue,
+    withTiming,
+} from "react-native-reanimated";
+import * as Haptics from "expo-haptics";
+import { cn } from "@gluestack-ui/utils/nativewind-utils";
+
 import { Box } from "@/components/ui/box";
+import {
+    Button,
+    ButtonIcon,
+    ButtonSpinner,
+    ButtonText,
+} from "@/components/ui/button";
+import { Heading } from "@/components/ui/heading";
+import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
+import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
+import { Pressable } from "@/components/ui/pressable";
+import { ScrollView } from "@/components/ui/scroll-view";
+import { Text } from "@/components/ui/text";
+import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
+import { VStack } from "@/components/ui/vstack";
+import { useSettingStore } from "@/stores/setting.store";
+
+import { CreateDetailsForm } from "@/components/custom/create/CreateDetailsForm";
+import { CreateLocationForm } from "@/components/custom/create/CreateLocationForm";
+import { CreateModeStage } from "@/components/custom/create/CreateModeStage";
+import { CreatePreview } from "@/components/custom/create/CreatePreview";
+import { CreateStepProgress } from "@/components/custom/create/CreateStepProgress";
+import { useTabBar } from "@/components/custom/bottom-tabs/TabBarContext";
+
+import { useAppInsets } from "@/hooks/useAppInsets";
+import { ROUTES } from "@/routes";
+import {
+    POST_CATEGORIES,
+    POST_THEME_SWATCHES,
+    type CreatePostMode,
+} from "@/constants/create-post";
+
+const TOTAL_STEPS = 4;
+
+const MODES: { id: CreatePostMode; labelKey: string; icon: typeof Camera }[] = [
+    { id: "photo", labelKey: "create_post.mode_photo", icon: Camera },
+    { id: "video", labelKey: "create_post.mode_video", icon: Video },
+    { id: "text", labelKey: "create_post.mode_text", icon: Type },
+];
+
+function SwitcherItem({
+    item,
+    isActive,
+    isDark,
+    onPress,
+}: {
+    item: typeof MODES[0];
+    isActive: boolean;
+    isDark: boolean;
+    onPress: () => void;
+}) {
+    const scale = useSharedValue(1);
+    const { t } = useTranslation();
+
+    const pressStyle = useAnimatedStyle(() => ({
+        transform: [{ scale: scale.value }],
+    }));
+
+    const onPressIn = () => {
+        scale.value = withTiming(0.92, { duration: 100 });
+    };
+
+    const onPressOut = () => {
+        scale.value = withTiming(1, { duration: 100 });
+    };
+
+    return (
+        <Pressable
+            onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                onPress();
+            }}
+            onPressIn={onPressIn}
+            onPressOut={onPressOut}
+            accessibilityRole="button"
+            accessibilityState={{ selected: isActive }}
+            className="h-14 flex-1 items-center justify-center"
+        >
+            <Animated.View
+                style={pressStyle}
+                className="items-center justify-center"
+            >
+                <Icon
+                    as={item.icon}
+                    className={cn(
+                        "h-6 w-6",
+                        isActive ? "text-theme" : "text-foreground/60"
+                    )}
+                />
+                <Text
+                    size="xs"
+                    className={cn(
+                        "pt-1 leading-3 tracking-wide",
+                        isActive ? "font-bold text-theme" : "font-medium text-foreground/60"
+                    )}
+                >
+                    {t(item.labelKey)}
+                </Text>
+            </Animated.View>
+        </Pressable>
+    );
+}
 
 const CreateScreen = () => {
-  return (
-    <KeyboardAvoidingScrollView>
-      <Box className="h-96 bg-red-500"></Box>
-      <Box className="h-96 bg-red-500"></Box>
-      <Box className="h-96 bg-red-500"></Box>
-      <Box className="h-96 bg-red-500"></Box>
-    </KeyboardAvoidingScrollView>
-  );
+    const { t } = useTranslation();
+    const router = useRouter();
+    const insets = useAppInsets();
+    const toast = useToast();
+    const { previousTab } = useTabBar();
+
+    const settingsTheme = useSettingStore((state) => state.theme);
+    const isDark = settingsTheme === "dark";
+    const { width } = useWindowDimensions();
+
+    const [currentStep, setCurrentStep] = useState(1);
+    const [isPosting, setIsPosting] = useState(false);
+
+    const [mode, setMode] = useState<CreatePostMode>("photo");
+    const [photos, setPhotos] = useState<string[]>([]);
+    const [videoUri, setVideoUri] = useState<string | null>(null);
+    const [text, setText] = useState("");
+
+    const [title, setTitle] = useState("");
+    const [caption, setCaption] = useState("");
+    const [categoryId, setCategoryId] = useState(POST_CATEGORIES[0].id);
+    const [subcategoryKey, setSubcategoryKey] = useState<string | null>(
+        POST_CATEGORIES[0].subcategoryLabelKeys[0],
+    );
+    const [theme, setTheme] = useState<(typeof POST_THEME_SWATCHES)[number]["name"]>(
+        "blue",
+    );
+    const [tags, setTags] = useState<string[]>([]);
+
+    const [location, setLocation] = useState("");
+    const [selectedLocation, setSelectedLocation] =
+        useState<LocationSearchResult | null>(null);
+
+    const [visibility, setVisibility] = useState<PostVisibility>("ALL");
+
+    const STEP_META = useMemo(
+        () => ({
+            1: {
+                title: t("create_post.step_1_title"),
+                caption: t("create_post.step_1_caption"),
+            },
+            2: {
+                title: t("create_post.step_2_title"),
+                caption: t("create_post.step_2_caption"),
+            },
+            3: {
+                title: t("create_post.step_3_title"),
+                caption: t("create_post.step_3_caption"),
+            },
+            4: {
+                title: t("create_post.step_4_title"),
+                caption: t("create_post.step_4_caption"),
+            },
+        }),
+        [t],
+    );
+
+    const resetForm = useCallback(() => {
+        setCurrentStep(1);
+        setMode("photo");
+        setPhotos([]);
+        setVideoUri(null);
+        setText("");
+        setTitle("");
+        setCaption("");
+        setCategoryId(POST_CATEGORIES[0].id);
+        setSubcategoryKey(POST_CATEGORIES[0].subcategoryLabelKeys[0]);
+        setTheme("blue");
+        setTags([]);
+        setLocation("");
+        setSelectedLocation(null);
+        setVisibility("ALL");
+    }, []);
+
+    const handleSelectLocation = useCallback((item: LocationSearchResult) => {
+        const label = item.breadcrumb ? `${item.name}, ${item.breadcrumb}` : item.name;
+        setSelectedLocation(item);
+        setLocation(label);
+    }, []);
+
+    const handleClose = useCallback(() => {
+        router.push((previousTab ?? ROUTES.TABS.FEED) as never);
+    }, [router, previousTab]);
+
+    const handleBack = useCallback(() => {
+        if (currentStep === 1) {
+            handleClose();
+            return;
+        }
+        setCurrentStep((s) => s - 1);
+    }, [currentStep, handleClose]);
+
+    const handlePrimary = useCallback(() => {
+        if (currentStep < TOTAL_STEPS) {
+            setCurrentStep((s) => s + 1);
+            return;
+        }
+
+        setIsPosting(true);
+        // No post-creation endpoint is wired up yet — this simulates the
+        // submit → success round trip so the flow reads complete end to end.
+        setTimeout(() => {
+            setIsPosting(false);
+            toast.show({
+                placement: "top",
+                render: ({ id }) => (
+                    <Toast nativeID={`toast-${id}`} action="success" variant="solid">
+                        <ToastDescription>{t("create_post.post_success")}</ToastDescription>
+                    </Toast>
+                ),
+            });
+            resetForm();
+            router.push(ROUTES.TABS.FEED as never);
+        }, 900);
+    }, [currentStep, toast, t, resetForm, router]);
+
+    const selectedThemeSwatch = useMemo(
+        () =>
+            POST_THEME_SWATCHES.find((sw) => sw.name === theme) ?? POST_THEME_SWATCHES[0],
+        [theme],
+    );
+
+    // Sliding Indicator Logic
+    const TAB_BAR_WIDTH = width - 32; // left: 16, right: 16
+    const CONTENT_WIDTH = TAB_BAR_WIDTH - 12; // px-1.5 is 6px padding on each side
+    const TAB_WIDTH = CONTENT_WIDTH / 3;
+
+    const indicatorPosition = useSharedValue(0);
+
+    const activeIndex = MODES.findIndex((m) => m.id === mode);
+    const safeIndex = activeIndex === -1 ? 0 : activeIndex;
+
+    useEffect(() => {
+        indicatorPosition.value = withTiming(safeIndex * TAB_WIDTH, {
+            duration: 250,
+            easing: Easing.bezier(0.4, 0, 0.2, 1),
+        });
+    }, [safeIndex, TAB_WIDTH]);
+
+    const indicatorStyle = useAnimatedStyle(() => ({
+        transform: [{ translateX: indicatorPosition.value }],
+    }));
+
+    const meta = STEP_META[currentStep as 1 | 2 | 3 | 4];
+
+    return (
+        <KeyboardAvoidingView className="flex-1 bg-background" behavior="padding">
+            <VStack
+                className="flex-1"
+                style={{ paddingTop: insets.top }}
+            >
+                <HStack className="items-center justify-between pb-2 px-4 pt-1">
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        onPress={handleBack}
+                        accessibilityRole="button"
+                        accessibilityLabel={
+                            currentStep === 1
+                                ? t("create_post.close_a11y")
+                                : t("create_post.back_a11y")
+
+                        }
+                        className="rounded-full bg-background "
+                    >
+                        <ButtonIcon
+                            as={currentStep === 1 ? X : ArrowLeft}
+                            // size="lg"
+                            className="text-foreground"
+                        />
+                    </Button>
+                    <Heading size="lg" className="font-baloo-bold text-foreground">
+                        {meta.title}
+                    </Heading>
+                    <Button
+                        variant="theme"
+                        // size="sm"
+                        className="rounded-full px-4"
+                        onPress={handlePrimary}
+                        disabled={isPosting}
+                        accessibilityLabel={
+                            currentStep < TOTAL_STEPS
+                                ? t("create_post.next")
+                                : t("create_post.post")
+                        }
+                    >
+                        {isPosting ? <ButtonSpinner /> : null}
+                        <ButtonText className="font-baloo-semibold">
+                            {isPosting
+                                ? t("create_post.posting")
+                                : currentStep < TOTAL_STEPS
+                                    ? t("create_post.next")
+                                    : t("create_post.post")}
+                        </ButtonText>
+                    </Button>
+                </HStack>
+
+                <CreateStepProgress
+                    currentStep={currentStep}
+                    totalSteps={TOTAL_STEPS}
+                    caption={t("create_post.step_of", {
+                        current: currentStep,
+                        total: TOTAL_STEPS,
+                    }).concat(` — ${meta.caption}`)}
+                />
+
+                <ScrollView
+                    className="flex-1"
+                    contentContainerClassName={currentStep === 1 ? "pb-28" : "pb-10"}
+                    keyboardShouldPersistTaps="handled"
+                    showsVerticalScrollIndicator={false}
+                >
+                    {currentStep === 1 ? (
+                        <CreateModeStage
+                            mode={mode}
+                            onModeChange={setMode}
+                            photos={photos}
+                            onPhotosChange={setPhotos}
+                            videoUri={videoUri}
+                            onVideoChange={setVideoUri}
+                            text={text}
+                            onTextChange={setText}
+                        />
+                    ) : null}
+
+                    {currentStep === 2 ? (
+                        <CreateDetailsForm
+                            title={title}
+                            onTitleChange={setTitle}
+                            caption={caption}
+                            onCaptionChange={setCaption}
+                            categoryId={categoryId}
+                            onCategoryChange={setCategoryId}
+                            subcategoryKey={subcategoryKey}
+                            onSubcategoryChange={setSubcategoryKey}
+                            theme={theme}
+                            onThemeChange={setTheme}
+                            tags={tags}
+                            onTagsChange={setTags}
+                        />
+                    ) : null}
+
+                    {currentStep === 3 ? (
+                        <CreateLocationForm
+                            location={location}
+                            selectedLocation={selectedLocation}
+                            onSelectLocation={handleSelectLocation}
+                        />
+                    ) : null}
+
+                    {currentStep === 4 ? (
+                        <CreatePreview
+                            mode={mode}
+                            photos={photos}
+                            videoUri={videoUri}
+                            text={text}
+                            caption={caption}
+                            categoryId={categoryId}
+                            themeDotClassName={selectedThemeSwatch.dotColorClassName}
+                            location={location}
+                            tags={tags}
+                            visibility={visibility}
+                            onVisibilityChange={setVisibility}
+                        />
+                    ) : null}
+                </ScrollView>
+
+                {currentStep === 1 ? (
+                    <Animated.View
+                        pointerEvents="box-none"
+                        style={{
+                            position: "absolute",
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                        }}
+                    >
+                        {Platform.OS === "ios" ? (
+                            <GlassView
+                                isInteractive
+                                glassEffectStyle="regular"
+                                style={{
+                                    marginHorizontal: 16,
+                                    marginBottom: Platform.OS === "ios" ? 30 : insets.bottom || 16,
+                                    borderRadius: 9999,
+                                    overflow: "hidden",
+                                    borderWidth: 0.1,
+                                    borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
+                                    backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(245,245,247,0.5)",
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 12 },
+                                    shadowRadius: 32,
+                                    shadowOpacity: isDark ? 0.6 : 0.14,
+                                    elevation: 180,
+                                }}
+                            >
+                                <View className="relative flex-row px-1.5 py-1">
+                                    <Animated.View
+                                        style={[
+                                            {
+                                                position: "absolute",
+                                                top: 4,
+                                                bottom: 4,
+                                                left: 6,
+                                                width: TAB_WIDTH,
+                                                borderRadius: 9999,
+                                                backgroundColor: isDark
+                                                    ? "rgba(255,255,255,0.08)"
+                                                    : "rgba(0,0,0,0.05)",
+                                            },
+                                            indicatorStyle,
+                                        ]}
+                                    />
+                                    {MODES.map((m, i) => (
+                                        <SwitcherItem
+                                            key={m.id}
+                                            item={m}
+                                            isActive={i === safeIndex}
+                                            isDark={isDark}
+                                            onPress={() => setMode(m.id)}
+                                        />
+                                    ))}
+                                </View>
+                            </GlassView>
+                        ) : (
+                            <View
+                                style={{
+                                    marginHorizontal: 16,
+                                    marginBottom: insets.bottom || 16,
+                                    borderRadius: 9999,
+                                    overflow: "hidden",
+                                    borderWidth: 0.1,
+                                    borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
+                                    backgroundColor: isDark ? "rgba(14,14,14,0.96)" : "rgba(245,245,247,0.96)",
+                                    shadowColor: "#000",
+                                    shadowOffset: { width: 0, height: 12 },
+                                    shadowRadius: 32,
+                                    shadowOpacity: isDark ? 0.6 : 0.14,
+                                    elevation: 180,
+                                }}
+                            >
+                                <View className="relative flex-row px-1.5 py-1">
+                                    <Animated.View
+                                        style={[
+                                            {
+                                                position: "absolute",
+                                                top: 4,
+                                                bottom: 4,
+                                                left: 6,
+                                                width: TAB_WIDTH,
+                                                borderRadius: 9999,
+                                                backgroundColor: isDark
+                                                    ? "rgba(255,255,255,0.08)"
+                                                    : "rgba(0,0,0,0.05)",
+                                            },
+                                            indicatorStyle,
+                                        ]}
+                                    />
+                                    {MODES.map((m, i) => (
+                                        <SwitcherItem
+                                            key={m.id}
+                                            item={m}
+                                            isActive={i === safeIndex}
+                                            isDark={isDark}
+                                            onPress={() => setMode(m.id)}
+                                        />
+                                    ))}
+                                </View>
+                            </View>
+                        )}
+                    </Animated.View>
+                ) : null}
+            </VStack>
+        </KeyboardAvoidingView>
+    );
 };
 
 export default CreateScreen;

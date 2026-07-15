@@ -1,4 +1,4 @@
-import { AwardBadge } from "@/components/custom/Post/AwardBadge";
+import { AwardBadge } from "@/components/custom/post/AwardBadge";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -93,7 +93,7 @@ export const PostAwardsCard = React.memo(function PostAwardsCard({
 }: PostAwardsCardProps) {
   const { t } = useTranslation();
 
-  const awards = [
+  const awards: Award[] = [
     {
       id: `mock-award-spotlight-${postId}`,
       postId,

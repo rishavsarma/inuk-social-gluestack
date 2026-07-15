@@ -155,3 +155,16 @@
   --radius-card: 14px;
   --radius-btn: 14px;
 }
+
+Text,
+* {
+  line-height: 0;
+}
+
+.font-baloo,
+.font-baloo-medium,
+.font-baloo-semibold,
+.font-baloo-bold,
+.font-baloo-extrabold {
+  line-height: 0;
+}

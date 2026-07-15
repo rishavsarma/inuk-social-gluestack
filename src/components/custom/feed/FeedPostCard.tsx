@@ -26,30 +26,9 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useSettingStore } from "@/stores/setting.store";
 
-import { FeedPostVideo } from "@/components/custom/Feed/FeedPostVideo";
+import { FeedPostVideo } from "@/components/custom/feed/FeedPostVideo";
 
 import { formatDistanceToNow } from "date-fns";
-
-export interface FeedPostItem {
-  id: string | number;
-  type: string;
-  profileId?: string;
-  author?: {
-    id?: string;
-    avatar_url?: string;
-    display_name?: string;
-    username?: string;
-    is_me?: boolean;
-    is_following?: boolean;
-  };
-  created_at?: string;
-  caption?: string;
-  media?: { id?: string; url?: string; thumbnail_url?: string }[];
-  is_liked?: boolean;
-  likes_count?: number;
-  comments_count?: number;
-  shares_count?: number;
-}
 
 interface FeedPostCardProps {
   post: FeedPostItem;
@@ -78,7 +57,7 @@ function FeedPostCardComponent({
   const { theme } = useSettingStore();
   const isDark = theme === "dark";
 
-  const avatarUrl = post.author?.avatar_url;
+  const avatarUrl = post.author?.avatar_url ?? undefined;
   const displayName =
     post.author?.display_name || post.author?.username || t("common.user");
   const createdAt = post.created_at
@@ -92,7 +71,6 @@ function FeedPostCardComponent({
   const commentsCount = post.comments_count ?? 0;
   const sharesCount = post.shares_count ?? 0;
   const isMe = post.author?.is_me ?? false;
-  console.log("avatarUrl", avatarUrl);
   return (
     <Card className="gap-3 overflow-hidden rounded-md border-0 px-0 pb-0 ">
       <Pressable
@@ -103,14 +81,6 @@ function FeedPostCardComponent({
         <VStack space="sm">
           <HStack space="lg" className="justify-between items-center px-4">
             <HStack space="sm" className="flex-1 items-center ">
-              {/* <Avatar>
-                <AvatarFallbackText>Jane Doe is test</AvatarFallbackText>
-                <AvatarImage
-                  source={{
-                    uri: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8dXNlcnxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=800&q=60",
-                  }}
-                />
-              </Avatar> */}
               <Avatar className="h-12 w-12">
                 <AvatarFallbackText>{displayName}</AvatarFallbackText>
 
@@ -129,13 +99,13 @@ function FeedPostCardComponent({
                   {displayName}
                 </Text>
                 <Text size="xs" className="leading-none text-muted-foreground">
-                  {createdAt}
+                  {createdAt} Kunja
                 </Text>
               </VStack>
             </HStack>
             {!isMe && (
               <Button
-                variant={isFollowing ? "outline" : "ghost"}
+                variant={"theme"}
                 size="sm"
                 onPress={() => onFollowPress(post, isFollowing)}
                 disabled={isFollowLoading}

@@ -15,9 +15,9 @@ import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { HStack } from "@/components/ui/hstack";
 
-import { OnboardingNextButton } from "@/components/custom/Onboarding/OnboardingNextButton";
-import { OnboardingPagination } from "@/components/custom/Onboarding/OnboardingPagination";
-import { OnboardingSlideItem } from "@/components/custom/Onboarding/OnboardingSlideItem";
+import { OnboardingNextButton } from "@/components/custom/onboarding/OnboardingNextButton";
+import { OnboardingPagination } from "@/components/custom/onboarding/OnboardingPagination";
+import { OnboardingSlideItem } from "@/components/custom/onboarding/OnboardingSlideItem";
 import { useAppInsets } from "@/hooks/useAppInsets";
 import {
   ONBOARDING_SLIDES,

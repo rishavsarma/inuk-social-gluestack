@@ -95,17 +95,17 @@ const SetPassword = () => {
   const strengthScore = rules.filter((r) => r.met).length;
   const progressValue = (strengthScore / 5) * 100;
 
-  let trackColor = "#ef4444"; // red-500
+  let trackColorClassName = "bg-red-500";
   let strengthLabel = "";
   if (password.length > 0) {
     if (strengthScore >= 5) {
-      trackColor = "#22c55e"; // green-500
+      trackColorClassName = "bg-green-500";
       strengthLabel = t("auth.password_strength_strong");
     } else if (strengthScore >= 3) {
-      trackColor = "#eab308"; // yellow-500
+      trackColorClassName = "bg-yellow-500";
       strengthLabel = t("auth.password_strength_medium");
     } else {
-      trackColor = "#ef4444"; // red-500
+      trackColorClassName = "bg-red-500";
       strengthLabel = t("auth.password_strength_weak");
     }
   }
@@ -290,9 +290,7 @@ const SetPassword = () => {
                       value={progressValue}
                       className="h-1.5 w-full bg-muted/20 rounded-full overflow-hidden"
                     >
-                      <ProgressFilledTrack
-                        style={{ backgroundColor: trackColor }}
-                      />
+                      <ProgressFilledTrack className={trackColorClassName} />
                     </Progress>
                   </VStack>
                 )}

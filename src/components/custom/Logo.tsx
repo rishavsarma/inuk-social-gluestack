@@ -43,12 +43,14 @@ export function LogoWordmark() {
 }
 
 function Logo({ size = 36 }: LogoProps) {
+  const { t } = useTranslation();
+
   return (
     <HStack
       space="xs"
       className="items-center"
       accessibilityRole="image"
-      accessibilityLabel="social"
+      accessibilityLabel={t("common.app_logo_alt")}
     >
       <LogoIcon size={size} />
       <LogoWordmark />

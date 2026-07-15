@@ -2,8 +2,75 @@ import { useAuthStore } from "@/stores/auth.store";
 import { api } from "./api";
 import { getFollowingConnectionSafe, profileService } from "./profile.service";
 
+/** Request payload for POST /content/api/post — mirrors the documented
+ * `PostCreateDto` schema in api-docs.json (all fields optional there). */
+interface CreatePostPayload {
+  title?: string;
+  description?: string;
+  categoryId?: string;
+  subCategoryId?: string;
+  tags?: string[];
+  visibility?: "SELF" | "FOLLOWERS" | "SHARED" | "ALL";
+  status?: "DRAFT" | "PROCESSING" | "PUBLISHED" | "FAILED" | "DELETED" | "BLOCKED";
+  postType?: "PHOTO" | "VIDEO" | "CAROUSEL" | "TEXT" | "REEL";
+  locationId?: string;
+  publishedAt?: string;
+}
+
+/** Raw `{ statType, count }` rows returned by /content/api/stat/content —
+ * undocumented endpoint, shape inferred from how callers already read it. */
+interface RawStatItem {
+  statType?: string;
+  count?: number;
+}
+
+/** Raw comment row from /content/api/comment/content/{postId} before the
+ * profile is attached — undocumented endpoint. */
+interface RawCommentItem {
+  id?: string;
+  profileId?: string;
+  [key: string]: unknown;
+}
+
+/** Raw photo/video row from the content search endpoints. */
+interface RawMediaItem {
+  id?: string;
+  mediaId?: string;
+  hlsMasterUrl?: string;
+  thumbnailUrl?: string;
+  blurHash?: string;
+  width?: number;
+  height?: number;
+}
+
+/** Raw post row from /content/api/post and /content/api/post/search. */
+interface RawPostItem {
+  id: string;
+  profileId?: string;
+  postType?: string;
+  description?: string;
+  title?: string;
+  place?: string;
+  tags?: string[];
+  dateCreated?: string;
+  dateUpdated?: string;
+  mediaId?: string;
+  videoId?: string;
+  media?: unknown[];
+  stats?: { likes?: number; comments?: number };
+}
+
+/** Generic `{ data: T[], offset, limit, total }` envelope most search
+ * endpoints wrap their results in — some instead return a bare `T[]`. */
+interface SearchResponse<T> {
+  data?: T[];
+  offset?: number;
+  limit?: number;
+  total?: number;
+}
+
 export const postService = {
-  createPost: async (payload: any) => {
+  createPost: async (payload: CreatePostPayload) => {
     const { data } = await api.post("/content/api/post", payload);
     return data;
   },
@@ -23,14 +90,20 @@ export const postService = {
   //   return data;
   // },
 
-  getComments: async (postId: string, offset: number, limit: number = 5) => {
+  getComments: async (
+    postId: string,
+    offset: number,
+    limit: number = 5,
+  ): Promise<SearchResponse<RawCommentItem & { profile?: unknown }>> => {
     const { data } = await api.get(`/content/api/comment/content/${postId}`, {
       params: { contentType: "POST", offset, limit },
     });
 
     if (data && data.data && data.data.length > 0) {
       const uniqueProfileIds = Array.from(
-        new Set(data.data.map((c: any) => c.profileId).filter(Boolean)),
+        new Set(
+          data.data.map((c: RawCommentItem) => c.profileId).filter(Boolean),
+        ),
       ) as string[];
 
       try {
@@ -39,7 +112,7 @@ export const postService = {
             api.get(`/iam/profile/${id}`).catch(() => null),
           ),
         );
-        const profileMap = new Map<string, any>();
+        const profileMap = new Map<string, unknown>();
 
         profilesRes.forEach((res, idx) => {
           if (res?.data) {
@@ -47,9 +120,9 @@ export const postService = {
           }
         });
 
-        data.data = data.data.map((c: any) => ({
+        data.data = data.data.map((c: RawCommentItem) => ({
           ...c,
-          profile: profileMap.get(c.profileId),
+          profile: c.profileId ? profileMap.get(c.profileId) : undefined,
         }));
       } catch (error) {
         if (__DEV__) {
@@ -80,10 +153,12 @@ export const postService = {
         dataOption: "all",
         criteria: [{ filterKey: "postId", operation: "eq", value: postId }],
       });
-      const response = await api.get<any>(
+      const response = await api.get<SearchResponse<Award> | Award[]>(
         `/content/api/award/search?search=${encodeURIComponent(searchStr)}`,
       );
-      const awardsArray = response.data?.data || response.data;
+      const awardsArray = Array.isArray(response.data)
+        ? response.data
+        : response.data?.data;
       if (Array.isArray(awardsArray) && awardsArray.length > 0) {
         return awardsArray;
       }
@@ -255,9 +330,9 @@ export const postService = {
 
     const statData = statRes.data || [];
     const likesCount =
-      statData.find((s: any) => s.statType === "LIKE")?.count || 0;
+      statData.find((s: RawStatItem) => s.statType === "LIKE")?.count || 0;
     const commentsCount =
-      statData.find((s: any) => s.statType === "COMMENT")?.count || 0;
+      statData.find((s: RawStatItem) => s.statType === "COMMENT")?.count || 0;
 
     return {
       profile: profileRes.data,
@@ -315,9 +390,9 @@ export const postService = {
 
     const statData = statRes.data || [];
     const likesCount =
-      statData.find((s: any) => s.statType === "LIKE")?.count || 0;
+      statData.find((s: RawStatItem) => s.statType === "LIKE")?.count || 0;
     const commentsCount =
-      statData.find((s: any) => s.statType === "COMMENT")?.count || 0;
+      statData.find((s: RawStatItem) => s.statType === "COMMENT")?.count || 0;
 
     return {
       profile: profileRes.data,
@@ -357,7 +432,7 @@ export const postService = {
       params: { profileId: userId, offset, limit },
     });
     if (data?.data) {
-      data.data = data.data.map((post: any) => ({
+      data.data = data.data.map((post: RawPostItem) => ({
         ...post,
         type: (post.postType || "text").toLowerCase(),
         media: post.media || [],
@@ -389,18 +464,23 @@ export const postService = {
 
   getFeedPosts: async (pageParam: number = 1, limit: number = 10) => {
     const myProfileId = useAuthStore.getState().user?.profileId;
-    const response = await api.get<any>(`/content/api/post/search`, {
-      params: {
-        offset: pageParam,
-        limit,
+    const response = await api.get<SearchResponse<RawPostItem> | RawPostItem[]>(
+      `/content/api/post/search`,
+      {
+        params: {
+          offset: pageParam,
+          limit,
+        },
       },
-    });
-    const postsData = response.data?.data || response.data;
-    const postsArray = Array.isArray(postsData) ? postsData : [];
+    );
+    const postsData = Array.isArray(response.data)
+      ? response.data
+      : response.data?.data;
+    const postsArray: RawPostItem[] = Array.isArray(postsData) ? postsData : [];
 
     // Get unique profile IDs from the returned posts
     const uniqueProfileIds = Array.from(
-      new Set(postsArray.map((p: any) => p.profileId).filter(Boolean)),
+      new Set(postsArray.map((p) => p.profileId).filter(Boolean)),
     ) as string[];
 
     // Fetch the profiles, and whether the current user follows each one, in parallel
@@ -448,7 +528,7 @@ export const postService = {
     );
 
     // Fetch media, stats, and like interaction status for all retrieved posts in parallel
-    const postDetailsPromises = postsArray.map(async (post: any) => {
+    const postDetailsPromises = postsArray.map(async (post) => {
       const isVideo = (post.postType || "PHOTO").toUpperCase() === "VIDEO";
 
       const mediaPromise = (async () => {
@@ -520,14 +600,14 @@ export const postService = {
     const allPostDetails = await Promise.all(postDetailsPromises);
     const postDetailsMap = new Map(allPostDetails.map((d) => [d.postId, d]));
 
-    const mapped = postsArray.map((post: any): PostDetail => {
+    const mapped = postsArray.map((post): FeedPostItem => {
       const postDetail = postDetailsMap.get(post.id);
-      const mediaItems = postDetail?.media || [];
+      const mediaItems: RawMediaItem[] = postDetail?.media || [];
       const isVideo = (post.postType || "PHOTO").toUpperCase() === "VIDEO";
-      const mappedMedia: PostMedia[] = mediaItems.map((m: any) => ({
+      const mappedMedia: PostMedia[] = mediaItems.map((m) => ({
         id: m.id || m.mediaId || String(Math.random()),
         url: isVideo
-          ? m.hlsMasterUrl
+          ? (m.hlsMasterUrl ?? "")
           : `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${m.mediaId || m.id}/jpg/1080`,
         type: isVideo ? "video" : "image",
         width: m.width || 1080,
@@ -535,7 +615,15 @@ export const postService = {
         thumbnail_url: isVideo ? m.thumbnailUrl : m.blurHash,
       }));
 
-      const authorProfile = profileMap.get(post.profileId);
+      const authorProfile = post.profileId
+        ? (profileMap.get(post.profileId) as {
+            username?: string;
+            givenName?: string;
+            firstName?: string;
+            lastName?: string;
+            avatar?: string;
+          } | null)
+        : null;
       const username = authorProfile?.username || "user";
       const display_name =
         authorProfile?.givenName ||
@@ -546,29 +634,31 @@ export const postService = {
           ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${authorProfile.avatar}/jpeg/720`
           : null;
 
-      const stats = postDetail?.stats || [];
+      const stats: RawStatItem[] = postDetail?.stats || [];
       const likes_count =
-        stats.find((s: any) => s.statType === "LIKE")?.count || 0;
+        stats.find((s) => s.statType === "LIKE")?.count || 0;
       const comments_count =
-        stats.find((s: any) => s.statType === "COMMENT")?.count || 0;
+        stats.find((s) => s.statType === "COMMENT")?.count || 0;
       const shares_count =
-        stats.find((s: any) => s.statType === "SHARE")?.count || 0;
+        stats.find((s) => s.statType === "SHARE")?.count || 0;
       const saves_count =
-        stats.find((s: any) => s.statType === "SAVE")?.count || 0;
+        stats.find((s) => s.statType === "SAVE")?.count || 0;
       const is_liked = postDetail?.isLiked || false;
 
       const authorId = post.profileId || "84064d0c11c84e15bc3df02a2080ffe6";
 
       return {
         id: post.id,
-        type: (post.postType || "photo").toLowerCase() as any,
+        type: (post.postType || "photo").toLowerCase(),
         author: {
           id: authorId,
           username,
           display_name,
           avatar_url,
           is_verified: false,
-          is_following: followingMap.get(post.profileId) ?? false,
+          is_following: post.profileId
+            ? (followingMap.get(post.profileId) ?? false)
+            : false,
           is_me: !!myProfileId && authorId === myProfileId,
         },
         caption: post.description || post.title || "",
@@ -590,15 +680,17 @@ export const postService = {
       };
     });
 
+    const responseData = Array.isArray(response.data) ? null : response.data;
+
     return {
       data: mapped,
-      offset: response.data?.offset || pageParam,
-      limit: response.data?.limit || 10,
-      total: response.data?.total || 0,
+      offset: responseData?.offset || pageParam,
+      limit: responseData?.limit || 10,
+      total: responseData?.total || 0,
     };
   },
   initialPageParam: 1,
-  getNextPageParam: (lastPage: any) => {
+  getNextPageParam: (lastPage: SearchResponse<FeedPostItem>) => {
     if (!lastPage || !lastPage.data || lastPage.data.length === 0)
       return undefined;
     const nextOffset = (lastPage.offset || 1) + 1;

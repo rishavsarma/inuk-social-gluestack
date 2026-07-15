@@ -22,8 +22,8 @@ import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { LinearGradient } from "@/components/ui/linear-gradient";
 
-import { FloatingCardView } from "@/components/custom/Onboarding/FloatingCardView";
-import { Particle, PARTICLES } from "@/components/custom/Onboarding/Particle";
+import { FloatingCardView } from "@/components/custom/onboarding/FloatingCardView";
+import { Particle, PARTICLES } from "@/components/custom/onboarding/Particle";
 import { LogoIcon } from "@/components/custom/Logo";
 import type { OnboardingSlide } from "@/constants/onboarding";
 

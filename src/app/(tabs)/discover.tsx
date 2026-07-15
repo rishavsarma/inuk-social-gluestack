@@ -4,10 +4,10 @@ import { SearchIcon } from "lucide-react-native";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-import DiscoverCategoryTab from "@/components/custom/Discover/DiscoverCategoryTab";
-import DiscoverLocationTab from "@/components/custom/Discover/DiscoverLocationTab";
-import DiscoverTagTab from "@/components/custom/Discover/DiscoverTagTab";
-import DiscoverTrendingTab from "@/components/custom/Discover/DiscoverTrendingTab";
+import DiscoverCategoryTab from "@/components/custom/discover/DiscoverCategoryTab";
+import DiscoverLocationTab from "@/components/custom/discover/DiscoverLocationTab";
+import DiscoverTagTab from "@/components/custom/discover/DiscoverTagTab";
+import DiscoverTrendingTab from "@/components/custom/discover/DiscoverTrendingTab";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { Button, ButtonIcon } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";

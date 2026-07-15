@@ -18,11 +18,11 @@ import { VStack } from "@/components/ui/vstack";
 import { useFollowUser, useGetFollowers, useGetFollowing } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
 
-import { EmptyState } from "@/components/custom/Feed/EmptyState";
+import { EmptyState } from "@/components/custom/feed/EmptyState";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import ProfileListItem, {
   ProfileListItemSkeleton,
-} from "@/components/custom/Profile/ProfileListItem";
+} from "@/components/custom/profile/ProfileListItem";
 
 type NetworkTab = "followers" | "following";
 

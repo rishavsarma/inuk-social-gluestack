@@ -168,7 +168,7 @@ const MapTile = React.memo(function MapTile({
           </View>
 
           {/* Crosshair ring */}
-          <View className="h-14 w-14 items-center justify-center rounded-full border-2 border-[#FB7185]/40 bg-[#FB7185]/10">
+          <View className="h-14 w-14 items-center justify-center rounded-full border-2 border-rose-400/40 bg-rose-400/10">
             <Icon as={MapPinIcon} size="xl" className={POST_METADATA_TINTS.rose.iconColor} />
           </View>
 

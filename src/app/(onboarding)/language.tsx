@@ -17,7 +17,7 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import Logo from "@/components/custom/Logo";
-import { OnboardingStepHeader } from "@/components/custom/Onboarding/OnboardingStepHeader";
+import { OnboardingStepHeader } from "@/components/custom/onboarding/OnboardingStepHeader";
 import { useAppInsets } from "@/hooks/useAppInsets";
 import { LANGUAGES } from "@/constants";
 import { ROUTES } from "@/routes";

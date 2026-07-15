@@ -24,10 +24,10 @@ import { useAuthStore } from "@/stores/auth.store";
 
 import { MOCK_SEARCH_PROFILES, MOCK_TRENDING_TOPICS } from "@/constants/mock-data";
 
-import { EmptyState } from "@/components/custom/Feed/EmptyState";
+import { EmptyState } from "@/components/custom/feed/EmptyState";
 import ProfileListItem, {
   ProfileListItemSkeleton,
-} from "@/components/custom/Profile/ProfileListItem";
+} from "@/components/custom/profile/ProfileListItem";
 
 const SEARCH_DEBOUNCE_MS = 300;
 

@@ -1,20 +1,16 @@
 import { useCallback, useMemo, useState } from "react";
 
-import { Href, router } from "expo-router";
+import { router, useLocalSearchParams, type Href } from "expo-router";
 
-import { Share, type LayoutChangeEvent } from "react-native";
+import { Share } from "react-native";
 
-import { Box } from "@/components/ui/box";
-import { Spinner } from "@/components/ui/spinner";
-import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
-import { VStack } from "@/components/ui/vstack";
-
+import { Image } from "expo-image";
 import {
   FlashList,
   type ListRenderItemInfo,
   type ViewToken,
 } from "@shopify/flash-list";
-import { ImageOff } from "lucide-react-native";
+import { HelpCircle, ImageOff } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
 import { useAuthStore } from "@/stores/auth.store";
@@ -24,19 +20,44 @@ import { useFollowStore } from "@/stores/follow.store";
 import { useFeedPostsList, useLikeFeedPostMutation } from "@/hooks/usePosts";
 import { useFollowUser } from "@/hooks/useProfile";
 
+import ArenaQuizCard from "@/components/custom/arena/ArenaQuizCard";
 import { EmptyState } from "@/components/custom/feed/EmptyState";
-import { FeedCategories } from "@/components/custom/feed/FeedCategories";
-import FeedHeader from "@/components/custom/feed/FeedHeader";
 import { FeedPostCard } from "@/components/custom/feed/FeedPostCard";
 import { PostSkeleton } from "@/components/custom/feed/PostSkeleton";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { PostOptionsActionsheet } from "@/components/custom/post/PostOptionsActionsheet";
 
+import { Box } from "@/components/ui/box";
+import { Heading } from "@/components/ui/heading";
+import { Spinner } from "@/components/ui/spinner";
+import {
+  Tabs,
+  TabsIndicator,
+  TabsList,
+  TabsTrigger,
+  TabsTriggerText,
+} from "@/components/ui/tabs";
+import { Text } from "@/components/ui/text";
+import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
+import { VStack } from "@/components/ui/vstack";
+
+import { FEED_CATEGORIES, MOCK_ARENA_QUIZZES } from "@/constants/mock-data";
 import { ROUTES } from "@/routes";
 
-const FeedScreen = () => {
+type CategoryTab = "posts" | "photo" | "video" | "quizzes";
+const CATEGORY_TABS: CategoryTab[] = ["posts", "photo", "video", "quizzes"];
+
+const CategoryScreen = () => {
   const { t } = useTranslation();
   const toast = useToast();
+  const { categoryId } = useLocalSearchParams<{ categoryId: string }>();
+
+  const category = useMemo(
+    () => FEED_CATEGORIES.find((item) => item.id === categoryId),
+    [categoryId],
+  );
+
+  const [activeTab, setActiveTab] = useState<CategoryTab>("posts");
 
   const {
     posts: feedPosts,
@@ -57,11 +78,6 @@ const FeedScreen = () => {
   const followOverrides = useFollowStore((state) => state.overrides);
   const setFollowOverride = useFollowStore((state) => state.setFollowOverride);
 
-  const [feedHeaderHeight, setFeedHeaderHeight] = useState(0);
-  const handleFeedHeaderLayout = useCallback((event: LayoutChangeEvent) => {
-    setFeedHeaderHeight(event.nativeEvent.layout.height);
-  }, []);
-
   const [hiddenPostIds, setHiddenPostIds] = useState<Set<string>>(new Set());
   const [savedPostIds, setSavedPostIds] = useState<Set<string>>(new Set());
   const [activeOptionsPost, setActiveOptionsPost] = useState<{
@@ -76,6 +92,12 @@ const FeedScreen = () => {
       ),
     [feedPosts, hiddenPostIds],
   );
+
+  const filteredPosts = useMemo(() => {
+    if (activeTab === "photo") return posts.filter((p) => p.type === "image");
+    if (activeTab === "video") return posts.filter((p) => p.type === "video");
+    return posts;
+  }, [posts, activeTab]);
 
   const showFeedbackToast = useCallback(
     (message: string) => {
@@ -236,7 +258,11 @@ const FeedScreen = () => {
     [handleFollowPress],
   );
 
-  const renderItem = useCallback(
+  const handleStartQuiz = useCallback(() => {
+    router.push(ROUTES.ARENA.QUIZ);
+  }, []);
+
+  const renderPostItem = useCallback(
     ({ item }: ListRenderItemInfo<FeedPostItem>) => {
       const authorId = item.author?.id;
       const isFollowing =
@@ -271,60 +297,143 @@ const FeedScreen = () => {
     ],
   );
 
+  const renderQuizItem = useCallback(
+    ({ item }: ListRenderItemInfo<ArenaQuiz>) => (
+      <ArenaQuizCard quiz={item} onStart={handleStartQuiz} />
+    ),
+    [handleStartQuiz],
+  );
+
+  if (!category) {
+    return (
+      <KeyboardAvoidingScrollView showBackButton alwaysShowBar>
+        <VStack className="flex-1 items-center justify-center px-6">
+          <Text className="text-muted-foreground">
+            {t("category.not_found")}
+          </Text>
+        </VStack>
+      </KeyboardAvoidingScrollView>
+    );
+  }
+
+  const categoryHeader = (
+    <VStack>
+      <Box className="h-48 w-full bg-muted">
+        <Image
+          source={{ uri: category.imageUrl }}
+          style={{ width: "100%", height: "100%" }}
+          contentFit="cover"
+          transition={200}
+          alt={t("feed.category_thumbnail_alt", {
+            category: t(category.labelKey),
+          })}
+        />
+        <Box className="absolute inset-0 bg-black/30" />
+        <VStack className="absolute bottom-4 left-4">
+          <Heading size="2xl" className="text-white">
+            {t(category.labelKey)}
+          </Heading>
+        </VStack>
+      </Box>
+
+      <Tabs
+        value={activeTab}
+        onValueChange={(value: CategoryTab) => setActiveTab(value)}
+        variant="filled"
+        orientation="horizontal"
+        className="px-4 py-3"
+      >
+        <TabsList className="rounded-full">
+          {CATEGORY_TABS.map((tab) => (
+            <TabsTrigger key={tab} value={tab} className="flex-1 rounded-full">
+              <TabsTriggerText className="data-[selected=true]:text-white">
+                {t(`category.tab_${tab}`)}
+              </TabsTriggerText>
+            </TabsTrigger>
+          ))}
+          <TabsIndicator className="rounded-full bg-theme" />
+        </TabsList>
+      </Tabs>
+    </VStack>
+  );
+
   return (
     <>
-      <KeyboardAvoidingScrollView variant="list">
-        {({ scrollProps, topInset }) => (
-          <FlashList
-            data={posts}
-            keyExtractor={(item: FeedPostItem) => String(item.id)}
-            renderItem={renderItem}
-            {...scrollProps}
-            viewabilityConfig={viewabilityConfig}
-            onViewableItemsChanged={handleViewableItemsChanged}
-            drawDistance={800}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingTop: topInset, paddingBottom: 160 }}
-            ListHeaderComponent={
-              <>
-                <Box onLayout={handleFeedHeaderLayout}>
-                  <FeedHeader />
-                </Box>
-                {/* <ThemeSwitcher /> */}
-                <FeedCategories />
-              </>
-            }
-            ItemSeparatorComponent={() => <Box className="h-4" />}
-            ListEmptyComponent={
-              isLoading ? (
-                <VStack space="lg" className="pt-4">
-                  <PostSkeleton />
-                  <PostSkeleton />
-                </VStack>
-              ) : (
+      <KeyboardAvoidingScrollView
+        variant="list"
+        showBackButton
+        alwaysShowBar
+        title={t(category.labelKey)}
+      >
+        {({ scrollProps, topInset }) =>
+          activeTab === "quizzes" ? (
+            <FlashList
+              data={MOCK_ARENA_QUIZZES}
+              keyExtractor={(item) => item.id}
+              renderItem={renderQuizItem}
+              {...scrollProps}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingTop: topInset,
+                paddingBottom: 160,
+              }}
+              ListHeaderComponent={categoryHeader}
+              ItemSeparatorComponent={() => <Box className="h-3" />}
+              ListEmptyComponent={
                 <EmptyState
-                  icon={ImageOff}
-                  title={t("feed.empty")}
-                  description={t("feed.placeholder")}
+                  icon={HelpCircle}
+                  title={t("arena.empty_title")}
+                  description={t("arena.quizzes_empty")}
+                  fullScreen={false}
                 />
-              )
-            }
-            refreshing={isRefetching}
-            progressViewOffset={topInset + feedHeaderHeight}
-            onRefresh={refetch}
-            onEndReached={() => {
-              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-            }}
-            onEndReachedThreshold={0.5}
-            ListFooterComponent={
-              isFetchingNextPage ? (
-                <Box className="items-center py-6">
-                  <Spinner />
-                </Box>
-              ) : null
-            }
-          />
-        )}
+              }
+            />
+          ) : (
+            <FlashList
+              data={filteredPosts}
+              keyExtractor={(item: FeedPostItem) => String(item.id)}
+              renderItem={renderPostItem}
+              {...scrollProps}
+              viewabilityConfig={viewabilityConfig}
+              onViewableItemsChanged={handleViewableItemsChanged}
+              drawDistance={800}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingTop: topInset,
+                paddingBottom: 160,
+              }}
+              ListHeaderComponent={categoryHeader}
+              ItemSeparatorComponent={() => <Box className="h-4" />}
+              ListEmptyComponent={
+                isLoading ? (
+                  <VStack space="lg" className="pt-4">
+                    <PostSkeleton />
+                    <PostSkeleton />
+                  </VStack>
+                ) : (
+                  <EmptyState
+                    icon={ImageOff}
+                    title={t("feed.empty")}
+                    description={t("feed.placeholder")}
+                  />
+                )
+              }
+              // refreshing={isRefetching}
+              onRefresh={refetch}
+              onEndReached={() => {
+                if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+              }}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={
+                isFetchingNextPage ? (
+                  <Box className="items-center py-6">
+                    <Spinner />
+                  </Box>
+                ) : null
+              }
+            />
+          )
+        }
       </KeyboardAvoidingScrollView>
       <PostOptionsActionsheet
         isOpen={!!activeOptionsPost}
@@ -344,4 +453,4 @@ const FeedScreen = () => {
   );
 };
 
-export default FeedScreen;
+export default CategoryScreen;

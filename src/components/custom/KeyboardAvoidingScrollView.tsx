@@ -23,7 +23,7 @@ import Animated, {
 
 import { useAppBottomInset, useAppTopInset } from "@/hooks/useAppInsets";
 
-import { useTabBar } from "./BottomTabs/TabBarContext";
+import { useTabBar } from "./bottom-tabs/TabBarContext";
 import { getHeaderBarHeight, UiHeader } from "./UiHeader";
 
 const AnimatedKeyboardAwareScrollView = Animated.createAnimatedComponent(

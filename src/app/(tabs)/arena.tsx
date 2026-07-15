@@ -9,11 +9,11 @@ import {
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 
-import ArenaContestBanner from "@/components/custom/Arena/ArenaContestBanner";
-import ArenaContestCard from "@/components/custom/Arena/ArenaContestCard";
-import ArenaLeaderboardRow from "@/components/custom/Arena/ArenaLeaderboardRow";
-import ArenaQuizCard from "@/components/custom/Arena/ArenaQuizCard";
-import { EmptyState } from "@/components/custom/Feed/EmptyState";
+import ArenaContestBanner from "@/components/custom/arena/ArenaContestBanner";
+import ArenaContestCard from "@/components/custom/arena/ArenaContestCard";
+import ArenaLeaderboardRow from "@/components/custom/arena/ArenaLeaderboardRow";
+import ArenaQuizCard from "@/components/custom/arena/ArenaQuizCard";
+import { EmptyState } from "@/components/custom/feed/EmptyState";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon } from "@/components/ui/button";

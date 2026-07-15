@@ -13,48 +13,48 @@ export interface MetadataTint {
 export const POST_METADATA_TINTS = {
   blue: {
     iconBg: "bg-blue-100 dark:bg-[#0D1B33]",
-    iconColor: "text-[#3B82F6]",
-    iconColorFilled: "text-[#3B82F6] fill-[#3B82F6]",
+    iconColor: "text-blue-500",
+    iconColorFilled: "text-blue-500 fill-blue-500",
   },
   violet: {
     iconBg: "bg-violet-100 dark:bg-[#1A0D33]",
-    iconColor: "text-[#A78BFA]",
-    iconColorFilled: "text-[#A78BFA] fill-[#A78BFA]",
+    iconColor: "text-violet-400",
+    iconColorFilled: "text-violet-400 fill-violet-400",
   },
   rose: {
     iconBg: "bg-rose-100 dark:bg-[#2D0A0A]",
-    iconColor: "text-[#FB7185]",
-    iconColorFilled: "text-[#FB7185] fill-[#FB7185]",
+    iconColor: "text-rose-400",
+    iconColorFilled: "text-rose-400 fill-rose-400",
   },
   red: {
     iconBg: "bg-red-100 dark:bg-[#2D0A0A]",
-    iconColor: "text-[#EF4444]",
-    iconColorFilled: "text-[#EF4444] fill-[#EF4444]",
+    iconColor: "text-red-500",
+    iconColorFilled: "text-red-500 fill-red-500",
   },
   orange: {
     iconBg: "bg-orange-100 dark:bg-[#2D1400]",
-    iconColor: "text-[#FB923C]",
-    iconColorFilled: "text-[#FB923C] fill-[#FB923C]",
+    iconColor: "text-orange-400",
+    iconColorFilled: "text-orange-400 fill-orange-400",
   },
   amber: {
     iconBg: "bg-amber-100 dark:bg-[#3B2B00]",
-    iconColor: "text-[#F59E0B]",
-    iconColorFilled: "text-[#F59E0B] fill-[#F59E0B]",
+    iconColor: "text-amber-500",
+    iconColorFilled: "text-amber-500 fill-amber-500",
   },
   sky: {
     iconBg: "bg-sky-100 dark:bg-[#0C2D3A]",
-    iconColor: "text-[#38BDF8]",
-    iconColorFilled: "text-[#38BDF8] fill-[#38BDF8]",
+    iconColor: "text-sky-400",
+    iconColorFilled: "text-sky-400 fill-sky-400",
   },
   emerald: {
     iconBg: "bg-emerald-100 dark:bg-[#0A2D14]",
-    iconColor: "text-[#34D399]",
-    iconColorFilled: "text-[#34D399] fill-[#34D399]",
+    iconColor: "text-emerald-400",
+    iconColorFilled: "text-emerald-400 fill-emerald-400",
   },
   green: {
     iconBg: "bg-green-100 dark:bg-[#0A2D14]",
-    iconColor: "text-[#22C55E]",
-    iconColorFilled: "text-[#22C55E] fill-[#22C55E]",
+    iconColor: "text-green-500",
+    iconColorFilled: "text-green-500 fill-green-500",
   },
 } as const satisfies Record<string, MetadataTint>;
 

@@ -1,10 +1,10 @@
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import ListHeader, {
   SwipeableTabContent,
-} from "@/components/custom/Profile/ProfileHeaderCard";
-import { ProfileEmptyState } from "@/components/custom/Profile/ProfileEmptyState";
-import ProfileHeaderSkeleton from "@/components/custom/Profile/ProfileHeaderSkeleton";
-import ProfileGridItem from "@/components/custom/Profile/ProfilePostList";
+} from "@/components/custom/profile/ProfileHeaderCard";
+import { ProfileEmptyState } from "@/components/custom/profile/ProfileEmptyState";
+import ProfileHeaderSkeleton from "@/components/custom/profile/ProfileHeaderSkeleton";
+import ProfileGridItem from "@/components/custom/profile/ProfilePostList";
 import { useGetPhotoPosts, useGetVideoPosts } from "@/hooks/usePosts";
 import { ROUTES } from "@/routes";
 
@@ -102,8 +102,6 @@ const ProfileScreen = () => {
       : activeTab === "video"
         ? isLoadingVideoPosts
         : false;
-
-  console.log("profileData", profileId);
 
   return (
     <KeyboardAvoidingScrollView

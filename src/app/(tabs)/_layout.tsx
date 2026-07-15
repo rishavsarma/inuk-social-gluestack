@@ -1,5 +1,5 @@
-import CustomTabBar from "@/components/custom/BottomTabs/TabBar";
-import { TabBarProvider } from "@/components/custom/BottomTabs/TabBarContext";
+import CustomTabBar from "@/components/custom/bottom-tabs/TabBar";
+import { TabBarProvider } from "@/components/custom/bottom-tabs/TabBarContext";
 import { Tabs } from "expo-router";
 
 // ─── Layout ──────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback } from "react";
 
 import { Bell, Heart, MessageCircle, Trophy, UserPlus } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -15,15 +15,15 @@ import { Box } from "@/components/ui/box";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
+import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
+import { useGetNotifications } from "@/hooks/useNotifications";
 import { useTimeAgo } from "@/hooks/useTimeAgo";
 import { ROUTES } from "@/routes";
 
-import { MOCK_NOTIFICATIONS } from "@/constants/mock-data";
-
-import { EmptyState } from "@/components/custom/Feed/EmptyState";
+import { EmptyState } from "@/components/custom/feed/EmptyState";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 
 const NOTIFICATION_ICONS: Record<string, React.ComponentType<any>> = {
@@ -107,21 +107,33 @@ const NotificationRow = ({ item }: { item: NotificationItem }) => {
 
 const NotificationsScreen = () => {
   const { t } = useTranslation();
-  const [notifications] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
-  const [refreshing, setRefreshing] = useState(false);
-
-  // Mock data is already resolved locally — refresh just settles the gesture.
-  const handleRefresh = useCallback(() => {
-    setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 400);
-  }, []);
+  const {
+    data: notifications = [],
+    isLoading,
+    isRefetching,
+    isError,
+    refetch,
+  } = useGetNotifications();
 
   const renderItem = useCallback(
     ({ item }: { item: NotificationItem }) => <NotificationRow item={item} />,
     [],
   );
 
-  const listEmptyComponent = (
+  const listEmptyComponent = isLoading ? (
+    <Box className="items-center py-20">
+      <Spinner />
+    </Box>
+  ) : isError ? (
+    <EmptyState
+      icon={Bell}
+      title={t("notifications.error_title")}
+      description={t("notifications.error_sub")}
+      actionLabel={t("notifications.retry")}
+      onAction={refetch}
+      fullScreen={false}
+    />
+  ) : (
     <EmptyState
       icon={Bell}
       title={t("notifications.empty")}
@@ -142,8 +154,8 @@ const NotificationsScreen = () => {
           data={notifications}
           renderItem={renderItem}
           keyExtractor={(item: NotificationItem) => item.id}
-          refreshing={refreshing}
-          onRefresh={handleRefresh}
+          refreshing={isRefetching}
+          onRefresh={refetch}
           ListEmptyComponent={listEmptyComponent}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{

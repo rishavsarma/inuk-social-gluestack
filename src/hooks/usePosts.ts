@@ -1,3 +1,5 @@
+import { useMemo } from "react";
+
 import { api } from "@/services/api";
 import { postService } from "@/services/post.service";
 import {
@@ -7,11 +9,22 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 
+/** Shape shared by getPostPhotoList/getPostVideoList — both return an
+ * untyped raw envelope from the content search endpoints. */
+interface PaginatedMediaResponse {
+  data?: unknown[];
+  total?: number;
+}
+
 export function useGetPhotoPosts(profileId: string, enabled: boolean = true) {
   return useInfiniteQuery({
     queryKey: ["profile-photos", profileId],
     enabled: !!profileId && enabled,
-    queryFn: async ({ pageParam }: { pageParam: number }) => {
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<PaginatedMediaResponse> => {
       const { data } = await postService.getPostPhotoList(
         profileId,
         pageParam,
@@ -19,9 +32,9 @@ export function useGetPhotoPosts(profileId: string, enabled: boolean = true) {
       );
       return data;
     },
-    getNextPageParam: (lastPage: any, allPages: any[]) => {
-      const allItems = allPages.flatMap((p: any) => p.data || []);
-      if (allItems.length < lastPage?.total) {
+    getNextPageParam: (lastPage, allPages) => {
+      const allItems = allPages.flatMap((p) => p.data || []);
+      if (allItems.length < (lastPage?.total ?? 0)) {
         return allItems.length;
       }
       return undefined;
@@ -33,7 +46,11 @@ export function useGetVideoPosts(profileId: string, enabled: boolean = true) {
   return useInfiniteQuery({
     queryKey: ["profile-videos", profileId],
     enabled: !!profileId && enabled,
-    queryFn: async ({ pageParam }: { pageParam: number }) => {
+    queryFn: async ({
+      pageParam,
+    }: {
+      pageParam: number;
+    }): Promise<PaginatedMediaResponse> => {
       const { data } = await postService.getPostVideoList(
         profileId,
         pageParam,
@@ -41,9 +58,9 @@ export function useGetVideoPosts(profileId: string, enabled: boolean = true) {
       );
       return data;
     },
-    getNextPageParam: (lastPage: any, allPages: any[]) => {
-      const allItems = allPages.flatMap((p: any) => p.data || []);
-      if (allItems.length < lastPage?.total) {
+    getNextPageParam: (lastPage, allPages) => {
+      const allItems = allPages.flatMap((p) => p.data || []);
+      if (allItems.length < (lastPage?.total ?? 0)) {
         return allItems.length;
       }
       return undefined;
@@ -57,7 +74,7 @@ export function useGetFeedPosts() {
     queryFn: async ({ pageParam }: { pageParam: number }) => {
       return postService.getFeedPosts(pageParam, 5);
     },
-    getNextPageParam: (lastPage: any) => {
+    getNextPageParam: (lastPage) => {
       if (!lastPage?.data?.length) return undefined;
       const nextOffset = (lastPage.offset || 1) + 1;
       const totalPages = Math.ceil(
@@ -67,6 +84,17 @@ export function useGetFeedPosts() {
     },
     initialPageParam: 1,
   });
+}
+
+/** `useGetFeedPosts` flattened to the page items every consumer actually
+ * wants — shared by the Feed screen and the category detail screen. */
+export function useFeedPostsList() {
+  const query = useGetFeedPosts();
+  const posts = useMemo(
+    () => query.data?.pages.flatMap((page) => page?.data ?? []) ?? [],
+    [query.data],
+  );
+  return { ...query, posts };
 }
 
 export function usePostPhotoDetailsQuery(
@@ -124,13 +152,21 @@ export function useLikePostMutation(postId: string, mediaId: string) {
     queryKey[2] === postId &&
     queryKey[3] === mediaId;
 
+  // Both usePostPhotoDetailsQuery and usePostVideoDetailsQuery cache under
+  // "post-details" — only the fields this mutation actually reads/writes
+  // are modeled here rather than the full photo/video detail union.
+  interface PostDetailsCache {
+    isLiked?: boolean;
+    likesCount?: number;
+  }
+
   return useMutation({
     mutationFn: (isLiked: boolean) => postService.likePost(postId, isLiked),
     onMutate: async (isLiked: boolean) => {
       await queryClient.cancelQueries({
         predicate: (query) => isPostDetailsQuery(query.queryKey),
       });
-      const previous = queryClient.getQueriesData<any>({
+      const previous = queryClient.getQueriesData<PostDetailsCache>({
         predicate: (query) => isPostDetailsQuery(query.queryKey),
       });
       previous.forEach(([key, data]) => {
@@ -144,11 +180,17 @@ export function useLikePostMutation(postId: string, mediaId: string) {
       return { previous };
     },
     onError: (_err, _isLiked, context) => {
-      context?.previous.forEach(([key, data]: [any, any]) => {
+      context?.previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
     },
   });
+}
+
+type FeedPostsPage = Awaited<ReturnType<typeof postService.getFeedPosts>>;
+interface FeedPostsInfiniteData {
+  pages: FeedPostsPage[];
+  pageParams: unknown[];
 }
 
 export function useLikeFeedPostMutation() {
@@ -159,28 +201,32 @@ export function useLikeFeedPostMutation() {
       postService.likePost(postId, isLiked),
     onMutate: async ({ postId, isLiked }) => {
       await queryClient.cancelQueries({ queryKey: ["feed-posts"] });
-      const previous = queryClient.getQueryData<any>(["feed-posts"]);
-      queryClient.setQueryData<any>(["feed-posts"], (old: any) => {
-        if (!old) return old;
-        return {
-          ...old,
-          pages: old.pages.map((page: any) => ({
-            ...page,
-            data: (page.data ?? []).map((post: any) =>
-              post.id === postId
-                ? {
-                    ...post,
-                    is_liked: !isLiked,
-                    likes_count: Math.max(
-                      0,
-                      (post.likes_count ?? 0) + (isLiked ? -1 : 1),
-                    ),
-                  }
-                : post,
-            ),
-          })),
-        };
-      });
+      const previous =
+        queryClient.getQueryData<FeedPostsInfiniteData>(["feed-posts"]);
+      queryClient.setQueryData<FeedPostsInfiniteData>(
+        ["feed-posts"],
+        (old) => {
+          if (!old) return old;
+          return {
+            ...old,
+            pages: old.pages.map((page) => ({
+              ...page,
+              data: (page.data ?? []).map((post) =>
+                post.id === postId
+                  ? {
+                      ...post,
+                      is_liked: !isLiked,
+                      likes_count: Math.max(
+                        0,
+                        (post.likes_count ?? 0) + (isLiked ? -1 : 1),
+                      ),
+                    }
+                  : post,
+              ),
+            })),
+          };
+        },
+      );
       return { previous };
     },
     onError: (_err, _vars, context) => {
@@ -198,7 +244,7 @@ export function useCommentsQuery(postId: string, enabled: boolean = true) {
     queryFn: async ({ pageParam }: { pageParam: number }) => {
       return postService.getComments(postId, pageParam, 20);
     },
-    getNextPageParam: (lastPage: any) => {
+    getNextPageParam: (lastPage) => {
       if (!lastPage?.data?.length) return undefined;
       const nextOffset = (lastPage.offset || 1) + 1;
       const totalPages = Math.ceil(

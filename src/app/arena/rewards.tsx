@@ -3,8 +3,8 @@ import { useCallback, useMemo, useState } from "react";
 import { Sparkles } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
-import ArenaRewardTile from "@/components/custom/Arena/ArenaRewardTile";
-import ArenaWinningRow from "@/components/custom/Arena/ArenaWinningRow";
+import ArenaRewardTile from "@/components/custom/arena/ArenaRewardTile";
+import ArenaWinningRow from "@/components/custom/arena/ArenaWinningRow";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";

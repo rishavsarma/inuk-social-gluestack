@@ -2,10 +2,14 @@ type AppTheme = "light" | "dark" | "system";
 
 type AccountType = "USER" | "ADMIN";
 
+/** Matches AwardBadgeProps.shape in AwardBadge.tsx — every producer of an
+ * Award (post.service.ts, mock data) must use one of these literal values. */
+type AwardShape = "shield" | "octagon" | "octagon-round" | "scallop" | "circle";
+
 interface Award {
   id: string;
   postId: string;
-  shape: string;
+  shape: AwardShape;
   theme: string;
   period: string;
   rank: string;
@@ -295,12 +299,16 @@ type media = {
   media_id?: string | number;
 };
 
+/** ALL — everyone; FOLLOWERS — accepted followers only; SHARED — specific
+ * users the content is shared with; SELF — only the owner. */
+type PostVisibility = "ALL" | "SELF" | "SHARED" | "FOLLOWERS";
+
 interface UploadOptions {
   title?: string;
   fileUri: string;
   fileName: string;
   contentType: string;
-  visibility?: "ALL" | "SELF" | "SHARED" | "FOLLOWERS";
+  visibility?: PostVisibility;
   mediaType?:
     | "AVATAR"
     | "ILLUSTRATION"
@@ -430,6 +438,40 @@ interface TrendingTopic {
   id: string;
   tag: string;
   postsCount: number;
+}
+
+interface FeedCategory {
+  id: string;
+  labelKey: string;
+  ringClassName: string;
+  imageUrl: string;
+}
+
+interface FeedPostItem {
+  id: string | number;
+  type: string;
+  profileId?: string;
+  author?: {
+    id?: string;
+    avatar_url?: string | null;
+    display_name?: string;
+    username?: string;
+    is_me?: boolean;
+    is_following?: boolean;
+    is_verified?: boolean;
+  };
+  created_at?: string;
+  updated_at?: string;
+  caption?: string;
+  media?: { id?: string; url?: string; thumbnail_url?: string }[];
+  is_liked?: boolean;
+  is_saved?: boolean;
+  likes_count?: number;
+  comments_count?: number;
+  shares_count?: number;
+  saves_count?: number;
+  location?: string | null;
+  tags?: string[];
 }
 
 interface DiscoverPost {

@@ -1,3 +1,9 @@
+# UI Design based on the website
+
+This are my website ui take this ui referrence for my app
+https://www.inukaangan.com
+https://www.inukmovement.com/
+
 # Project Rules — Expo App
 
 Before building any UI, check @docs/gluestack-components.md for the available component and its docs link.

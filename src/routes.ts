@@ -29,6 +29,7 @@ export const ROUTES = {
       `/post-detail/${mediaId}/${postId}` as const,
     POST_COMMENTS: (mediaId: string | number, postId: string | number) =>
       `/post/${mediaId}/${postId}?comments=true` as const,
+    CATEGORY_DETAILS: (id: string) => `/category/${id}` as const,
   },
   ARENA: {
     QUIZ: "/arena/quiz" as const,

@@ -1,5 +1,5 @@
-import { PostAwardsSkeleton } from "@/components/custom/Post/PostAwardsCard";
-import { PostBadgesSkeleton } from "@/components/custom/Post/PostBadgesCard";
+import { PostAwardsSkeleton } from "@/components/custom/post/PostAwardsCard";
+import { PostBadgesSkeleton } from "@/components/custom/post/PostBadgesCard";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import { HStack } from "@/components/ui/hstack";
