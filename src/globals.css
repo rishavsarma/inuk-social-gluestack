@@ -159,6 +159,7 @@
 Text,
 * {
   line-height: 0;
+  line-height: none;
 }
 
 .font-baloo,

@@ -1,13 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import Constants from "expo-constants";
 import { Image } from "expo-image";
 import { router } from "expo-router";
 
+import { getAppIcon, setAppIcon } from "expo-dynamic-app-icon";
 import {
   Bell,
   ChevronRight,
   CircleHelp,
+  Crown,
   Eye,
   FileText,
   Globe,
@@ -52,6 +54,7 @@ import {
 import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
+import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
 import { useAuthStore } from "@/stores/auth.store";
@@ -200,12 +203,15 @@ function ProfileSummary() {
 
 const SettingsScreen = () => {
   const { t, i18n } = useTranslation();
+  const toast = useToast();
 
   const logout = useAuthStore((state) => state.logout);
   const user = useAuthStore((state) => state.user);
   const profileId = user?.profileId || "";
 
   const { theme, setTheme, language, setLanguage } = useSettingStore();
+  const isProMember = useSettingStore((state) => state.isProMember);
+  const setIsProMember = useSettingStore((state) => state.setIsProMember);
   const pushNotificationsEnabled = useSettingStore(
     (state) => state.pushNotificationsEnabled,
   );
@@ -226,6 +232,18 @@ const SettingsScreen = () => {
   const [showLanguageSheet, setShowLanguageSheet] = useState(false);
   const [tempLanguage, setTempLanguage] = useState(language);
   const [publicOverride, setPublicOverride] = useState<boolean | null>(null);
+
+  // The OS is the source of truth for which icon is actually active — sync on
+  // mount rather than trusting the persisted flag, since setAppIcon() on iOS
+  // always resolves successfully even when the OS silently rejects the change
+  // (e.g. before a dev-client rebuild picks up a newly added icon variant).
+  useEffect(() => {
+    try {
+      setIsProMember(getAppIcon() === "pro");
+    } catch {
+      // native module unavailable (e.g. Expo Go) — leave persisted state as-is
+    }
+  }, [setIsProMember]);
 
   const systemColorScheme = useColorScheme();
   const isDark = (theme === "system" ? systemColorScheme : theme) === "dark";
@@ -265,6 +283,35 @@ const SettingsScreen = () => {
     logout();
   };
 
+  const showFeedbackToast = (message: string) => {
+    toast.show({
+      placement: "bottom",
+      render: ({ id }) => (
+        <Toast nativeID={`toast-${id}`} action="muted" variant="solid">
+          <ToastDescription>{message}</ToastDescription>
+        </Toast>
+      ),
+    });
+  };
+
+  const handleToggleProMembership = () => {
+    const nextIsProMember = !isProMember;
+    try {
+      // "" (not "DEFAULT") is the sentinel this module treats as "reset to
+      // the primary icon" — see patches/expo-dynamic-app-icon+1.2.0.patch.
+      const result = setAppIcon(nextIsProMember ? "pro" : "");
+      if (result === false) throw new Error("setAppIcon failed");
+      setIsProMember(nextIsProMember);
+      showFeedbackToast(
+        nextIsProMember
+          ? t("settings.pro_icon_applied")
+          : t("settings.pro_icon_reverted"),
+      );
+    } catch {
+      showFeedbackToast(t("settings.pro_icon_error"));
+    }
+  };
+
   return (
     <KeyboardAvoidingScrollView
       showBackButton
@@ -297,6 +344,25 @@ const SettingsScreen = () => {
                 accessibilityLabel={t("settings.public_profile")}
               />
             }
+          />
+        </VStack>
+        {/* Membership */}
+        <VStack space="xs" className=" bg-card">
+          <SectionHeader title={t("settings.membership")} />
+          <SettingsRow
+            icon={Crown}
+            tint="amber"
+            title={
+              isProMember
+                ? t("settings.pro_member")
+                : t("settings.upgrade_to_pro")
+            }
+            subtitle={
+              isProMember
+                ? t("settings.pro_member_sub")
+                : t("settings.upgrade_to_pro_sub")
+            }
+            onPress={handleToggleProMembership}
           />
         </VStack>
         {/* Notifications */}

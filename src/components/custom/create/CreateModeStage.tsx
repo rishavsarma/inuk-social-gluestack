@@ -10,7 +10,12 @@ import {
   ImageViewerCounter,
   ImageViewerNavigation,
 } from "@/components/ui/image-viewer";
-import { useVideoPlayer, VideoView } from "expo-video";
+import {
+  createVideoPlayer,
+  useVideoPlayer,
+  VideoView,
+  type VideoThumbnail,
+} from "expo-video";
 import {
   Camera,
   Expand,
@@ -56,6 +61,18 @@ const formatDuration = (seconds: number) => {
   return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
 };
 
+const getVideoThumbnail = async (uri: string) => {
+  const player = createVideoPlayer(uri);
+  try {
+    const [thumbnail] = await player.generateThumbnailsAsync(0);
+    return thumbnail ?? null;
+  } catch {
+    return null;
+  } finally {
+    player.release();
+  }
+};
+
 interface CreateModeStageProps {
   mode: CreatePostMode;
   onModeChange: (mode: CreatePostMode) => void;
@@ -76,6 +93,32 @@ function VideoPreview({ uri }: { uri: string }) {
       style={{ width: "100%", height: "100%" }}
       player={player}
       nativeControls
+      contentFit="cover"
+    />
+  );
+}
+
+function GalleryVideoThumbnail({ uri }: { uri: string }) {
+  const [thumbnail, setThumbnail] = useState<VideoThumbnail | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    getVideoThumbnail(uri).then((result) => {
+      if (active) setThumbnail(result);
+    });
+    return () => {
+      active = false;
+    };
+  }, [uri]);
+
+  if (!thumbnail) {
+    return <Box className="h-full w-full bg-muted animate-pulse" />;
+  }
+
+  return (
+    <Image
+      source={thumbnail}
+      style={{ width: "100%", height: "100%" }}
       contentFit="cover"
     />
   );
@@ -497,11 +540,15 @@ export function CreateModeStage({
                           style={{ width: "100%", aspectRatio: 1 }}
                           className="relative rounded-md overflow-hidden active:opacity-80"
                         >
-                          <Image
-                            source={{ uri: asset.uri }}
-                            style={{ width: "100%", height: "100%" }}
-                            contentFit="cover"
-                          />
+                          {mode === "video" ? (
+                            <GalleryVideoThumbnail uri={asset.uri} />
+                          ) : (
+                            <Image
+                              source={{ uri: asset.uri }}
+                              style={{ width: "100%", height: "100%" }}
+                              contentFit="cover"
+                            />
+                          )}
                           {isSelected && (
                             <Box className="absolute inset-0 bg-theme/10 border-2 border-theme rounded-md" />
                           )}

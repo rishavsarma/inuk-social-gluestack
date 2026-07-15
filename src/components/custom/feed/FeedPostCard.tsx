@@ -5,6 +5,8 @@ import {
   MessageCircle,
   MoreHorizontal,
   Share2,
+  UserPlus,
+  Dot,
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { BlurView } from "expo-blur";
@@ -35,6 +37,7 @@ interface FeedPostCardProps {
   isFollowing: boolean;
   isFollowLoading: boolean;
   onPress: (post: FeedPostItem) => void;
+  onProfilePress: (post: FeedPostItem) => void;
   onCommentPress: (post: FeedPostItem) => void;
   onLikePress: (post: FeedPostItem) => void;
   onFollowPress: (post: FeedPostItem, isFollowing: boolean) => void;
@@ -47,6 +50,7 @@ function FeedPostCardComponent({
   isFollowing,
   isFollowLoading,
   onPress,
+  onProfilePress,
   onCommentPress,
   onLikePress,
   onFollowPress,
@@ -72,14 +76,10 @@ function FeedPostCardComponent({
   const sharesCount = post.shares_count ?? 0;
   const isMe = post.author?.is_me ?? false;
   return (
-    <Card className="gap-3 overflow-hidden rounded-md border-0 px-0 pb-0 ">
-      <Pressable
-        onPress={() => onPress(post)}
-        accessibilityRole="button"
-        accessibilityLabel={t("feed.view_post_a11y")}
-      >
-        <VStack space="sm">
-          <HStack space="lg" className="justify-between items-center px-4">
+    <Card className="gap-3 overflow-hidden rounded-none border-0 px-0 pb-0 ">
+      <VStack space="xs">
+        <HStack space="lg" className="justify-between items-center px-2">
+          <Pressable onPress={() => onProfilePress(post)} className="flex-1">
             <HStack space="sm" className="flex-1 items-center ">
               <Avatar className="h-12 w-12">
                 <AvatarFallbackText>{displayName}</AvatarFallbackText>
@@ -91,18 +91,28 @@ function FeedPostCardComponent({
                 />
               </Avatar>
               <VStack className="">
-                <Text
-                  size="md"
-                  bold
-                  className="leading-none py-0 leading-0 font-baloo-bold "
-                >
+                <Text size="md" className="py-0 font-baloo-bold ">
                   {displayName}
                 </Text>
-                <Text size="xs" className="leading-none text-muted-foreground">
-                  {createdAt} Kunja
-                </Text>
+                <HStack space="xxs">
+                  <Text
+                    size="xs"
+                    className="leading-none text-muted-foreground"
+                  >
+                    Kunja
+                  </Text>
+                  <Icon as={Dot} size="xs" />
+                  <Text
+                    size="xs"
+                    className="leading-none text-muted-foreground"
+                  >
+                    {createdAt}
+                  </Text>
+                </HStack>
               </VStack>
             </HStack>
+          </Pressable>
+          <HStack space="sm" className="items-center">
             {!isMe && (
               <Button
                 variant={"theme"}
@@ -115,8 +125,9 @@ function FeedPostCardComponent({
                     ? t("network.unfollow_a11y", { name: displayName })
                     : t("network.follow_a11y", { name: displayName })
                 }
-                className="border border-border/40"
+                className="rounded-full"
               >
+                <ButtonIcon as={UserPlus} />
                 <ButtonText className="">
                   {isFollowing
                     ? t("network.following_btn")
@@ -135,8 +146,14 @@ function FeedPostCardComponent({
               <ButtonIcon as={MoreHorizontal} size="lg" className="" />
             </Button>
           </HStack>
+        </HStack>
+        <Pressable
+          onPress={() => onPress(post)}
+          accessibilityRole="button"
+          accessibilityLabel={t("feed.view_post_a11y")}
+        >
           {caption && (
-            <Text size="md" className="px-4">
+            <Text size="md" className="px-2 pb-1">
               {caption.trim()}
             </Text>
           )}
@@ -168,7 +185,7 @@ function FeedPostCardComponent({
                   <HStack className="items-center bg-white/40 px-1 dark:bg-black/30">
                     <Pressable
                       onPress={() => onLikePress(post)}
-                      hitSlop={8}
+                      hitSlop={100}
                       accessibilityRole="button"
                       accessibilityLabel={
                         isLiked
@@ -247,8 +264,8 @@ function FeedPostCardComponent({
               </VStack>
             </Box>
           )}
-        </VStack>
-      </Pressable>
+        </Pressable>
+      </VStack>
     </Card>
   );
 }

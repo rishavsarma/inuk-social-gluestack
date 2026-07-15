@@ -612,6 +612,98 @@ interface ValidateReferralCodeResponse {
   data?: ReferralCodeReferrer | null;
 }
 
+type GeoLevel =
+  | "region"
+  | "district"
+  | "block"
+  | "settlement"
+  | "locality"
+  | "poi";
+
+type SettlementKind = "City" | "Town" | "Village";
+
+/** Mirrors the keys of `GEO_POI_CATEGORIES` in
+ * `src/constants/geo-poi-categories.ts` — kept as a literal union here
+ * (rather than imported) since this file is an ambient global script. */
+type GeoPoiCategory =
+  | "Temple"
+  | "Spring"
+  | "Viewpoint"
+  | "Homestay"
+  | "Waterfall"
+  | "Trailhead";
+
+interface GeoBreadcrumbItem {
+  id: string;
+  name: string;
+  href: string;
+}
+
+interface GeoRegion {
+  id: string;
+  name: string;
+  parentLabel: string;
+  coveragePercent: number;
+  postsCount: number;
+}
+
+interface GeoDistrict {
+  id: string;
+  regionId: string;
+  regionName: string;
+  name: string;
+  postsCount: number;
+  coveragePercent: number;
+}
+
+interface GeoBlock {
+  id: string;
+  districtId: string;
+  districtName: string;
+  regionName: string;
+  name: string;
+}
+
+interface GeoSettlement {
+  id: string;
+  blockId: string;
+  blockName: string;
+  districtName: string;
+  regionName: string;
+  name: string;
+  kind: SettlementKind;
+  coveragePercent: number;
+  postsCount: number;
+  contributorsCount: number;
+}
+
+interface GeoLocality {
+  id: string;
+  settlementId: string;
+  settlementName: string;
+  blockName: string;
+  districtName: string;
+  regionName: string;
+  name: string;
+}
+
+interface GeoPoi {
+  id: string;
+  localityId: string;
+  localityName: string;
+  settlementId: string;
+  settlementName: string;
+  blockName: string;
+  districtName: string;
+  regionName: string;
+  name: string;
+  category: GeoPoiCategory;
+  touristWorthy: boolean;
+  postsCount: number;
+  contributorsCount: number;
+  tint: MetadataTintKey;
+}
+
 interface LocationSearchResult {
   id: string;
   slug: string;

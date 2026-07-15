@@ -78,10 +78,10 @@ function LoadingDots() {
           withSequence(
             withTiming(1, { duration: DOT_PULSE_MS }),
             withTiming(0.25, { duration: DOT_PULSE_MS }),
-            withTiming(0.25, { duration: DOT_HOLD_MS })
+            withTiming(0.25, { duration: DOT_HOLD_MS }),
           ),
-          -1
-        )
+          -1,
+        ),
       );
     };
     pulse(dot0, 0);
@@ -99,9 +99,18 @@ function LoadingDots() {
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
-      <Animated.View className="h-1.5 w-1.5 rounded-full bg-theme" style={dot0Style} />
-      <Animated.View className="h-1.5 w-1.5 rounded-full bg-theme" style={dot1Style} />
-      <Animated.View className="h-1.5 w-1.5 rounded-full bg-theme" style={dot2Style} />
+      <Animated.View
+        className="h-1.5 w-1.5 rounded-full bg-theme"
+        style={dot0Style}
+      />
+      <Animated.View
+        className="h-1.5 w-1.5 rounded-full bg-theme"
+        style={dot1Style}
+      />
+      <Animated.View
+        className="h-1.5 w-1.5 rounded-full bg-theme"
+        style={dot2Style}
+      />
     </View>
   );
 }
@@ -121,7 +130,7 @@ function TypewriterWordmark({
     if (!active || visibleCount >= WORDMARK.length) return;
     const timer = setTimeout(
       () => setVisibleCount((count) => count + 1),
-      TYPE_LETTER_MS
+      TYPE_LETTER_MS,
     );
     return () => clearTimeout(timer);
   }, [active, visibleCount]);
@@ -165,6 +174,7 @@ function AnimatedSplash() {
   const iconOpacity = useSharedValue(0);
   const iconScale = useSharedValue(0.85);
   const secondaryOpacity = useSharedValue(0);
+  const immediateOpacity = useSharedValue(0);
 
   useEffect(() => {
     // Hide the native splash only once this screen has actually painted,
@@ -177,19 +187,22 @@ function AnimatedSplash() {
       duration: ICON_ENTRANCE_MS,
       easing: easeOutEntrance,
     });
+    // Dots and brand label fade in right away, independent of the wordmark
+    // typing sequence, so they read as soon as the splash paints.
+    immediateOpacity.value = withTiming(1, { duration: SECONDARY_MS });
 
     const timer = setTimeout(
       () => setTypingActive(true),
-      ICON_ENTRANCE_MS + TYPE_START_DELAY_MS
+      ICON_ENTRANCE_MS + TYPE_START_DELAY_MS,
     );
     return () => clearTimeout(timer);
-  }, [iconOpacity, iconScale]);
+  }, [iconOpacity, iconScale, immediateOpacity]);
 
   useEffect(() => {
     if (!typingDone) return;
     secondaryOpacity.value = withDelay(
       SECONDARY_DELAY_AFTER_TYPING_MS,
-      withTiming(1, { duration: SECONDARY_MS })
+      withTiming(1, { duration: SECONDARY_MS }),
     );
   }, [typingDone, secondaryOpacity]);
 
@@ -200,6 +213,10 @@ function AnimatedSplash() {
 
   const secondaryAnimatedStyle = useAnimatedStyle(() => ({
     opacity: secondaryOpacity.value,
+  }));
+
+  const immediateAnimatedStyle = useAnimatedStyle(() => ({
+    opacity: immediateOpacity.value,
   }));
 
   return (
@@ -232,14 +249,14 @@ function AnimatedSplash() {
 
       <Animated.View
         className="items-center pb-8"
-        style={secondaryAnimatedStyle}
+        style={immediateAnimatedStyle}
       >
         <LoadingDots />
       </Animated.View>
 
       <Animated.View
         className="items-center"
-        style={[secondaryAnimatedStyle, { paddingBottom: bottomInset + 16 }]}
+        style={[immediateAnimatedStyle, { paddingBottom: bottomInset + 16 }]}
       >
         <Text className="font-baloo-semibold font-normal text-muted-foreground text-xs uppercase tracking-widest">
           {t("splash.brand_label")}

@@ -83,6 +83,11 @@ export function useGetFeedPosts() {
       return nextOffset <= totalPages ? nextOffset : undefined;
     },
     initialPageParam: 1,
+    // Feed and category screens both subscribe to this key — without a
+    // staleTime, mounting the second subscriber triggers a background
+    // refetch that flips isRefetching (and the pull-to-refresh spinner)
+    // on every screen sharing this query, not just the one navigated to.
+    staleTime: 30_000,
   });
 }
 
@@ -145,6 +150,48 @@ export function usePostVideoDetailsQuery(
   });
 }
 
+type FeedPostsPage = Awaited<ReturnType<typeof postService.getFeedPosts>>;
+interface FeedPostsInfiniteData {
+  pages: FeedPostsPage[];
+  pageParams: unknown[];
+}
+
+/** Feed and post-detail screens cache the same post under different query
+ * keys ("feed-posts" vs "post-details") — liking from either place needs to
+ * patch both, or the one you didn't just look at shows stale state until
+ * its next refetch. */
+function patchFeedPostsLikeCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  postId: string,
+  isLiked: boolean,
+) {
+  const previous = queryClient.getQueryData<FeedPostsInfiniteData>([
+    "feed-posts",
+  ]);
+  queryClient.setQueryData<FeedPostsInfiniteData>(["feed-posts"], (old) => {
+    if (!old) return old;
+    return {
+      ...old,
+      pages: old.pages.map((page) => ({
+        ...page,
+        data: (page.data ?? []).map((post) =>
+          post.id === postId
+            ? {
+                ...post,
+                is_liked: !isLiked,
+                likes_count: Math.max(
+                  0,
+                  (post.likes_count ?? 0) + (isLiked ? -1 : 1),
+                ),
+              }
+            : post,
+        ),
+      })),
+    };
+  });
+  return previous;
+}
+
 export function useLikePostMutation(postId: string, mediaId: string) {
   const queryClient = useQueryClient();
   const isPostDetailsQuery = (queryKey: readonly unknown[]) =>
@@ -166,6 +213,8 @@ export function useLikePostMutation(postId: string, mediaId: string) {
       await queryClient.cancelQueries({
         predicate: (query) => isPostDetailsQuery(query.queryKey),
       });
+      await queryClient.cancelQueries({ queryKey: ["feed-posts"] });
+
       const previous = queryClient.getQueriesData<PostDetailsCache>({
         predicate: (query) => isPostDetailsQuery(query.queryKey),
       });
@@ -177,20 +226,23 @@ export function useLikePostMutation(postId: string, mediaId: string) {
           likesCount: Math.max(0, (data.likesCount ?? 0) + (isLiked ? -1 : 1)),
         });
       });
-      return { previous };
+
+      const previousFeedPosts = patchFeedPostsLikeCache(
+        queryClient,
+        postId,
+        isLiked,
+      );
+      return { previous, previousFeedPosts };
     },
     onError: (_err, _isLiked, context) => {
       context?.previous.forEach(([key, data]) => {
         queryClient.setQueryData(key, data);
       });
+      if (context?.previousFeedPosts) {
+        queryClient.setQueryData(["feed-posts"], context.previousFeedPosts);
+      }
     },
   });
-}
-
-type FeedPostsPage = Awaited<ReturnType<typeof postService.getFeedPosts>>;
-interface FeedPostsInfiniteData {
-  pages: FeedPostsPage[];
-  pageParams: unknown[];
 }
 
 export function useLikeFeedPostMutation() {
@@ -201,32 +253,7 @@ export function useLikeFeedPostMutation() {
       postService.likePost(postId, isLiked),
     onMutate: async ({ postId, isLiked }) => {
       await queryClient.cancelQueries({ queryKey: ["feed-posts"] });
-      const previous =
-        queryClient.getQueryData<FeedPostsInfiniteData>(["feed-posts"]);
-      queryClient.setQueryData<FeedPostsInfiniteData>(
-        ["feed-posts"],
-        (old) => {
-          if (!old) return old;
-          return {
-            ...old,
-            pages: old.pages.map((page) => ({
-              ...page,
-              data: (page.data ?? []).map((post) =>
-                post.id === postId
-                  ? {
-                      ...post,
-                      is_liked: !isLiked,
-                      likes_count: Math.max(
-                        0,
-                        (post.likes_count ?? 0) + (isLiked ? -1 : 1),
-                      ),
-                    }
-                  : post,
-              ),
-            })),
-          };
-        },
-      );
+      const previous = patchFeedPostsLikeCache(queryClient, postId, isLiked);
       return { previous };
     },
     onError: (_err, _vars, context) => {

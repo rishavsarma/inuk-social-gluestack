@@ -77,12 +77,18 @@ export const postService = {
 
   likePost: async (postId: string, liked: boolean) => {
     if (liked) {
-      const { data } = await api.delete(`/content/api/posts/${postId}/like`);
-      return data;
-    } else {
-      const { data } = await api.post(`/content/api/posts/${postId}/like`);
-      return data;
+      // The API deletes a like by the like record's own id, not by
+      // postId — look up the current user's like record first.
+      const myProfileId = useAuthStore.getState().user?.profileId;
+      const { data } = await api.get(
+        `/content/api/like/interaction/${postId}?contentType=POST&profileId=${myProfileId}`,
+      );
+      const likeId = Array.isArray(data) ? data[0]?.id : undefined;
+      if (!likeId) throw new Error("Like record not found");
+      const { data: result } = await api.delete(`/content/api/like/${likeId}`);
+      return result;
     }
+    return postService.likeContent(postId);
   },
 
   // deletePost: async (postId: string) => {

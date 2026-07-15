@@ -14,7 +14,7 @@ export function LogoIcon({ size = 34 }: { size: number }) {
 
   return (
     <Image
-      source={require("@/assets/images/logo.svg")}
+      source={require("@/assets/images/icon.png")}
       style={{ width: size, height: size, borderRadius: 5 }}
       contentFit="contain"
       accessibilityIgnoresInvertColors

@@ -187,6 +187,12 @@ const FeedScreen = () => {
     );
   }, []);
 
+  const handleProfilePress = useCallback((post: FeedPostItem) => {
+    const postMediaId = post.media?.[0]?.id;
+    if (!postMediaId || !post.id) return;
+    router.push(ROUTES.USER.PROFILE(post.author?.id) as Href);
+  }, []);
+
   const handleCommentPress = useCallback((post: FeedPostItem) => {
     const postMediaId = post.media?.[0]?.id;
     if (!postMediaId || !post.id) return;
@@ -200,6 +206,7 @@ const FeedScreen = () => {
 
   const handleLikePress = useCallback(
     (post: FeedPostItem) => {
+      console.log("post");
       if (!post.id) return;
       likeMutation.mutate({
         postId: String(post.id),
@@ -250,6 +257,7 @@ const FeedScreen = () => {
           isFollowing={isFollowing}
           isFollowLoading={isFollowLoading}
           onPress={handlePostPress}
+          onProfilePress={handleProfilePress}
           onCommentPress={handleCommentPress}
           onLikePress={handleLikePress}
           onFollowPress={handleCardFollowPress}
@@ -263,6 +271,7 @@ const FeedScreen = () => {
       isFollowPending,
       followVariables,
       handlePostPress,
+      handleProfilePress,
       handleCommentPress,
       handleLikePress,
       handleCardFollowPress,
@@ -277,6 +286,7 @@ const FeedScreen = () => {
         {({ scrollProps, topInset }) => (
           <FlashList
             data={posts}
+            extraData={posts}
             keyExtractor={(item: FeedPostItem) => String(item.id)}
             renderItem={renderItem}
             {...scrollProps}
@@ -290,7 +300,6 @@ const FeedScreen = () => {
                 <Box onLayout={handleFeedHeaderLayout}>
                   <FeedHeader />
                 </Box>
-                {/* <ThemeSwitcher /> */}
                 <FeedCategories />
               </>
             }

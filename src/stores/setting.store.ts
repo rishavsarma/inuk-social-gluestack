@@ -9,11 +9,13 @@ interface SettingState {
   pushNotificationsEnabled: boolean;
   votingAlertsEnabled: boolean;
   hasCompletedOnboarding: boolean;
+  isProMember: boolean;
   setTheme: (theme: AppTheme) => void;
   setLanguage: (language: string) => void;
   setPushNotificationsEnabled: (enabled: boolean) => void;
   setVotingAlertsEnabled: (enabled: boolean) => void;
   setHasCompletedOnboarding: (completed: boolean) => void;
+  setIsProMember: (isProMember: boolean) => void;
 }
 
 export const useSettingStore = create<SettingState>()(
@@ -24,6 +26,7 @@ export const useSettingStore = create<SettingState>()(
       pushNotificationsEnabled: true,
       votingAlertsEnabled: true,
       hasCompletedOnboarding: false,
+      isProMember: false,
       setTheme: (theme) => set({ theme }),
       setLanguage: (language) => set({ language }),
       setPushNotificationsEnabled: (pushNotificationsEnabled) =>
@@ -32,6 +35,7 @@ export const useSettingStore = create<SettingState>()(
         set({ votingAlertsEnabled }),
       setHasCompletedOnboarding: (hasCompletedOnboarding) =>
         set({ hasCompletedOnboarding }),
+      setIsProMember: (isProMember) => set({ isProMember }),
     }),
     {
       name: 'setting-storage',

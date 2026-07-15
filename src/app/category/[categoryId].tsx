@@ -391,6 +391,7 @@ const CategoryScreen = () => {
           ) : (
             <FlashList
               data={filteredPosts}
+              extraData={filteredPosts}
               keyExtractor={(item: FeedPostItem) => String(item.id)}
               renderItem={renderPostItem}
               {...scrollProps}
