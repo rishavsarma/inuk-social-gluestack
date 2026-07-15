@@ -1,6 +1,7 @@
 import { useAuthStore } from "@/stores/auth.store";
 import { api } from "./api";
 import { getFollowingConnectionSafe, profileService } from "./profile.service";
+import { locationService } from "./location.service";
 
 /** Request payload for POST /content/api/post — mirrors the documented
  * `PostCreateDto` schema in api-docs.json (all fields optional there). */
@@ -51,6 +52,7 @@ interface RawPostItem {
   description?: string;
   title?: string;
   place?: string;
+  locationId?: string;
   tags?: string[];
   dateCreated?: string;
   dateUpdated?: string;
@@ -533,6 +535,26 @@ export const postService = {
       profilesRes.map((p) => [p.profileId, p.isFollowing]),
     );
 
+    // Resolve locationId -> settlement name for posts that were tagged with one
+    const uniqueLocationIds = Array.from(
+      new Set(postsArray.map((p) => p.locationId).filter(Boolean)),
+    ) as string[];
+
+    const locationEntries = await Promise.all(
+      uniqueLocationIds.map(async (locationId) => {
+        try {
+          const location = await locationService.getLocationById(locationId);
+          return [locationId, location] as const;
+        } catch (e) {
+          if (__DEV__) {
+            console.warn(`Failed to fetch location for ID ${locationId}:`, e);
+          }
+          return [locationId, null] as const;
+        }
+      }),
+    );
+    const locationMap = new Map(locationEntries);
+
     // Fetch media, stats, and like interaction status for all retrieved posts in parallel
     const postDetailsPromises = postsArray.map(async (post) => {
       const isVideo = (post.postType || "PHOTO").toUpperCase() === "VIDEO";
@@ -675,7 +697,10 @@ export const postService = {
         saves_count,
         is_liked,
         is_saved: false,
-        location: post.place || null,
+        location:
+          (post.locationId && locationMap.get(post.locationId)?.name) ||
+          post.place ||
+          null,
         tags: Array.isArray(post.tags) ? post.tags : [],
         created_at: post.dateCreated
           ? new Date(post.dateCreated).toISOString()

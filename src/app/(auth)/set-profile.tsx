@@ -81,7 +81,7 @@ import { useSearchLocations } from "@/hooks/useLocation";
 import { useValidateUsername, useSetProfileDetails } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
 import { THEME_RGB } from "@/constants";
-import { useSettingStore } from "@/stores/setting.store";
+import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { useUpdateProfile } from "@/hooks/useProfile";
 import { useUpload } from "@/hooks/useUpload";
 import Logo from "@/components/custom/Logo";
@@ -98,7 +98,7 @@ const SetProfile = () => {
   const router = useRouter();
   const { referredBy } = useLocalSearchParams<{ referredBy?: string }>();
   const { uploadMedia } = useUpload();
-  const isDark = useSettingStore((state) => state.theme === "dark");
+  const isDark = useIsDarkMode();
 
   useEffect(() => {
     if (!referredBy) {

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { useRouter, useIsFocused } from "expo-router";
+import { useRouter, useIsFocused, type Href } from "expo-router";
 
 import { ArrowLeft, Camera, Type, Video, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -31,6 +31,7 @@ import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
+import { useAuthStore } from "@/stores/auth.store";
 import { useSettingStore } from "@/stores/setting.store";
 
 import { CreateDetailsForm } from "@/components/custom/create/CreateDetailsForm";
@@ -41,6 +42,7 @@ import { CreateStepProgress } from "@/components/custom/create/CreateStepProgres
 import { useTabBar } from "@/components/custom/bottom-tabs/TabBarContext";
 
 import { useAppInsets } from "@/hooks/useAppInsets";
+import { useCreatePostMutation } from "@/hooks/usePosts";
 import { ROUTES } from "@/routes";
 import {
     POST_CATEGORIES,
@@ -125,6 +127,8 @@ const CreateScreen = () => {
     const insets = useAppInsets();
     const toast = useToast();
     const { previousTab } = useTabBar();
+    const { mutateAsync: createPostWithMedia } = useCreatePostMutation();
+    const authUser = useAuthStore((state) => state.user);
 
     const settingsTheme = useSettingStore((state) => state.theme);
     const isDark = settingsTheme === "dark";
@@ -231,61 +235,76 @@ const CreateScreen = () => {
         setCurrentStep((s) => s - 1);
     }, [currentStep, handleClose]);
 
-    const handlePrimary = useCallback(() => {
+    const handlePrimary = useCallback(async () => {
         if (currentStep < TOTAL_STEPS) {
             setCurrentStep((s) => s + 1);
             return;
         }
 
-        // console.log("Posting Post Data:", {
-        //     mode,
-        //     photos,
-        //     videoUri,
-        //     videoUris,
-        //     multiSelect,
-        //     text,
-        //     title,
-        //     caption,
-        //     categoryId,
-        //     subcategoryKey,
-        //     theme,
-        //     tags,
-        //     location,
-        //     selectedLocation,
-        //     visibility,
-        // });
+        const postType =
+            mode === "photo"
+                ? photos.length > 1
+                    ? "CAROUSEL"
+                    : "PHOTO"
+                : mode === "video"
+                    ? "VIDEO"
+                    : "TEXT";
 
-        const postData = {
-            "title": title,
-            "description": caption,
-            "categoryId": categoryId,
-            "subCategoryId": subcategoryKey,
-            "locationId": selectedLocation?.id ?? null,
-            "tags": tags,
-            "visibility": visibility,
-            "status": "DRAFT",
-            "postType": mode.toUpperCase(),
-            "mediaUrl": mode === "video" ? videoUri : mode === "text" ? text : photos,
+        setIsPosting(true);
+        try {
+            const { postId, mediaId } = await createPostWithMedia({
+                title,
+                description: caption,
+                categoryId,
+                subCategoryId: subcategoryKey,
+                locationId: selectedLocation?.id,
+                tags,
+                visibility,
+                postType,
+                photos: mode === "photo" ? photos : undefined,
+                videoUris:
+                    mode === "video"
+                        ? videoUris.length > 0
+                            ? videoUris
+                            : videoUri
+                                ? [videoUri]
+                                : []
+                        : undefined,
+            });
+
+            const profileId = authUser?.profileId ?? "";
+
+            toast.show({
+                placement: "top",
+                render: ({ id }) => (
+                    <Toast nativeID={`toast-${id}`} action="success" variant="solid">
+                        <ToastDescription>{t("create_post.post_success")}</ToastDescription>
+                    </Toast>
+                ),
+            });
+
+            resetForm();
+            router.replace(
+                `${ROUTES.CONTENT.POST_DETAILS(
+                    mediaId,
+                    postId,
+                )}?id=${mediaId}&profile_id=${profileId}&type=${mode}` as Href,
+            );
+        } catch (error) {
+            if (__DEV__) {
+                console.error("Failed to publish post:", error);
+            }
+            toast.show({
+                placement: "top",
+                render: ({ id }) => (
+                    <Toast nativeID={`toast-${id}`} action="error" variant="solid">
+                        <ToastDescription>{t("create_post.post_error")}</ToastDescription>
+                    </Toast>
+                ),
+            });
+        } finally {
+            setIsPosting(false);
         }
-
-        console.log("postData", postData)
-
-        // setIsPosting(true);
-        // // No post-creation endpoint is wired up yet — this simulates the
-        // // submit → success round trip so the flow reads complete end to end.
-        // setTimeout(() => {
-        //     setIsPosting(false);
-        //     toast.show({
-        //         placement: "top",
-        //         render: ({ id }) => (
-        //             <Toast nativeID={`toast-${id}`} action="success" variant="solid">
-        //                 <ToastDescription>{t("create_post.post_success")}</ToastDescription>
-        //             </Toast>
-        //         ),
-        //     });
-        //     resetForm();
-        //     router.push(ROUTES.TABS.FEED as never);
-        // }, 900);
     }, [
         currentStep,
         toast,
@@ -296,17 +315,15 @@ const CreateScreen = () => {
         photos,
         videoUri,
         videoUris,
-        multiSelect,
-        text,
         title,
         caption,
         categoryId,
         subcategoryKey,
-        theme,
         tags,
-        location,
         selectedLocation,
         visibility,
+        createPostWithMedia,
+        authUser,
     ]);
 
     const selectedThemeSwatch = useMemo(

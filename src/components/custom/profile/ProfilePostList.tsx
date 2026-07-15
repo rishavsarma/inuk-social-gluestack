@@ -127,7 +127,10 @@ function ProfileGridItem({
             )}
             {isCarousel && !isVideo && !hasImageError && (
               <View className="absolute right-2 top-2 flex-row items-center justify-center rounded-full border border-white/10 bg-black/50 p-1 backdrop-blur-md">
-                <Icon as={LayersIcon} className="size-2 text-white fill-white" />
+                <Icon
+                  as={LayersIcon}
+                  className="size-2 text-white fill-white"
+                />
               </View>
             )}
           </View>

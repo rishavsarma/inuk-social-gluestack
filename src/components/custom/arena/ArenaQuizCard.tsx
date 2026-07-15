@@ -3,6 +3,8 @@ import React from "react";
 import { Flame, HelpCircle } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
+import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
+
 import { Button, ButtonText } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
@@ -35,8 +37,15 @@ function ArenaQuizCard({ quiz, onStart }: ArenaQuizCardProps) {
         </VStack>
         {quiz.streakDays > 0 && (
           <HStack space="xs" className="items-center">
-            <Icon as={Flame} size="sm" className="text-amber-500" />
-            <Text size="xs" className="font-semibold text-amber-500">
+            <Icon
+              as={Flame}
+              size="sm"
+              className={POST_METADATA_TINTS.amber.iconColor}
+            />
+            <Text
+              size="xs"
+              className={`font-semibold ${POST_METADATA_TINTS.amber.iconColor}`}
+            >
               {t("arena.streak_days", { count: quiz.streakDays })}
             </Text>
           </HStack>

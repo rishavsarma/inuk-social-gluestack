@@ -1,11 +1,11 @@
 import React from "react";
 
-import { Star } from "lucide-react-native";
+import { Gift, Star } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
 import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
 
-import { Box } from "@/components/ui/box";
+import { ImagePlaceholder } from "@/components/custom/ImagePlaceholder";
 import { Button, ButtonText } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { HStack } from "@/components/ui/hstack";
@@ -31,7 +31,11 @@ function ArenaRewardTile({
 
   return (
     <Card className="flex-1 gap-2 rounded-2xl p-0">
-      <Box className={`h-20 w-full rounded-t-2xl ${tint.iconBg}`} />
+      <ImagePlaceholder
+        icon={Gift}
+        tint={reward.tint}
+        className="h-20 w-full rounded-t-2xl"
+      />
       <VStack space="xs" className="px-3 pb-3">
         <Text className="text-sm font-semibold text-foreground" numberOfLines={1}>
           {reward.title}

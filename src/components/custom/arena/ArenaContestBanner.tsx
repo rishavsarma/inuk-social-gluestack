@@ -1,12 +1,11 @@
 import React from "react";
 
 import { formatDistanceToNowStrict } from "date-fns";
+import { Trophy } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
-import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
-
+import { ImagePlaceholder } from "@/components/custom/ImagePlaceholder";
 import { Badge, BadgeText } from "@/components/ui/badge";
-import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
@@ -18,11 +17,15 @@ interface ArenaContestBannerProps {
 
 function ArenaContestBanner({ contest }: ArenaContestBannerProps) {
   const { t } = useTranslation();
-  const tint = POST_METADATA_TINTS[contest.tint ?? "green"];
 
   return (
     <Card className="gap-3 overflow-hidden rounded-2xl p-0">
-      <Box className={`h-28 w-full ${tint.iconBg}`} />
+      <ImagePlaceholder
+        icon={Trophy}
+        tint={contest.tint ?? "green"}
+        iconSize="xl"
+        className="h-28 w-full"
+      />
       <VStack space="xs" className="px-4 pb-4">
         {(contest.category || contest.location) && (
           <Badge variant="outline" className="self-start rounded-full">

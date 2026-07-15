@@ -1,10 +1,9 @@
 import React from "react";
 
+import { ImageIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
-import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
-
-import { Box } from "@/components/ui/box";
+import { ImagePlaceholder } from "@/components/custom/ImagePlaceholder";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
@@ -16,7 +15,6 @@ interface DiscoverPlaceCardProps {
 
 function DiscoverPlaceCard({ place, onPress }: DiscoverPlaceCardProps) {
   const { t } = useTranslation();
-  const tint = POST_METADATA_TINTS[place.tint];
 
   return (
     <Pressable
@@ -26,7 +24,11 @@ function DiscoverPlaceCard({ place, onPress }: DiscoverPlaceCardProps) {
       className="w-36 active:opacity-80"
     >
       <VStack space="xs">
-        <Box className={`h-24 w-36 rounded-xl ${tint.iconBg}`} />
+        <ImagePlaceholder
+          icon={ImageIcon}
+          tint={place.tint}
+          className="h-24 w-36 rounded-xl"
+        />
         <Text className="text-sm font-semibold text-foreground" numberOfLines={1}>
           {place.name}
         </Text>

@@ -7,11 +7,11 @@ import React from "react";
 function ProfileHeaderSkeleton() {
   return (
     <VStack space="sm">
-      <Box className="relative h-64 w-full bg-muted">
+      <Box className="relative h-64 w-full bg-muted animate-pulse">
         <Skeleton className="h-full w-full" />
       </Box>
       <HStack className="px-4">
-        <Box className="-mt-12">
+        <Box className="-mt-12 animate-pulse">
           <Skeleton
             variant="circular"
             className="h-28 w-28 border-4 border-background"

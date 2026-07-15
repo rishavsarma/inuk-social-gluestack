@@ -16,6 +16,7 @@ import {
 } from "@expo-google-fonts/inter";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
 import { THEME_RGB } from "@/constants";
+import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { useSettingStore } from "@/stores/setting.store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
@@ -59,6 +60,7 @@ const CustomDefaultTheme = {
 const RootLayout = () => {
   const theme = useSettingStore((state) => state.theme);
   const language = useSettingStore((state) => state.language);
+  const isDark = useIsDarkMode();
   const { i18n } = useTranslation();
   const [fontsLoaded] = useFonts({
     Baloo2_400Regular,
@@ -88,7 +90,7 @@ const RootLayout = () => {
         <KeyboardProvider>
           <GluestackUIProvider mode={theme}>
             <ThemeProvider
-              value={theme === "dark" ? CustomDarkTheme : CustomDefaultTheme}
+              value={isDark ? CustomDarkTheme : CustomDefaultTheme}
             >
               {Platform.OS === "android" && <StatusBar animated />}
               <Stack

@@ -1,5 +1,9 @@
+import { Box } from "@/components/ui/box";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
+import { LinearGradient } from "@/components/ui/linear-gradient";
 import { Text } from "@/components/ui/text";
+import { VStack } from "@/components/ui/vstack";
 import { ROUTES } from "@/routes";
 import { useRouter } from "expo-router";
 import {
@@ -8,74 +12,101 @@ import {
   MusicIcon,
   PlusCircleIcon,
   VideoIcon,
+  type LucideIcon,
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Pressable, View } from "react-native";
+
+const TAB_ICONS: Record<string, LucideIcon> = {
+  image: CameraIcon,
+  video: VideoIcon,
+  audio: MusicIcon,
+  text: FileTextIcon,
+};
 
 export interface ProfileEmptyStateProps {
   isLoadingPosts: boolean;
   activeTab: string;
   imageSize: number;
+  isOtherUser?: boolean;
+  userName?: string;
 }
 
 export function ProfileEmptyState({
   isLoadingPosts,
   activeTab,
   imageSize,
+  isOtherUser = false,
+  userName,
 }: ProfileEmptyStateProps) {
   const router = useRouter();
   const { t } = useTranslation();
 
   if (isLoadingPosts) {
     return (
-      <View className="flex-1 flex-row flex-wrap">
+      <Box className="flex-1 flex-row flex-wrap">
         {Array.from({ length: 15 }).map((_, i) => (
-          <View
+          <Box
             key={i}
             style={{ width: imageSize, height: imageSize, padding: 1 }}
           >
-            <View className="flex-1 bg-muted" />
-          </View>
+            <Box className="flex-1 bg-muted" />
+          </Box>
         ))}
-      </View>
+      </Box>
     );
   }
 
+  const tabIcon = TAB_ICONS[activeTab] ?? CameraIcon;
+
   return (
-    <View className="mt-12 items-center px-8">
-      <View className="mb-6 h-24 w-24 items-center justify-center rounded-full border border-border bg-muted">
-        {activeTab === "image" && (
-          <Icon as={CameraIcon} size={40} className="text-muted-foreground/50" />
-        )}
-        {activeTab === "video" && (
-          <Icon as={VideoIcon} size={40} className="text-muted-foreground/50" />
-        )}
-        {activeTab === "audio" && (
-          <Icon as={MusicIcon} size={40} className="text-muted-foreground/50" />
-        )}
-        {activeTab === "text" && (
-          <Icon as={FileTextIcon} size={40} className="text-muted-foreground/50" />
-        )}
-      </View>
-      <Text className="text-center text-[20px] font-extrabold tracking-tight text-foreground">
-        {t("profile.no_posts_yet", { type: t(`profile.${activeTab}`) })}
-      </Text>
-      <Text className="mt-2 text-center text-[15px] font-medium text-muted-foreground">
-        {t("profile.share_first_post", { type: t(`profile.${activeTab}`) })}
-      </Text>
-      <Pressable
-        onPress={() => router.push(ROUTES.TABS.CREATE)}
-        accessibilityRole="button"
-        accessibilityLabel={t("profile.create_post_a11y", {
-          type: t(`profile.${activeTab}`),
-        })}
-        className="mt-8 flex-row items-center gap-2 rounded-full bg-theme px-6 py-3.5 shadow-md shadow-red-500/20 active:opacity-80"
-      >
-        <Icon as={PlusCircleIcon} size={20} className="text-white" />
-        <Text className="text-[15px] font-extrabold tracking-wide text-white">
-          {t("profile.create_post", { type: t(`profile.${activeTab}`) })}
+    <VStack space="md" className="mt-14 items-center px-10 pb-10">
+      <Box className="h-24 w-24 overflow-hidden rounded-full">
+        <LinearGradient
+          colors={["rgb(192,57,42)", "rgb(97,29,21)"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+          style={{
+            width: "100%",
+            height: "100%",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Icon as={tabIcon} size={36} className="text-white" />
+        </LinearGradient>
+      </Box>
+
+      <VStack space="xs" className="items-center">
+        <Text className="text-center text-[20px] font-extrabold tracking-tight text-foreground">
+          {t("profile.no_posts_yet", { type: t(`profile.${activeTab}`) })}
         </Text>
-      </Pressable>
-    </View>
+        <Text className="text-center text-[15px] font-medium leading-5 text-muted-foreground">
+          {isOtherUser
+            ? t("profile.no_posts_other_user", {
+                name: userName || t("common.user"),
+                type: t(`profile.${activeTab}`),
+              })
+            : t("profile.share_first_post", { type: t(`profile.${activeTab}`) })}
+        </Text>
+      </VStack>
+
+      {!isOtherUser && (
+        <Button
+          onPress={() => router.push(ROUTES.TABS.CREATE)}
+          accessibilityRole="button"
+          accessibilityLabel={t("profile.create_post_a11y", {
+            type: t(`profile.${activeTab}`),
+          })}
+          variant="theme"
+          size="lg"
+          className="mt-2 rounded-full px-6"
+        >
+          <ButtonIcon as={PlusCircleIcon} />
+          <ButtonText className="font-extrabold tracking-wide">
+            {t("profile.create_post", { type: t(`profile.${activeTab}`) })}
+          </ButtonText>
+        </Button>
+      )}
+    </VStack>
   );
 }

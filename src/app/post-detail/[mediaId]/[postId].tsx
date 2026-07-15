@@ -5,6 +5,7 @@ import {
 import { PostCameraCard } from "@/components/custom/post/PostCameraCard";
 import PostCaption from "@/components/custom/post/PostCaption";
 import { PostEnvironmentCard } from "@/components/custom/post/PostEnvironmentCard";
+import { PostLocationCard } from "@/components/custom/post/PostLocationCard";
 import PostAuthorHeader from "@/components/custom/post/PostAuthorHeader";
 import { PostAwardsCard } from "@/components/custom/post/PostAwardsCard";
 import { PostBadgesCard } from "@/components/custom/post/PostBadgesCard";
@@ -30,6 +31,7 @@ import {
   usePostPhotoDetailsQuery,
   usePostVideoDetailsQuery,
 } from "@/hooks/usePosts";
+import { useLocationDetails } from "@/hooks/useLocation";
 import { useFollowUser } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFollowStore } from "@/stores/follow.store";
@@ -328,6 +330,8 @@ const PostDetail = () => {
       my_profile_id,
       !isVideoPost,
     );
+
+  console.log("photoDetails", JSON.stringify(photoDetails));
   const { data: videoDetails, isLoading: isLoadingVideo } =
     usePostVideoDetailsQuery(
       id,
@@ -340,6 +344,11 @@ const PostDetail = () => {
 
   const postDetails = isVideoPost ? videoDetails : photoDetails;
   const isLoading = isVideoPost ? isLoadingVideo : isLoadingPhoto;
+
+  const rawLocationId = postDetails?.post?.data?.[0]?.locationId as
+    | string
+    | undefined;
+  const { data: locationDetail } = useLocationDetails(rawLocationId);
 
   const formattedPost = useMemo<PostDetail | null>(() => {
     if (!postDetails || !postDetails.post) return null;
@@ -673,6 +682,7 @@ const PostDetail = () => {
             </Animated.View>
           )}
           <PostEnvironmentCard post={formattedPost} />
+          {locationDetail && <PostLocationCard location={locationDetail} />}
           <PostAwardsCard />
           <PostBadgesCard />
         </VStack>

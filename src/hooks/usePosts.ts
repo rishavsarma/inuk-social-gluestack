@@ -2,6 +2,7 @@ import { useMemo } from "react";
 
 import { api } from "@/services/api";
 import { postService } from "@/services/post.service";
+import { useUpload } from "@/hooks/useUpload";
 import {
   useInfiniteQuery,
   useMutation,
@@ -102,6 +103,90 @@ export function useFeedPostsList() {
   return { ...query, posts };
 }
 
+interface CreatePostWithMediaInput {
+  title: string;
+  description: string;
+  categoryId: string;
+  subCategoryId?: string | null;
+  locationId?: string | null;
+  tags: string[];
+  visibility: PostVisibility;
+  postType: "PHOTO" | "VIDEO" | "CAROUSEL" | "TEXT" | "REEL";
+  photos?: string[];
+  videoUris?: string[];
+}
+
+interface CreatePostWithMediaResult {
+  postId: string;
+  mediaId: string;
+}
+
+/** Creates the post record, then uploads its media tagged with the new
+ * postId so uploaded files are associated with the post server-side. */
+export function useCreatePostMutation() {
+  const { uploadMedia } = useUpload();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (
+      input: CreatePostWithMediaInput,
+    ): Promise<CreatePostWithMediaResult> => {
+      const created = await postService.createPost({
+        title: input.title,
+        description: input.description,
+        categoryId: input.categoryId,
+        subCategoryId: input.subCategoryId ?? undefined,
+        locationId: input.locationId ?? undefined,
+        tags: input.tags,
+        visibility: input.visibility,
+        status: "PUBLISHED",
+        postType: input.postType,
+      });
+      const createdPost = created?.data ?? created;
+      const postId: string | undefined = createdPost?.id;
+
+      if (!postId) {
+        throw new Error("Post creation did not return an id");
+      }
+
+      let mediaId: string | null = null;
+
+      if (input.photos && input.photos.length > 0) {
+        const uploadedIds = await Promise.all(
+          input.photos.map((uri) =>
+            uploadMedia({
+              fileUri: uri,
+              fileName: uri.split("/").pop() || `photo-${Date.now()}.jpg`,
+              mediaType: "PHOTO",
+              visibility: input.visibility,
+              postId,
+            }),
+          ),
+        );
+        mediaId = uploadedIds[0] ?? null;
+      } else if (input.videoUris && input.videoUris.length > 0) {
+        const uploadedIds = await Promise.all(
+          input.videoUris.map((uri) =>
+            uploadMedia({
+              fileUri: uri,
+              fileName: uri.split("/").pop() || `video-${Date.now()}.mp4`,
+              mediaType: "VIDEO",
+              visibility: input.visibility,
+              postId,
+            }),
+          ),
+        );
+        mediaId = uploadedIds[0] ?? null;
+      }
+
+      return { postId, mediaId: mediaId ?? postId };
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["feed-posts"] });
+    },
+  });
+}
+
 export function usePostPhotoDetailsQuery(
   id: string,
   postId: string,
@@ -190,6 +275,30 @@ function patchFeedPostsLikeCache(
     };
   });
   return previous;
+}
+
+/** Mirrors patchFeedPostsLikeCache — posting a comment from post-detail
+ * invalidates the "post-details" cache (so that screen refetches), but
+ * "feed-posts" is a separate cache the feed screen doesn't revisit on
+ * back-navigation, so it needs its comments_count patched directly. */
+function patchFeedPostsCommentCountCache(
+  queryClient: ReturnType<typeof useQueryClient>,
+  postId: string,
+) {
+  queryClient.setQueryData<FeedPostsInfiniteData>(["feed-posts"], (old) => {
+    if (!old) return old;
+    return {
+      ...old,
+      pages: old.pages.map((page) => ({
+        ...page,
+        data: (page.data ?? []).map((post) =>
+          post.id === postId
+            ? { ...post, comments_count: (post.comments_count ?? 0) + 1 }
+            : post,
+        ),
+      })),
+    };
+  });
 }
 
 export function useLikePostMutation(postId: string, mediaId: string) {
@@ -293,6 +402,7 @@ export function useAddCommentMutation(postId: string) {
         predicate: (query) =>
           query.queryKey[0] === "post-details" && query.queryKey[2] === postId,
       });
+      patchFeedPostsCommentCountCache(queryClient, postId);
     },
   });
 }

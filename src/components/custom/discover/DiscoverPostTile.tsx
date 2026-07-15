@@ -3,9 +3,9 @@ import React from "react";
 import { ImageIcon, PlayIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
-import { Icon } from "@/components/ui/icon";
-import { Pressable } from "@/components/ui/pressable";
+import { ImagePlaceholder } from "@/components/custom/ImagePlaceholder";
 import { Text } from "@/components/ui/text";
+import { Pressable } from "@/components/ui/pressable";
 
 import { formatCompactNumber } from "@/utils/formatNumber";
 
@@ -25,18 +25,19 @@ function DiscoverPostTile({ post, onPress }: DiscoverPostTileProps) {
       accessibilityLabel={t(
         isVideo ? "discover.video_post_a11y" : "discover.photo_post_a11y",
       )}
-      className="aspect-square flex-1 items-center justify-center gap-2 rounded-xl bg-muted active:opacity-80"
+      className="aspect-square flex-1 active:opacity-80"
     >
-      <Icon
-        as={isVideo ? PlayIcon : ImageIcon}
-        size="xl"
-        className="text-muted-foreground/60"
-      />
-      <Text size="xs" className="font-medium text-muted-foreground">
-        {t("discover.likes_count", {
-          value: formatCompactNumber(post.likesCount),
-        })}
-      </Text>
+      <ImagePlaceholder
+        icon={isVideo ? PlayIcon : ImageIcon}
+        tint="sky"
+        className="h-full w-full gap-2 rounded-xl"
+      >
+        <Text size="xs" className="font-medium text-muted-foreground">
+          {t("discover.likes_count", {
+            value: formatCompactNumber(post.likesCount),
+          })}
+        </Text>
+      </ImagePlaceholder>
     </Pressable>
   );
 }

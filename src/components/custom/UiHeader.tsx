@@ -1,5 +1,6 @@
+import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { ROUTES } from "@/routes";
-import { useSettingStore } from "@/stores/setting.store";
+import { useAuthStore } from "@/stores/auth.store";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
@@ -72,9 +73,9 @@ export function UiHeader({
   transparent = false,
   alwaysShowBar = false,
 }: HeaderProps) {
-  const { theme } = useSettingStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDarkMode();
   const { t } = useTranslation();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   const handleBack = () => {
     if (onBackPress) {
@@ -84,7 +85,11 @@ export function UiHeader({
     if (backAction === "home") {
       router.replace(ROUTES.AUTH.HOME);
     } else if (backAction === "back") {
-      router.back();
+      if (router.canGoBack()) {
+        router.back();
+      } else {
+        router.replace(isAuthenticated ? ROUTES.TABS.FEED : ROUTES.AUTH.HOME);
+      }
     } else {
       router.replace(backAction as any);
     }

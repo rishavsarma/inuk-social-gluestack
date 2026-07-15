@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
-import { ArrowLeftIcon, SearchIcon, X } from "lucide-react-native";
+import { ArrowLeftIcon, Flame, SearchIcon, Users, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 import { View } from "react-native";
@@ -113,11 +113,14 @@ const SearchScreen = () => {
   const listEmptyComponent = useMemo(() => {
     if (!debouncedQuery.trim()) {
       return (
-        <VStack space="lg" className="pt-2">
+        <VStack space="xl" className="pt-2">
           <VStack space="sm">
-            <Heading size="sm" className="px-4 text-foreground">
-              {t("search.trending_searches")}
-            </Heading>
+            <HStack space="xs" className="items-center px-4">
+              <Icon as={Flame} size="sm" className="text-theme" />
+              <Heading size="sm" className="font-baloo-bold text-foreground">
+                {t("search.trending_searches")}
+              </Heading>
+            </HStack>
             <HStack space="sm" className="flex-row flex-wrap px-4">
               {MOCK_TRENDING_TOPICS.map((topic) => (
                 <Pressable
@@ -127,18 +130,26 @@ const SearchScreen = () => {
                   accessibilityLabel={topic.tag}
                   className="active:opacity-70"
                 >
-                  <Badge variant="outline" className="rounded-full px-3 py-1.5">
-                    <BadgeText className="normal-case">#{topic.tag}</BadgeText>
+                  <Badge
+                    variant="outline"
+                    className="rounded-full border-theme/20 bg-theme/10 px-3 py-1.5"
+                  >
+                    <BadgeText className="normal-case font-semibold text-theme">
+                      #{topic.tag}
+                    </BadgeText>
                   </Badge>
                 </Pressable>
               ))}
             </HStack>
           </VStack>
 
-          <VStack>
-            <Heading size="sm" className="px-4 pb-1 text-foreground">
-              {t("search.suggested_for_you")}
-            </Heading>
+          <VStack space="xs">
+            <HStack space="xs" className="items-center px-4 pb-1">
+              <Icon as={Users} size="sm" className="text-theme" />
+              <Heading size="sm" className="font-baloo-bold text-foreground">
+                {t("search.suggested_for_you")}
+              </Heading>
+            </HStack>
             {suggestedProfiles.map((profile) => (
               <ProfileListItem
                 key={profile.id}
@@ -182,7 +193,7 @@ const SearchScreen = () => {
       <HStack
         space="sm"
         style={{ paddingTop: Math.max(topInset, 12) }}
-        className="items-center border-b border-border/60 bg-background px-3 pb-3"
+        className="items-center border-b border-black/8 bg-background px-3 pb-3 dark:border-white/8"
       >
         <Button
           variant="secondary"
@@ -190,13 +201,13 @@ const SearchScreen = () => {
           onPress={() => router.back()}
           accessibilityRole="button"
           accessibilityLabel={t("common.go_back")}
-          className="h-10 w-10 rounded-full"
+          className="h-10 w-10 rounded-full opacity-90"
         >
-          <ButtonIcon as={ArrowLeftIcon} />
+          <ButtonIcon as={ArrowLeftIcon} size="lg" />
         </Button>
-        <Input className="flex-1 rounded-full">
+        <Input className="flex-1 rounded-full border-transparent bg-muted/40 dark:bg-input/30">
           <InputSlot className="pl-3">
-            <InputIcon as={SearchIcon} />
+            <InputIcon as={SearchIcon} className="text-muted-foreground" />
           </InputSlot>
           <InputField
             autoFocus

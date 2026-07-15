@@ -338,7 +338,7 @@ export function CreatePreview({
                 className={
                   isSelected
                     ? "flex-1 items-center gap-1.5 rounded-xl border border-theme bg-theme/10 px-2 py-3.5"
-                    : "flex-1 items-center gap-1.5 rounded-xl border border-border bg-muted/30 px-2 py-3.5"
+                    : "flex-1 items-center gap-1.5 rounded-xl border border-border bg-card/70 px-2 py-3.5"
                 }
               >
                 <Icon

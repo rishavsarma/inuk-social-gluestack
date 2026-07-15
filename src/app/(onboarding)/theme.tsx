@@ -23,27 +23,7 @@ import { THEMES } from "@/constants";
 import { ROUTES } from "@/routes";
 import { useSettingStore } from "@/stores/setting.store";
 import Logo from "@/components/custom/Logo";
-
-function ThemeSwatch({ id }: { id: AppTheme }) {
-  if (id === "system") {
-    return (
-      <HStack className="h-11 w-16 overflow-hidden rounded-lg border border-border">
-        <View className="flex-1 bg-white" />
-        <View className="flex-1 bg-neutral-950" />
-      </HStack>
-    );
-  }
-
-  return (
-    <View
-      className={
-        id === "light"
-          ? "h-11 w-16 rounded-lg border border-border bg-white"
-          : "h-11 w-16 rounded-lg border border-border bg-neutral-950"
-      }
-    />
-  );
-}
+import { ThemeSwatch } from "@/components/custom/ThemeSwatch";
 
 const OnboardingTheme = () => {
   const { t } = useTranslation();

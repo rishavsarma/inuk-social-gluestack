@@ -50,10 +50,16 @@ export const ROUTES = {
     NETWORK: (userId: string | number, tab: "followers" | "following") =>
       `/profile/network?userId=${userId}&tab=${tab}` as const,
     MENU: "/profile-menu" as const,
-    SETTINGS: "/settings" as const,
     EDIT_PROFILE: "/settings/edit-profile" as const,
     CHANGE_PASSWORD: "/settings/change-password" as const,
     POINTS: "/settings/points" as const,
+    VERIFICATION: "/profile-menu/verification" as const,
+    PRIVACY: "/profile-menu/privacy" as const,
+    NOTIFICATION_PREFS: "/profile-menu/notifications" as const,
+    BLOCKED: "/profile-menu/blocked" as const,
+    DATA_PRIVACY: "/profile-menu/data-privacy" as const,
+    LANGUAGE: "/profile-menu/language" as const,
+    THEME: "/profile-menu/theme" as const,
     MY_POSTS: "/my-posts" as const,
   },
   LEGAL: {
@@ -65,4 +71,4 @@ export const ROUTES = {
 export type AppRoute =
   | (typeof ROUTES.AUTH)[keyof typeof ROUTES.AUTH]
   | (typeof ROUTES.TABS)[keyof typeof ROUTES.TABS]
-  | typeof ROUTES.USER.SETTINGS;
+  | typeof ROUTES.USER.MENU;

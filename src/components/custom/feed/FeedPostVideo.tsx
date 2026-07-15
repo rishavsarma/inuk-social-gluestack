@@ -12,7 +12,7 @@ import { useTranslation } from "react-i18next";
 
 import { useFeedVideoStore } from "@/stores/feed-video.store";
 
-import { useSettingStore } from "@/stores/setting.store";
+import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { Button, ButtonIcon } from "@/components/ui/button";
 
 interface FeedPostVideoProps {
@@ -30,8 +30,7 @@ function applyPlayerMuted(player: VideoPlayer, muted: boolean) {
 
 function FeedPostVideo({ id, uri, posterUri }: FeedPostVideoProps) {
   const { t } = useTranslation();
-  const { theme } = useSettingStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDarkMode();
 
   const isActive = useFeedVideoStore((s) => s.activeVideoId === id);
   // The feed list only updates `activeVideoId` on scroll, so it doesn't

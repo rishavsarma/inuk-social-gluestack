@@ -46,6 +46,7 @@ import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { useInitiateJourney } from "@/hooks/useAuth";
 import type { ApiError } from "@/services/api";
 import { ROUTES } from "@/routes";
+import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { useJourneyStore } from "@/stores/journey.store";
 import { useSettingStore } from "@/stores/setting.store";
 import { Platform } from "react-native";
@@ -53,7 +54,7 @@ import Logo from "@/components/custom/Logo";
 
 const AuthHome = () => {
   const { t, i18n } = useTranslation();
-  const { theme, setTheme, language, setLanguage } = useSettingStore();
+  const { setTheme, language, setLanguage } = useSettingStore();
   const bottomInset = useAppBottomInset();
   const router = useRouter();
 
@@ -68,7 +69,7 @@ const AuthHome = () => {
 
   const { isPending, mutateAsync: initiateJourney } = useInitiateJourney();
 
-  const isDark = theme === "dark";
+  const isDark = useIsDarkMode();
 
   const toggleIOSTheme = () => {
     switchTheme({

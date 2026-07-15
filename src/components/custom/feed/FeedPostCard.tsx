@@ -26,7 +26,7 @@ import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useSettingStore } from "@/stores/setting.store";
+import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 
 import { FeedPostVideo } from "@/components/custom/feed/FeedPostVideo";
 
@@ -58,8 +58,7 @@ function FeedPostCardComponent({
   onSharePress,
 }: FeedPostCardProps) {
   const { t } = useTranslation();
-  const { theme } = useSettingStore();
-  const isDark = theme === "dark";
+  const isDark = useIsDarkMode();
 
   const avatarUrl = post.author?.avatar_url ?? undefined;
   const displayName =
@@ -68,6 +67,7 @@ function FeedPostCardComponent({
     ? formatDistanceToNow(new Date(post.created_at), { addSuffix: true })
     : "";
   const caption = post.caption || "";
+  const location = post.location || "";
   const mediaItem = post.media?.[0] ?? null;
   const mediaUrl = mediaItem?.url ?? null;
   const isLiked = !!post.is_liked;
@@ -76,7 +76,7 @@ function FeedPostCardComponent({
   const sharesCount = post.shares_count ?? 0;
   const isMe = post.author?.is_me ?? false;
   return (
-    <Card className="gap-3 overflow-hidden rounded-none border-0 px-0 pb-0 ">
+    <Card className="gap-3 overflow-hidden rounded-none border-0 px-0 pb-0 shadow-xs">
       <VStack space="xs">
         <HStack space="lg" className="justify-between items-center px-2">
           <Pressable onPress={() => onProfilePress(post)} className="flex-1">
@@ -95,13 +95,17 @@ function FeedPostCardComponent({
                   {displayName}
                 </Text>
                 <HStack space="xxs" className="items-center">
-                  <Text
-                    size="xs"
-                    className="leading-none text-muted-foreground"
-                  >
-                    Kunja
-                  </Text>
-                  <Icon as={Dot} size="sm" className="" />
+                  {location ? (
+                    <>
+                      <Text
+                        size="xs"
+                        className="leading-none text-muted-foreground"
+                      >
+                        {location}
+                      </Text>
+                      <Icon as={Dot} size="sm" className="" />
+                    </>
+                  ) : null}
                   <Text
                     size="xs"
                     className="leading-none text-muted-foreground"
@@ -153,7 +157,10 @@ function FeedPostCardComponent({
           accessibilityLabel={t("feed.view_post_a11y")}
         >
           {caption && (
-            <Text size="md" className="px-2 pb-1">
+            <Text
+              size="md"
+              className="px-2 py-1 font-medium tracking-tight font-inter-medium text-foreground/80"
+            >
               {caption.trim()}
             </Text>
           )}

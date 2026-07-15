@@ -126,7 +126,7 @@ interface MapTileProps {
   longitude: number;
 }
 
-const MapTile = React.memo(function MapTile({
+export const MapTile = React.memo(function MapTile({
   latitude,
   longitude,
 }: MapTileProps) {
@@ -169,7 +169,11 @@ const MapTile = React.memo(function MapTile({
 
           {/* Crosshair ring */}
           <View className="h-14 w-14 items-center justify-center rounded-full border-2 border-rose-400/40 bg-rose-400/10">
-            <Icon as={MapPinIcon} size="xl" className={POST_METADATA_TINTS.rose.iconColor} />
+            <Icon
+              as={MapPinIcon}
+              size="xl"
+              className={POST_METADATA_TINTS.rose.iconColor}
+            />
           </View>
 
           {/* Coords badge */}

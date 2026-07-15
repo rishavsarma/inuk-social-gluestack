@@ -11,3 +11,12 @@ export function useSearchLocations(query: string) {
     staleTime: 60_000,
   });
 }
+
+export function useLocationDetails(locationId?: string) {
+  return useQuery({
+    queryKey: ["location-detail", locationId],
+    queryFn: () => locationService.getLocationById(locationId as string),
+    enabled: !!locationId,
+    staleTime: 5 * 60_000,
+  });
+}

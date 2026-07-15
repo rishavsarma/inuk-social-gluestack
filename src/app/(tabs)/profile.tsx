@@ -135,6 +135,8 @@ const ProfileScreen = () => {
                 isLoadingPosts={isLoadingActiveTabPosts}
                 activeTab={activeTab}
                 imageSize={width / 3}
+                isOtherUser={isOtherUser}
+                userName={profileData.profile.givenName}
               />
             }
             showsVerticalScrollIndicator={false}

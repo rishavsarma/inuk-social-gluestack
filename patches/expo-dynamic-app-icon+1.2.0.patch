@@ -35,3 +35,66 @@ index 429bfe2..f37c42b 100644
  
        return name
      }
+diff --git a/node_modules/expo-dynamic-app-icon/plugin/src/withDynamicIcon.ts b/node_modules/expo-dynamic-app-icon/plugin/src/withDynamicIcon.ts
+index 35dffdd..768ff3b 100644
+--- a/node_modules/expo-dynamic-app-icon/plugin/src/withDynamicIcon.ts
++++ b/node_modules/expo-dynamic-app-icon/plugin/src/withDynamicIcon.ts
+@@ -82,6 +82,24 @@ const withIconAndroidManifest: ConfigPlugin<Props> = (config, { icons }) => {
+     const iconNamePrefix = `${config.android!.package}.MainActivity`;
+     const iconNames = Object.keys(icons);
+ 
++    // Only one of MainActivity / an icon alias is ever enabled at a time —
++    // whichever one is disabled can't resolve intents targeting it. Without
++    // copying MainActivity's own VIEW intent-filters (deep links, the Expo
++    // dev-client relaunch scheme) onto every alias too, switching to an
++    // alternate icon silently breaks deep linking and dev-client resume.
++    const mainActivity = (mainApplication.activity || []).find(
++      (activity: any) => activity.$["android:name"] === ".MainActivity",
++    );
++    const deepLinkIntentFilters = (
++      (mainActivity && mainActivity["intent-filter"]) ||
++      []
++    ).filter((filter: any) =>
++      (filter.action || []).some(
++        (action: any) =>
++          action.$["android:name"] === "android.intent.action.VIEW",
++      ),
++    );
++
+     function addIconActivityAlias(config: any[]): any[] {
+       return [
+         ...config,
+@@ -100,6 +118,7 @@ const withIconAndroidManifest: ConfigPlugin<Props> = (config, { icons }) => {
+                 { $: { "android:name": "android.intent.category.LAUNCHER" } },
+               ],
+             },
++            ...deepLinkIntentFilters,
+           ],
+         })),
+       ];
+diff --git a/node_modules/expo-dynamic-app-icon/plugin/build/withDynamicIcon.js b/node_modules/expo-dynamic-app-icon/plugin/build/withDynamicIcon.js
+index a416495..a54e8fb 100644
+--- a/node_modules/expo-dynamic-app-icon/plugin/build/withDynamicIcon.js
++++ b/node_modules/expo-dynamic-app-icon/plugin/build/withDynamicIcon.js
+@@ -49,6 +49,13 @@ const withIconAndroidManifest = (config, { icons }) => {
+         const mainApplication = getMainApplicationOrThrow(config.modResults);
+         const iconNamePrefix = `${config.android.package}.MainActivity`;
+         const iconNames = Object.keys(icons);
++        // Only one of MainActivity / an icon alias is ever enabled at a time —
++        // whichever one is disabled can't resolve intents targeting it. Without
++        // copying MainActivity's own VIEW intent-filters (deep links, the Expo
++        // dev-client relaunch scheme) onto every alias too, switching to an
++        // alternate icon silently breaks deep linking and dev-client resume.
++        const mainActivity = (mainApplication.activity || []).find((activity) => activity.$["android:name"] === ".MainActivity");
++        const deepLinkIntentFilters = ((mainActivity && mainActivity["intent-filter"]) || []).filter((filter) => (filter.action || []).some((action) => action.$["android:name"] === "android.intent.action.VIEW"));
+         function addIconActivityAlias(config) {
+             return [
+                 ...config,
+@@ -67,6 +74,7 @@ const withIconAndroidManifest = (config, { icons }) => {
+                                 { $: { "android:name": "android.intent.category.LAUNCHER" } },
+                             ],
+                         },
++                        ...deepLinkIntentFilters,
+                     ],
+                 })),
+             ];

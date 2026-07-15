@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { router } from "expo-router";
 
 import { ROUTES } from "@/routes";
+import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
 
 import { Box } from "@/components/ui/box";
 import { Heading } from "@/components/ui/heading";
@@ -33,8 +34,14 @@ function DiscoverRegionRow({ region }: DiscoverRegionRowProps) {
         space="md"
         className="items-center rounded-2xl border border-border bg-card px-4 py-3"
       >
-        <Box className="h-10 w-10 items-center justify-center rounded-full bg-muted">
-          <Icon as={MapPin} size="md" className="text-theme" />
+        <Box
+          className={`h-10 w-10 items-center justify-center rounded-full ${POST_METADATA_TINTS.rose.iconBg}`}
+        >
+          <Icon
+            as={MapPin}
+            size="md"
+            className={POST_METADATA_TINTS.rose.iconColor}
+          />
         </Box>
         <VStack className="flex-1">
           <Heading size="sm" className="text-foreground">

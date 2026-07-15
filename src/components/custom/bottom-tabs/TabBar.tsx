@@ -2,9 +2,9 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { useAppBottomInset } from "@/hooks/useAppInsets";
+import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
-import { useSettingStore } from "@/stores/setting.store";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import * as Haptics from "expo-haptics";
 import { GlassView } from "expo-glass-effect";
@@ -193,8 +193,7 @@ function TabItem({
 
 // ─── Custom tab bar ──────────────────────────────────────────────────
 export default function CustomTabBar() {
-  const theme = useSettingStore((state) => state.theme);
-  const isDark = theme === "dark";
+  const isDark = useIsDarkMode();
   const router = useRouter();
   const pathname = usePathname();
   const { width } = useWindowDimensions();

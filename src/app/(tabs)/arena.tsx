@@ -15,6 +15,7 @@ import ArenaLeaderboardRow from "@/components/custom/arena/ArenaLeaderboardRow";
 import ArenaQuizCard from "@/components/custom/arena/ArenaQuizCard";
 import { EmptyState } from "@/components/custom/feed/EmptyState";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
+import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
@@ -102,7 +103,7 @@ const ArenaScreen = () => {
             accessibilityLabel={t("arena.rewards_a11y")}
             className="h-10 w-10 rounded-full"
           >
-            <ButtonIcon as={Star} className="text-amber-500" />
+            <ButtonIcon as={Star} className={POST_METADATA_TINTS.amber.iconColor} />
           </Button>
         </HStack>
 
@@ -172,9 +173,16 @@ const ArenaScreen = () => {
             </HStack>
 
             <VStack space="xs">
-              <Heading size="sm" className="px-4 text-foreground">
-                {t("arena.podium_title")}
-              </Heading>
+              <HStack space="xs" className="items-center px-4">
+                <Icon
+                  as={Trophy}
+                  size="sm"
+                  className={POST_METADATA_TINTS.amber.iconColor}
+                />
+                <Heading size="sm" className="font-baloo-bold text-foreground">
+                  {t("arena.podium_title")}
+                </Heading>
+              </HStack>
               <VStack>
                 {podium.map((entry) => (
                   <ArenaLeaderboardRow key={entry.id} entry={entry} />

@@ -3,6 +3,8 @@ import React from "react";
 import { Trophy } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
+import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
+
 import { Box } from "@/components/ui/box";
 import { Button, ButtonText } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
@@ -24,8 +26,14 @@ function ArenaWinningRow({ winning, claimed, onClaim }: ArenaWinningRowProps) {
       space="md"
       className="items-center rounded-xl border border-border bg-card px-4 py-3"
     >
-      <Box className="h-10 w-10 items-center justify-center rounded-full bg-amber-500/10 dark:bg-amber-500/20">
-        <Icon as={Trophy} size="md" className="text-amber-500" />
+      <Box
+        className={`h-10 w-10 items-center justify-center rounded-full ${POST_METADATA_TINTS.amber.iconBg}`}
+      >
+        <Icon
+          as={Trophy}
+          size="md"
+          className={POST_METADATA_TINTS.amber.iconColor}
+        />
       </Box>
       <VStack className="flex-1">
         <Text className="text-sm font-semibold text-foreground">

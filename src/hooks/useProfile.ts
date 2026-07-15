@@ -19,6 +19,11 @@ export function useGetProfile(profileId: string) {
       return { profile, stats };
     },
     enabled: !!profileId,
+    // Profile screen and profile-menu both subscribe to this key — without
+    // a staleTime, mounting the second subscriber triggers a background
+    // refetch that flips isRefetching (and the pull-to-refresh spinner) on
+    // the profile screen underneath, not just the one navigated to.
+    staleTime: 30_000,
   });
 }
 

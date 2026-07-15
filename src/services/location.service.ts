@@ -12,4 +12,11 @@ export const locationService = {
     );
     return data;
   },
+
+  getLocationById: async (id: string) => {
+    const { data } = await api.get<LocationDetail>(
+      `/bhugol/api/locations/${id}`,
+    );
+    return data;
+  },
 };

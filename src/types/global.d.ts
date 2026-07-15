@@ -721,6 +721,48 @@ interface LocationSearchResult {
   matchedAlias?: string | null;
 }
 
+/** Full settlement record from GET /bhugol/api/locations/{id} — most of the
+ * demographic/amenity fields are frequently null depending on how well the
+ * source data (LGD, census, etc.) covers that particular place. */
+interface LocationDetail {
+  id: string;
+  slug: string;
+  type: string;
+  settlementClass: string | null;
+  name: string;
+  localName?: string | null;
+  breadcrumb?: string | null;
+  centroid?: { lat: number; lng: number } | null;
+  areaSqKm?: number | null;
+  elevationMinM?: number | null;
+  elevationMaxM?: number | null;
+  population?: number | null;
+  censusYear?: number | null;
+  households?: number | null;
+  sexRatio?: number | null;
+  literacyRate?: number | null;
+  roadConnectivity?: string | null;
+  nearestRailwayKm?: number | null;
+  nearestAirportKm?: number | null;
+  hasHealthcare?: boolean | null;
+  hasSchool?: boolean | null;
+  hasBank?: boolean | null;
+  hasPostOffice?: boolean | null;
+  hasInternet?: boolean | null;
+  isTouristSpot?: boolean | null;
+  touristCategory?: string | null;
+  bestSeason?: string | null;
+  primaryOccupation?: string | null;
+  mainCrops?: string | null;
+  forestCoverPct?: number | null;
+  inhabited?: boolean | null;
+  forestVillage?: boolean | null;
+  ruralUrban?: string | null;
+  description?: string | null;
+  wikipediaUrl?: string | null;
+  imageUrl?: string | null;
+}
+
 interface NotificationItem {
   id: string;
   type?: string;

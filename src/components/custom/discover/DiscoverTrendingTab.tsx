@@ -1,7 +1,7 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
-import { CompassIcon } from "lucide-react-native";
+import { CompassIcon, FlameIcon, ImageIcon, UserPlusIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { ScrollView } from "react-native";
 
@@ -12,6 +12,8 @@ import type { KeyboardAvoidingListScrollProps } from "@/components/custom/Keyboa
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
 import { Heading } from "@/components/ui/heading";
+import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
 
 import {
@@ -69,9 +71,12 @@ function DiscoverTrendingTab({
       <VStack space="lg" className="pb-2">
         {headerContent}
         <VStack space="sm">
-          <Heading size="sm" className="px-4 text-foreground">
-            {t("discover.creators_to_follow")}
-          </Heading>
+          <HStack space="xs" className="items-center px-4">
+            <Icon as={UserPlusIcon} size="sm" className="text-theme" />
+            <Heading size="sm" className="font-baloo-bold text-foreground">
+              {t("discover.creators_to_follow")}
+            </Heading>
+          </HStack>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -88,9 +93,12 @@ function DiscoverTrendingTab({
         </VStack>
 
         <VStack space="sm">
-          <Heading size="sm" className="px-4 text-foreground">
-            {t("discover.trending_topics")}
-          </Heading>
+          <HStack space="xs" className="items-center px-4">
+            <Icon as={FlameIcon} size="sm" className="text-theme" />
+            <Heading size="sm" className="font-baloo-bold text-foreground">
+              {t("discover.trending_topics")}
+            </Heading>
+          </HStack>
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -100,17 +108,22 @@ function DiscoverTrendingTab({
               <Badge
                 key={topic.id}
                 variant="outline"
-                className="rounded-full px-3 py-1.5"
+                className="rounded-full border-theme/20 bg-theme/10 px-3 py-1.5"
               >
-                <BadgeText className="normal-case">#{topic.tag}</BadgeText>
+                <BadgeText className="normal-case font-semibold text-theme">
+                  #{topic.tag}
+                </BadgeText>
               </Badge>
             ))}
           </ScrollView>
         </VStack>
 
-        <Heading size="sm" className="px-4 text-foreground">
-          {t("discover.trending_posts")}
-        </Heading>
+        <HStack space="xs" className="items-center px-4">
+          <Icon as={ImageIcon} size="sm" className="text-theme" />
+          <Heading size="sm" className="font-baloo-bold text-foreground">
+            {t("discover.trending_posts")}
+          </Heading>
+        </HStack>
       </VStack>
     ),
     [creators, handleToggleFollow, headerContent, t],

@@ -3,9 +3,11 @@ import React, { useMemo, useState } from "react";
 import {
   Building2,
   Hammer,
+  ImageIcon,
   Landmark,
   Mountain,
   PawPrint,
+  Tag,
   Trees,
   Users,
   UtensilsCrossed,
@@ -16,10 +18,11 @@ import { useTranslation } from "react-i18next";
 import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
 import { MOCK_DISCOVER_CATEGORIES } from "@/constants/mock-data";
 
+import { ImagePlaceholder } from "@/components/custom/ImagePlaceholder";
 import { Badge, BadgeText } from "@/components/ui/badge";
-import { Box } from "@/components/ui/box";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
 import { VStack } from "@/components/ui/vstack";
 
 import DiscoverCategoryTile from "./DiscoverCategoryTile";
@@ -69,31 +72,45 @@ function DiscoverCategoryTab() {
       </HStack>
 
       <VStack space="sm">
-        <Heading size="sm" className="px-4 text-foreground">
-          {t("discover.category_subcategories_title", {
-            category: t(activeCategory.labelKey),
-          })}
-        </Heading>
+        <HStack space="xs" className="items-center px-4">
+          <Icon as={Tag} size="sm" className="text-theme" />
+          <Heading size="sm" className="font-baloo-bold text-foreground">
+            {t("discover.category_subcategories_title", {
+              category: t(activeCategory.labelKey),
+            })}
+          </Heading>
+        </HStack>
         <HStack space="sm" className="flex-row flex-wrap gap-y-2 px-4">
           {activeCategory.subcategories.map((subcategory) => (
-            <Badge key={subcategory} variant="outline" className="rounded-full px-3 py-1.5">
-              <BadgeText className="normal-case">{subcategory}</BadgeText>
+            <Badge
+              key={subcategory}
+              variant="outline"
+              className="rounded-full border-theme/20 bg-theme/10 px-3 py-1.5"
+            >
+              <BadgeText className="normal-case font-semibold text-theme">
+                {subcategory}
+              </BadgeText>
             </Badge>
           ))}
         </HStack>
       </VStack>
 
       <VStack space="sm">
-        <Heading size="sm" className="px-4 text-foreground">
-          {t("discover.top_in_category", {
-            category: t(activeCategory.labelKey),
-          })}
-        </Heading>
+        <HStack space="xs" className="items-center px-4">
+          <Icon as={ImageIcon} size="sm" className="text-theme" />
+          <Heading size="sm" className="font-baloo-bold text-foreground">
+            {t("discover.top_in_category", {
+              category: t(activeCategory.labelKey),
+            })}
+          </Heading>
+        </HStack>
         <HStack space="sm" className="px-4">
           {TOP_TILE_TINTS.map((tintKey) => (
-            <Box
+            <ImagePlaceholder
               key={tintKey}
-              className={`aspect-square flex-1 rounded-xl ${POST_METADATA_TINTS[tintKey].iconBg}`}
+              icon={ImageIcon}
+              tint={tintKey}
+              className="aspect-square flex-1 rounded-xl"
             />
           ))}
         </HStack>
