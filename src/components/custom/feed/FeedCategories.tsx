@@ -31,7 +31,7 @@ export function FeedCategories() {
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 router.push(
-                  ROUTES.CONTENT.CATEGORY_DETAILS(category.id) as Href,
+                  ROUTES.CONTENT.THEME_DETAILS(category.id) as Href,
                 );
               }}
               className="px-0  py-0 data-[active=true]:bg-transparent bg-transparent"

@@ -29,21 +29,10 @@ export const ROUTES = {
       `/post-detail/${mediaId}/${postId}` as const,
     POST_COMMENTS: (mediaId: string | number, postId: string | number) =>
       `/post/${mediaId}/${postId}?comments=true` as const,
-    CATEGORY_DETAILS: (id: string) => `/category/${id}` as const,
+    THEME_DETAILS: (id: string) => `/theme/${id}` as const,
   },
   ARENA: {
     QUIZ: "/arena/quiz" as const,
-    REWARDS: "/arena/rewards" as const,
-    CONTEST_DETAILS: (id: string | number) => `/arena/contest/${id}` as const,
-  },
-  DISCOVER: {
-    PLACE_DETAILS: (id: string | number) => `/place/${id}` as const,
-    REGION_DETAILS: (id: string | number) => `/region/${id}` as const,
-    DISTRICT_DETAILS: (id: string | number) => `/district/${id}` as const,
-    BLOCK_DETAILS: (id: string | number) => `/block/${id}` as const,
-    SETTLEMENT_DETAILS: (id: string | number) => `/settlement/${id}` as const,
-    LOCALITY_DETAILS: (id: string | number) => `/locality/${id}` as const,
-    POI_DETAILS: (id: string | number) => `/poi/${id}` as const,
   },
   USER: {
     PROFILE: (id: string | number) => `/(tabs)/profile?id=${id}` as const,

@@ -97,6 +97,7 @@ function FeedPostVideo({ id, uri, posterUri }: FeedPostVideoProps) {
           style={StyleSheet.absoluteFill}
         />
         <Button
+          variant="secondary"
           onPress={toggleMute}
           accessibilityRole="button"
           accessibilityLabel={

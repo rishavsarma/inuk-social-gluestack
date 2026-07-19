@@ -1,10 +1,11 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 
+import { isThisWeek, isToday } from "date-fns";
 import { Bell, Heart, MessageCircle, Trophy, UserPlus } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Href, router } from "expo-router";
 
-import { FlashList } from "@shopify/flash-list";
+import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
 
 import {
   Avatar,
@@ -16,6 +17,13 @@ import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Tabs,
+  TabsIndicator,
+  TabsList,
+  TabsTrigger,
+  TabsTriggerText,
+} from "@/components/ui/tabs";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
@@ -32,6 +40,18 @@ const NOTIFICATION_ICONS: Record<string, React.ComponentType<any>> = {
   FOLLOW: UserPlus,
   AWARD: Trophy,
 };
+
+type NotificationFilter = "all" | "activity" | "follows" | "awards";
+const NOTIFICATION_FILTERS: NotificationFilter[] = [
+  "all",
+  "activity",
+  "follows",
+  "awards",
+];
+
+type NotificationListEntry =
+  | { kind: "header"; id: string; label: string }
+  | { kind: "notification"; id: string; notification: NotificationItem };
 
 const NotificationRow = ({ item }: { item: NotificationItem }) => {
   const { t } = useTranslation();
@@ -115,9 +135,91 @@ const NotificationsScreen = () => {
     refetch,
   } = useGetNotifications();
 
+  const [activeFilter, setActiveFilter] = useState<NotificationFilter>("all");
+
+  const filteredNotifications = useMemo(() => {
+    if (activeFilter === "activity") {
+      return notifications.filter(
+        (item) => item.type === "LIKE" || item.type === "COMMENT",
+      );
+    }
+    if (activeFilter === "follows") {
+      return notifications.filter((item) => item.type === "FOLLOW");
+    }
+    if (activeFilter === "awards") {
+      return notifications.filter((item) => item.type === "AWARD");
+    }
+    return notifications;
+  }, [notifications, activeFilter]);
+
+  const groupedEntries = useMemo<NotificationListEntry[]>(() => {
+    const groups: { label: string; items: NotificationItem[] }[] = [
+      { label: t("notifications.group_today"), items: [] },
+      { label: t("notifications.group_this_week"), items: [] },
+      { label: t("notifications.group_earlier"), items: [] },
+    ];
+
+    filteredNotifications.forEach((item) => {
+      const rawDate = item.createdAt ?? item.dateCreated;
+      const date = rawDate ? new Date(rawDate) : null;
+      if (date && isToday(date)) {
+        groups[0].items.push(item);
+      } else if (date && isThisWeek(date, { weekStartsOn: 1 })) {
+        groups[1].items.push(item);
+      } else {
+        groups[2].items.push(item);
+      }
+    });
+
+    return groups.flatMap((group) =>
+      group.items.length === 0
+        ? []
+        : [
+            {
+              kind: "header" as const,
+              id: `header-${group.label}`,
+              label: group.label,
+            },
+            ...group.items.map((item) => ({
+              kind: "notification" as const,
+              id: item.id,
+              notification: item,
+            })),
+          ],
+    );
+  }, [filteredNotifications, t]);
+
   const renderItem = useCallback(
-    ({ item }: { item: NotificationItem }) => <NotificationRow item={item} />,
+    ({ item }: ListRenderItemInfo<NotificationListEntry>) =>
+      item.kind === "header" ? (
+        <Text className="px-4 pb-2 pt-5 font-baloo-bold text-xs uppercase tracking-wider text-muted-foreground">
+          {item.label}
+        </Text>
+      ) : (
+        <NotificationRow item={item.notification} />
+      ),
     [],
+  );
+
+  const filterTabs = (
+    <Tabs
+      value={activeFilter}
+      onValueChange={(value: NotificationFilter) => setActiveFilter(value)}
+      variant="underlined"
+      orientation="horizontal"
+      className="px-4 pt-1"
+    >
+      <TabsList className="bg-transparent rounded-none pb-0.5">
+        {NOTIFICATION_FILTERS.map((filter) => (
+          <TabsTrigger key={filter} value={filter} className="flex-1">
+            <TabsTriggerText>
+              {t(`notifications.filter_${filter}`)}
+            </TabsTriggerText>
+          </TabsTrigger>
+        ))}
+        <TabsIndicator className="border-b" />
+      </TabsList>
+    </Tabs>
   );
 
   const listEmptyComponent = isLoading ? (
@@ -131,6 +233,13 @@ const NotificationsScreen = () => {
       description={t("notifications.error_sub")}
       actionLabel={t("notifications.retry")}
       onAction={refetch}
+      fullScreen={false}
+    />
+  ) : notifications.length > 0 ? (
+    <EmptyState
+      icon={Bell}
+      title={t("notifications.empty_filtered")}
+      description={t("notifications.empty_filtered_sub")}
       fullScreen={false}
     />
   ) : (
@@ -151,11 +260,17 @@ const NotificationsScreen = () => {
     >
       {({ scrollProps, topInset }) => (
         <FlashList
-          data={notifications}
+          data={groupedEntries}
           renderItem={renderItem}
-          keyExtractor={(item: NotificationItem) => item.id}
+          keyExtractor={(entry: NotificationListEntry) => entry.id}
+          getItemType={(entry: NotificationListEntry) => entry.kind}
           refreshing={isRefetching}
           onRefresh={refetch}
+          ListHeaderComponent={
+            !isLoading && !isError && notifications.length > 0
+              ? filterTabs
+              : null
+          }
           ListEmptyComponent={listEmptyComponent}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{

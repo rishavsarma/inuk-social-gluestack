@@ -1,48 +1,36 @@
 import React from "react";
 
-import { Avatar, AvatarFallbackText } from "@/components/ui/avatar";
+import { useColorScheme } from "react-native";
+
 import { Box } from "@/components/ui/box";
-import { HStack } from "@/components/ui/hstack";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
-import { formatCompactNumber } from "@/utils/formatNumber";
+import { WEB_FONT_BODY, WEB_FONT_ROUND, WEB_TEXT_SUB } from "@/constants/web-reference-theme";
 
 interface ArenaLeaderboardRowProps {
-  entry: ArenaLeaderboardEntry;
+  entry: WebArenaPodiumEntry;
 }
 
 function ArenaLeaderboardRow({ entry }: ArenaLeaderboardRowProps) {
-  const isTopThree = entry.rank <= 3;
+  const isDark = useColorScheme() === "dark";
 
   return (
-    <HStack space="md" className="items-center px-4 py-2">
-      <Box className="w-6 items-center">
-        <Text
-          className={
-            isTopThree
-              ? "text-base font-bold text-theme"
-              : "text-sm font-semibold text-muted-foreground"
-          }
-        >
-          {entry.rank}
-        </Text>
+    <Box
+      style={{ borderColor: isDark ? "#2b3050" : "#E3E4EC" }}
+      className="mb-2.25 flex-row items-center gap-2.75 rounded-field border p-2.75"
+    >
+      <Box style={{ backgroundColor: entry.medal }} className="h-8 w-8 items-center justify-center rounded-[10px]">
+        <Text className={`${WEB_FONT_ROUND[800]} text-[14px] text-white`}>{entry.rank}</Text>
       </Box>
-      <Avatar className="h-9 w-9">
-        <AvatarFallbackText>{entry.username}</AvatarFallbackText>
-      </Avatar>
       <VStack className="flex-1">
-        <Text className="text-sm font-semibold text-foreground">
-          @{entry.username}
+        <Text className={`${WEB_FONT_ROUND[700]} text-[14px] ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
+          @{entry.handle} ✓
         </Text>
-        <Text className="text-xs text-muted-foreground">
-          {entry.categoryLabel}
-        </Text>
+        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} text-[11.5px]`}>{entry.meta}</Text>
       </VStack>
-      <Text className="text-sm font-bold text-foreground">
-        {formatCompactNumber(entry.score)}
-      </Text>
-    </HStack>
+      <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} text-[12.5px]`}>{entry.pts}</Text>
+    </Box>
   );
 }
 

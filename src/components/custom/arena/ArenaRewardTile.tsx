@@ -1,69 +1,60 @@
-import React from "react";
+import React, { useCallback } from "react";
 
-import { Gift, Star } from "lucide-react-native";
+import { useColorScheme } from "react-native";
+
 import { useTranslation } from "react-i18next";
 
-import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
-
-import { ImagePlaceholder } from "@/components/custom/ImagePlaceholder";
-import { Button, ButtonText } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { HStack } from "@/components/ui/hstack";
-import { Icon } from "@/components/ui/icon";
+import { Box } from "@/components/ui/box";
+import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
+import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
+
+import { useWalletStore } from "@/stores/wallet.store";
+
+import { WEB_FONT_ROUND, WEB_PALETTE } from "@/constants/web-reference-theme";
 
 interface ArenaRewardTileProps {
-  reward: ArenaReward;
-  canAfford: boolean;
-  redeemed: boolean;
-  onRedeem: (reward: ArenaReward) => void;
+  reward: WebArenaReward;
 }
 
-function ArenaRewardTile({
-  reward,
-  canAfford,
-  redeemed,
-  onRedeem,
-}: ArenaRewardTileProps) {
+function ArenaRewardTile({ reward }: ArenaRewardTileProps) {
   const { t } = useTranslation();
-  const tint = POST_METADATA_TINTS[reward.tint];
+  const toast = useToast();
+  const isDark = useColorScheme() === "dark";
+  const spendPoints = useWalletStore((state) => state.spendPoints);
+
+  const handlePress = useCallback(() => {
+    const success = spendPoints(reward.pts, "sparks.txn_reward_redeem");
+    if (!success) {
+      toast.show({
+        placement: "bottom",
+        render: ({ id }) => (
+          <Toast nativeID={`toast-${id}`} action="muted" variant="solid">
+            <ToastDescription>{t("rewards.not_enough_sparks")}</ToastDescription>
+          </Toast>
+        ),
+      });
+    }
+  }, [reward.pts, spendPoints, t, toast]);
 
   return (
-    <Card className="flex-1 gap-2 rounded-2xl p-0">
-      <ImagePlaceholder
-        icon={Gift}
-        tint={reward.tint}
-        className="h-20 w-full rounded-t-2xl"
-      />
-      <VStack space="xs" className="px-3 pb-3">
-        <Text className="text-sm font-semibold text-foreground" numberOfLines={1}>
-          {reward.title}
+    <Pressable
+      onPress={handlePress}
+      accessibilityRole="button"
+      accessibilityLabel={reward.name}
+      style={{ borderColor: isDark ? "#2b3050" : "#E3E4EC" }}
+      className="flex-1 overflow-hidden rounded-field border"
+    >
+      <Box style={{ backgroundColor: reward.col }} className="h-14.5" />
+      <Box className="p-2.5">
+        <Text className={`${WEB_FONT_ROUND[700]} text-[13px] ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
+          {reward.name}
         </Text>
-        <HStack space="xs" className="items-center">
-          <Icon as={Star} size="xs" className={tint.iconColorFilled} />
-          <Text className="text-xs text-muted-foreground">{reward.cost}</Text>
-        </HStack>
-        <Button
-          size="sm"
-          variant={redeemed ? "outline" : "theme"}
-          disabled={redeemed || !canAfford}
-          onPress={() => onRedeem(reward)}
-          accessibilityRole="button"
-          accessibilityLabel={t("rewards.redeem_a11y", {
-            title: reward.title,
-            cost: reward.cost,
-          })}
-          className="rounded-full"
-        >
-          <ButtonText className={redeemed ? "" : "text-white"}>
-            {redeemed
-              ? t("rewards.redeemed")
-              : t("rewards.redeem_button", { cost: reward.cost })}
-          </ButtonText>
-        </Button>
-      </VStack>
-    </Card>
+        <Text style={{ color: WEB_PALETTE.red }} className={`${WEB_FONT_ROUND[700]} mt-0.5 text-[11.5px]`}>
+          ★ {reward.pts}
+        </Text>
+      </Box>
+    </Pressable>
   );
 }
 

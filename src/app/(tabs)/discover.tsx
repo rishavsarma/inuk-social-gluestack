@@ -1,109 +1,156 @@
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
-import { SearchIcon } from "lucide-react-native";
-import { router } from "expo-router";
-import { useTranslation } from "react-i18next";
+import { Search } from "lucide-react-native";
+import { useColorScheme } from "react-native";
 
-import DiscoverCategoryTab from "@/components/custom/discover/DiscoverCategoryTab";
-import DiscoverLocationTab from "@/components/custom/discover/DiscoverLocationTab";
-import DiscoverTagTab from "@/components/custom/discover/DiscoverTagTab";
-import DiscoverTrendingTab from "@/components/custom/discover/DiscoverTrendingTab";
-import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
-import { Button, ButtonIcon } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
-import { HStack } from "@/components/ui/hstack";
-import {
-  Tabs,
-  TabsIndicator,
-  TabsList,
-  TabsTrigger,
-  TabsTriggerText,
-} from "@/components/ui/tabs";
-import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
+import CategoryDetailModal from "@/components/custom/discover/CategoryDetailModal";
+import CategoryLens from "@/components/custom/discover/CategoryLens";
+import LocationLens from "@/components/custom/discover/LocationLens";
+import PlaceHubModal from "@/components/custom/discover/PlaceHubModal";
+import TagLens from "@/components/custom/discover/TagLens";
+import TrendingLens from "@/components/custom/discover/TrendingLens";
+
+import { Box } from "@/components/ui/box";
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+import { Pressable } from "@/components/ui/pressable";
+import { ScrollView } from "@/components/ui/scroll-view";
+import { Text } from "@/components/ui/text";
+import { View } from "@/components/ui/view";
 import { VStack } from "@/components/ui/vstack";
 
-import { ROUTES } from "@/routes";
+import { TAX, type WebTrendingTag } from "@/constants/discover-web-data";
+import { WEB_FONT_ROUND, WEB_PALETTE, WEB_TEXT_INK, WEB_TEXT_SUB } from "@/constants/web-reference-theme";
 
-type DiscoverTab = "location" | "category" | "tag" | "trending";
-const TABS: DiscoverTab[] = ["location", "category", "tag", "trending"];
+const LENSES = ["Location", "Category", "Tag", "Trending"] as const;
+type DiscoverLens = (typeof LENSES)[number];
 
 const DiscoverScreen = () => {
-  const { t } = useTranslation();
-  const toast = useToast();
-  const [activeTab, setActiveTab] = useState<DiscoverTab>("location");
+  const isDark = useColorScheme() === "dark";
+  const [lens, setLens] = useState<DiscoverLens>("Category");
+  const [openCat, setOpenCat] = useState<TaxonomyCategory | null>(null);
+  const [subject, setSubject] = useState<DiscoverSubject | null>(null);
+  const [q, setQ] = useState("");
 
-  const showComingSoonToast = useCallback(() => {
-    toast.show({
-      placement: "bottom",
-      render: ({ id }) => (
-        <Toast nativeID={`toast-${id}`} action="muted" variant="solid">
-          <ToastDescription>{t("discover.coming_soon")}</ToastDescription>
-        </Toast>
-      ),
+  const openEntity = useCallback((name: string, cat: TaxonomyCategory, sub: string) => {
+    setSubject({
+      name,
+      breadcrumb: `${cat.displayTitle} · ${sub}`,
+      colour: cat.colour,
+      onColour: cat.onColour,
+      icon: cat.icon,
+      theme: cat.theme,
     });
-  }, [t, toast]);
+  }, []);
 
-  const header = (
-    <VStack space="md" className="pb-2">
-      <HStack className="items-center justify-between px-4 pt-2">
-        <Heading size="xl">{t("discover.title")}</Heading>
-        <Button
-          variant="secondary"
-          size="icon"
-          onPress={() => router.push(ROUTES.TABS.EXPLORE)}
-          accessibilityRole="button"
-          accessibilityLabel={t("discover.search_a11y")}
-          className="h-10 w-10 rounded-full"
-        >
-          <ButtonIcon as={SearchIcon} />
-        </Button>
-      </HStack>
+  const openTag = useCallback((t: WebTrendingTag) => {
+    setSubject({
+      name: "#" + t.tag,
+      breadcrumb: `Tag · ${t.posts.toLocaleString()} posts`,
+      colour: WEB_PALETTE.red,
+      onColour: "#FFFFFF",
+      icon: "mdi:pound",
+      theme: null,
+    });
+  }, []);
 
-      <Tabs
-        value={activeTab}
-        onValueChange={(value: DiscoverTab) => setActiveTab(value)}
-        variant="filled"
-        orientation="horizontal"
-        className="px-4"
-      >
-        <TabsList className="rounded-full">
-          {TABS.map((tabKey) => (
-            <TabsTrigger key={tabKey} value={tabKey} className="flex-1 rounded-full">
-              <TabsTriggerText className="data-[selected=true]:text-white">
-                {t(`discover.tab_${tabKey}`)}
-              </TabsTriggerText>
-            </TabsTrigger>
-          ))}
-          <TabsIndicator className="rounded-full bg-theme" />
-        </TabsList>
-      </Tabs>
-    </VStack>
-  );
-
-  if (activeTab === "trending") {
-    return (
-      <KeyboardAvoidingScrollView variant="list">
-        {({ scrollProps, topInset }) => (
-          <DiscoverTrendingTab
-            onPostPress={showComingSoonToast}
-            topInset={topInset}
-            scrollProps={scrollProps}
-            headerContent={header}
-          />
-        )}
-      </KeyboardAvoidingScrollView>
+  const results = useMemo(() => {
+    const trimmed = q.trim();
+    if (!trimmed) return null;
+    const needle = trimmed.toLowerCase();
+    return TAX.categories.filter((x) =>
+      (x.displayTitle + " " + x.title + " " + x.subs.map((s) => s.title).join(" "))
+        .toLowerCase()
+        .includes(needle),
     );
-  }
+  }, [q]);
+
+  const bg = isDark ? "#12142A" : "#FFFFFF";
+  const inputBg = isDark ? "#20233B" : "#F0F0F3";
 
   return (
-    <KeyboardAvoidingScrollView contentContainerStyle={{ paddingBottom: 160 }}>
-      <VStack className="pb-2">
-        {header}
-        {activeTab === "location" && <DiscoverLocationTab />}
-        {activeTab === "category" && <DiscoverCategoryTab />}
-        {activeTab === "tag" && <DiscoverTagTab />}
-      </VStack>
-    </KeyboardAvoidingScrollView>
+    <View className="flex-1" style={{ backgroundColor: bg }}>
+      <Box className="px-4.5 pb-1.5 pt-13">
+        <Text className={`${WEB_FONT_ROUND[800]} ${WEB_TEXT_INK} text-[27px]`}>Discover</Text>
+        <Input
+          style={{ backgroundColor: inputBg }}
+          className="mt-2.5 h-10 min-h-0 rounded-full border-0 px-0"
+        >
+          <InputSlot className="pl-3.5">
+            <InputIcon as={Search} className={WEB_TEXT_SUB} />
+          </InputSlot>
+          <InputField
+            value={q}
+            onChangeText={setQ}
+            placeholder="Search places, people, tags"
+            placeholderTextColor={isDark ? "#C4C8DB" : "rgba(27,31,59,0.6)"}
+            autoCapitalize="none"
+            autoCorrect={false}
+            returnKeyType="search"
+            accessibilityLabel="Search places, people, tags"
+            className={`${WEB_TEXT_INK} text-[14px]`}
+          />
+        </Input>
+        {!q.trim() ? (
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerClassName="mt-3 gap-2">
+            {LENSES.map((l) => (
+              <Pressable
+                key={l}
+                onPress={() => setLens(l)}
+                accessibilityRole="button"
+                accessibilityLabel={l}
+                style={{ backgroundColor: lens === l ? WEB_PALETTE.red : inputBg }}
+                className="h-8.5 items-center justify-center rounded-full px-4"
+              >
+                <Text
+                  style={{ color: lens === l ? "#FFFFFF" : undefined }}
+                  className={`${lens === l ? WEB_FONT_ROUND[700] : WEB_FONT_ROUND[500]} text-[13.5px] ${
+                    lens === l ? "" : WEB_TEXT_SUB
+                  }`}
+                >
+                  {l}
+                </Text>
+              </Pressable>
+            ))}
+          </ScrollView>
+        ) : null}
+      </Box>
+
+      {results ? (
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingHorizontal: 14, paddingTop: 10 }}>
+          <Box className="flex-row flex-wrap gap-2.5">
+            {results.map((cat) => (
+              <Pressable
+                key={cat.title}
+                onPress={() => setOpenCat(cat)}
+                accessibilityRole="button"
+                accessibilityLabel={cat.displayTitle}
+                style={{ flexBasis: "47.5%", flexGrow: 1, backgroundColor: cat.background, minHeight: 104 }}
+                className="justify-between rounded-2xl p-3.5"
+              >
+                <VStack>
+                  <Text numberOfLines={1} style={{ color: cat.text }} className={`${WEB_FONT_ROUND[700]} text-[15.5px]`}>
+                    {cat.displayTitle}
+                  </Text>
+                  <Text style={{ color: cat.text }} className="text-[11.5px] opacity-75">
+                    {cat.subCount} topics · {cat.entCount} places
+                  </Text>
+                </VStack>
+              </Pressable>
+            ))}
+          </Box>
+        </ScrollView>
+      ) : (
+        <>
+          {lens === "Category" ? <CategoryLens onCat={setOpenCat} onEntity={openEntity} /> : null}
+          {lens === "Location" ? <LocationLens onPlace={setSubject} /> : null}
+          {lens === "Tag" ? <TagLens onTag={openTag} /> : null}
+          {lens === "Trending" ? <TrendingLens onEntity={openEntity} /> : null}
+        </>
+      )}
+
+      <CategoryDetailModal category={openCat} onClose={() => setOpenCat(null)} onEntity={openEntity} />
+      <PlaceHubModal subject={subject} onClose={() => setSubject(null)} />
+    </View>
   );
 };
 

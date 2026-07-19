@@ -1,16 +1,13 @@
-import { Card } from "@/components/ui/card";
-import { Heading } from "@/components/ui/heading";
 import { Text } from "@/components/ui/text";
-import { VStack } from "@/components/ui/vstack";
 
 function PostCaption({ post }: { post: PostDetail }) {
+  const caption = post.post.title || post.post.caption;
+  if (!caption) return null;
+
   return (
-    <Card className="border-0 rounded-none shadow-none">
-      <VStack>
-        <Heading>{post.post.title}</Heading>
-        <Text>{post.post.caption}</Text>
-      </VStack>
-    </Card>
+    <Text numberOfLines={3} className="px-4 pb-2.5 font-inter text-sm text-foreground">
+      {caption}
+    </Text>
   );
 }
 

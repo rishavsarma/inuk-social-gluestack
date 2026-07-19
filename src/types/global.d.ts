@@ -291,6 +291,7 @@ interface ProfileMediaItem {
   blurHash?: string;
   dateCreated?: number;
   s3Url?: string;
+  thumbnailUrl?: string;
 }
 
 type media = {
@@ -471,16 +472,9 @@ interface FeedPostItem {
   shares_count?: number;
   saves_count?: number;
   location?: string | null;
+  location_id?: string | null;
   tags?: string[];
 }
-
-interface DiscoverPost {
-  id: string;
-  type: "image" | "video";
-  likesCount: number;
-}
-
-type ArenaContestStatus = "ACTIVE" | "UPCOMING" | "ENDED";
 
 /** Mirrors the keys of `POST_METADATA_TINTS` in
  * `src/constants/post-metadata-tints.ts` — kept as a literal union here
@@ -496,26 +490,88 @@ type MetadataTintKey =
   | "emerald"
   | "green";
 
-interface ArenaContestItem {
-  id: string;
+/* ---- Taxonomy (byte-exact port of inuk.social-web's src/taxonomy.json) ---- */
+
+interface TaxonomySubcategory {
   title: string;
-  description: string;
-  status: ArenaContestStatus;
-  prize: string;
-  entriesCount: number;
-  endsAt: number;
-  category?: string;
-  location?: string;
-  tint?: MetadataTintKey;
+  icon: string;
+  colour: string;
+  onColour: string;
+  entities: string[];
 }
 
-interface ArenaQuizQuestion {
-  id: string;
-  question: string;
-  options: string[];
-  correctIndex: number;
+interface TaxonomyCategory {
+  theme: string;
+  title: string;
+  displayTitle: string;
+  summary: string;
+  icon: string;
+  colour: string;
+  background: string;
+  text: string;
+  onColour: string;
+  subCount: number;
+  entCount: number;
+  subs: TaxonomySubcategory[];
 }
 
+interface TaxonomyData {
+  themes: string[];
+  categories: TaxonomyCategory[];
+}
+
+/** Unified shape the PlaceHub modal renders — built on the fly from whichever source opened
+ * it (a taxonomy entity, a tag, or a popular place), mirroring web's `subject` object. */
+interface DiscoverSubject {
+  name: string;
+  breadcrumb: string;
+  colour: string;
+  onColour: string;
+  icon: string;
+  theme: string | null;
+}
+
+/* ---- Arena (byte-exact port of inuk.social-web's ARENA_* constants) ---- */
+
+interface WebArenaFeatured {
+  tag: string;
+  title: string;
+  days: number;
+  entries: string;
+  grad0: string;
+  grad1: string;
+}
+
+interface WebArenaContest {
+  title: string;
+  meta: string;
+  colour: string;
+  days: number;
+  entries: string;
+}
+
+interface WebArenaPodiumEntry {
+  rank: number;
+  handle: string;
+  meta: string;
+  pts: string;
+  medal: string;
+}
+
+interface WebArenaQuizQuestion {
+  q: string;
+  opts: string[];
+  a: number;
+}
+
+interface WebArenaReward {
+  name: string;
+  pts: number;
+  col: string;
+}
+
+/** Multi-quiz list shown outside the Arena screen itself (theme/[themeId].tsx's Quizzes tab
+ * deep-links into /arena/quiz) — web's own mockup only ever has the one "Daily Quiz". */
 interface ArenaQuiz {
   id: string;
   title: string;
@@ -524,55 +580,11 @@ interface ArenaQuiz {
   sparksPerCorrect: number;
 }
 
-interface ArenaLeaderboardEntry {
-  id: string;
-  rank: number;
-  username: string;
-  avatarUrl?: string;
-  categoryLabel: string;
-  score: number;
-}
-
-interface ArenaReward {
-  id: string;
-  title: string;
-  cost: number;
-  tint: MetadataTintKey;
-}
-
 interface ArenaWinning {
   id: string;
   label: string;
   amountLabel: string;
   sparksValue: number;
-}
-
-interface DiscoverRegion {
-  id: string;
-  name: string;
-  postsCount: number;
-  districtsCount: number;
-}
-
-interface DiscoverPlace {
-  id: string;
-  name: string;
-  type: "Village" | "Town";
-  region: string;
-  district: string;
-  coveragePercent: number;
-  postsCount: number;
-  contributorsCount: number;
-  themesCount: number;
-  tint: MetadataTintKey;
-}
-
-interface DiscoverCategory {
-  id: string;
-  labelKey: string;
-  icon: string;
-  subcategories: string[];
-  tint: MetadataTintKey;
 }
 
 interface PaginatedListResponse<T> {
@@ -610,98 +622,6 @@ interface ValidateReferralCodeResponse {
   status: "VALID" | "INVALID" | string;
   message?: string;
   data?: ReferralCodeReferrer | null;
-}
-
-type GeoLevel =
-  | "region"
-  | "district"
-  | "block"
-  | "settlement"
-  | "locality"
-  | "poi";
-
-type SettlementKind = "City" | "Town" | "Village";
-
-/** Mirrors the keys of `GEO_POI_CATEGORIES` in
- * `src/constants/geo-poi-categories.ts` — kept as a literal union here
- * (rather than imported) since this file is an ambient global script. */
-type GeoPoiCategory =
-  | "Temple"
-  | "Spring"
-  | "Viewpoint"
-  | "Homestay"
-  | "Waterfall"
-  | "Trailhead";
-
-interface GeoBreadcrumbItem {
-  id: string;
-  name: string;
-  href: string;
-}
-
-interface GeoRegion {
-  id: string;
-  name: string;
-  parentLabel: string;
-  coveragePercent: number;
-  postsCount: number;
-}
-
-interface GeoDistrict {
-  id: string;
-  regionId: string;
-  regionName: string;
-  name: string;
-  postsCount: number;
-  coveragePercent: number;
-}
-
-interface GeoBlock {
-  id: string;
-  districtId: string;
-  districtName: string;
-  regionName: string;
-  name: string;
-}
-
-interface GeoSettlement {
-  id: string;
-  blockId: string;
-  blockName: string;
-  districtName: string;
-  regionName: string;
-  name: string;
-  kind: SettlementKind;
-  coveragePercent: number;
-  postsCount: number;
-  contributorsCount: number;
-}
-
-interface GeoLocality {
-  id: string;
-  settlementId: string;
-  settlementName: string;
-  blockName: string;
-  districtName: string;
-  regionName: string;
-  name: string;
-}
-
-interface GeoPoi {
-  id: string;
-  localityId: string;
-  localityName: string;
-  settlementId: string;
-  settlementName: string;
-  blockName: string;
-  districtName: string;
-  regionName: string;
-  name: string;
-  category: GeoPoiCategory;
-  touristWorthy: boolean;
-  postsCount: number;
-  contributorsCount: number;
-  tint: MetadataTintKey;
 }
 
 interface LocationSearchResult {

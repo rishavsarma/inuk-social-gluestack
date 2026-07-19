@@ -45,7 +45,8 @@ function ProfileGridItem({
     url:
       type === "video"
         ? item.thumbnailUrl
-        : `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${item.mediaId}/jpeg/720`,
+        : (item.media?.[0]?.url ??
+          `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${item.mediaId}/jpeg/720`),
   };
 
   const typeStr = (item.type || item.postType || "photo").toLowerCase();

@@ -7,14 +7,15 @@ import { View } from "react-native";
 
 import { FlashList } from "@shopify/flash-list";
 
-import { Badge, BadgeText } from "@/components/ui/badge";
 import { Button, ButtonIcon } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import { Divider } from "@/components/ui/divider";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
 import { Pressable } from "@/components/ui/pressable";
+import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
@@ -23,11 +24,13 @@ import { useFollowUser, useSearchProfiles } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
 
 import { MOCK_SEARCH_PROFILES, MOCK_TRENDING_TOPICS } from "@/constants/mock-data";
+import { formatCompactNumber } from "@/utils/formatNumber";
 
 import { EmptyState } from "@/components/custom/feed/EmptyState";
 import ProfileListItem, {
   ProfileListItemSkeleton,
 } from "@/components/custom/profile/ProfileListItem";
+import SuggestedProfileCard from "@/components/custom/profile/SuggestedProfileCard";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -113,52 +116,67 @@ const SearchScreen = () => {
   const listEmptyComponent = useMemo(() => {
     if (!debouncedQuery.trim()) {
       return (
-        <VStack space="xl" className="pt-2">
-          <VStack space="sm">
-            <HStack space="xs" className="items-center px-4">
+        <VStack space="lg" className="px-4 pt-2">
+          <Card className="gap-3 rounded-2xl">
+            <HStack space="xs" className="items-center">
               <Icon as={Flame} size="sm" className="text-theme" />
               <Heading size="sm" className="font-baloo-bold text-foreground">
                 {t("search.trending_searches")}
               </Heading>
             </HStack>
-            <HStack space="sm" className="flex-row flex-wrap px-4">
-              {MOCK_TRENDING_TOPICS.map((topic) => (
+            <HStack space="sm" className="flex-row flex-wrap">
+              {MOCK_TRENDING_TOPICS.map((topic, index) => (
                 <Pressable
                   key={topic.id}
                   onPress={() => setQuery(topic.tag)}
                   accessibilityRole="button"
                   accessibilityLabel={topic.tag}
-                  className="active:opacity-70"
+                  className="w-[48%] gap-1 rounded-xl border border-border bg-input/10 p-3 active:opacity-70"
                 >
-                  <Badge
-                    variant="outline"
-                    className="rounded-full border-theme/20 bg-theme/10 px-3 py-1.5"
+                  <HStack className="items-center justify-between">
+                    <Text className="font-baloo-bold text-xs text-theme">
+                      #{index + 1}
+                    </Text>
+                    <Icon as={Flame} size="xs" className="text-theme/50" />
+                  </HStack>
+                  <Text
+                    numberOfLines={1}
+                    className="font-baloo-bold text-sm text-foreground"
                   >
-                    <BadgeText className="normal-case font-semibold text-theme">
-                      #{topic.tag}
-                    </BadgeText>
-                  </Badge>
+                    #{topic.tag}
+                  </Text>
+                  <Text size="xs" className="text-muted-foreground">
+                    {t("search.trending_posts_count", {
+                      count: formatCompactNumber(topic.postsCount),
+                    })}
+                  </Text>
                 </Pressable>
               ))}
             </HStack>
-          </VStack>
+          </Card>
 
-          <VStack space="xs">
-            <HStack space="xs" className="items-center px-4 pb-1">
+          <Card className="gap-3 rounded-2xl">
+            <HStack space="xs" className="items-center">
               <Icon as={Users} size="sm" className="text-theme" />
               <Heading size="sm" className="font-baloo-bold text-foreground">
                 {t("search.suggested_for_you")}
               </Heading>
             </HStack>
-            {suggestedProfiles.map((profile) => (
-              <ProfileListItem
-                key={profile.id}
-                profile={profile}
-                isSelf={profile.id === currentUserId}
-                onToggleFollow={handleToggleSuggestedFollow}
-              />
-            ))}
-          </VStack>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerClassName="gap-3 pb-1"
+            >
+              {suggestedProfiles.map((profile) => (
+                <SuggestedProfileCard
+                  key={profile.id}
+                  profile={profile}
+                  isSelf={profile.id === currentUserId}
+                  onToggleFollow={handleToggleSuggestedFollow}
+                />
+              ))}
+            </ScrollView>
+          </Card>
         </VStack>
       );
     }

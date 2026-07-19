@@ -31,6 +31,7 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import { useSearchLocations } from "@/hooks/useLocation";
+import { Badge, BadgeText } from "@/components/ui/badge";
 
 interface CreateLocationFormProps {
   location: string;
@@ -77,7 +78,10 @@ export function CreateLocationForm({
               placeholder={t("create_post.location_placeholder")}
               className="flex-1 px-3 text-base text-foreground pointer-events-none"
             />
-            <SelectIcon as={ChevronDownIcon} className="mr-3 text-muted-foreground" />
+            <SelectIcon
+              as={ChevronDownIcon}
+              className="mr-3 text-muted-foreground"
+            />
           </SelectTrigger>
           <SelectPortal snapPoints={[80]}>
             <SelectBackdrop />
@@ -128,22 +132,29 @@ export function CreateLocationForm({
                             pointerEvents="none"
                             className="absolute inset-0 flex-row items-center px-3"
                           >
-                            <VStack space="xs" className="flex-1 pr-2">
-                              <Text
-                                numberOfLines={1}
-                                className="text-sm font-medium text-foreground"
-                              >
-                                {suggestion.name}
-                              </Text>
-                              {suggestion.breadcrumb ? (
+                            <HStack className="items-end justify-between">
+                              <VStack space="xs" className="flex-1 pr-2">
                                 <Text
                                   numberOfLines={1}
-                                  className="text-xs text-muted-foreground"
+                                  className="text-sm font-medium text-foreground"
                                 >
-                                  {suggestion.breadcrumb}
+                                  {suggestion.name}
                                 </Text>
-                              ) : null}
-                            </VStack>
+                                {suggestion.breadcrumb ? (
+                                  <Text
+                                    numberOfLines={1}
+                                    className="text-xs text-muted-foreground"
+                                  >
+                                    {suggestion.breadcrumb}
+                                  </Text>
+                                ) : null}
+                              </VStack>
+                              <Badge variant="outline" className="rounded-full">
+                                <BadgeText className="capitalize text-xs text-center">
+                                  {suggestion.settlementClass}
+                                </BadgeText>
+                              </Badge>
+                            </HStack>
                           </Box>
                         </Box>
                       );

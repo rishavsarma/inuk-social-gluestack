@@ -27,7 +27,7 @@ import { useFollowUser } from "@/hooks/useProfile";
 import { EmptyState } from "@/components/custom/feed/EmptyState";
 import { FeedCategories } from "@/components/custom/feed/FeedCategories";
 import FeedHeader from "@/components/custom/feed/FeedHeader";
-import { FeedPostCard } from "@/components/custom/feed/FeedPostCard";
+import { FeedPostCardV2 } from "@/components/custom/feed/FeedPostCardV2";
 import { PostSkeleton } from "@/components/custom/feed/PostSkeleton";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { PostOptionsActionsheet } from "@/components/custom/post/PostOptionsActionsheet";
@@ -252,7 +252,7 @@ const FeedScreen = () => {
         isFollowPending && followVariables?.followedId === authorId;
 
       return (
-        <FeedPostCard
+        <FeedPostCardV2
           post={item}
           isFollowing={isFollowing}
           isFollowLoading={isFollowLoading}

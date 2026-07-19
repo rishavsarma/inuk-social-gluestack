@@ -37,15 +37,8 @@ function ArenaQuizCard({ quiz, onStart }: ArenaQuizCardProps) {
         </VStack>
         {quiz.streakDays > 0 && (
           <HStack space="xs" className="items-center">
-            <Icon
-              as={Flame}
-              size="sm"
-              className={POST_METADATA_TINTS.amber.iconColor}
-            />
-            <Text
-              size="xs"
-              className={`font-semibold ${POST_METADATA_TINTS.amber.iconColor}`}
-            >
+            <Icon as={Flame} size="sm" className={POST_METADATA_TINTS.amber.iconColor} />
+            <Text size="xs" className={`font-semibold ${POST_METADATA_TINTS.amber.iconColor}`}>
               {t("arena.streak_days", { count: quiz.streakDays })}
             </Text>
           </HStack>

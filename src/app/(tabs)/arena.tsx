@@ -1,272 +1,152 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 
-import {
-  Gift,
-  HelpCircle,
-  Star,
-  Trophy,
-} from "lucide-react-native";
+import { Star } from "lucide-react-native";
 import { router } from "expo-router";
-import { useTranslation } from "react-i18next";
+import { useColorScheme } from "react-native";
 
-import ArenaContestBanner from "@/components/custom/arena/ArenaContestBanner";
-import ArenaContestCard from "@/components/custom/arena/ArenaContestCard";
+import ArenaContestRow from "@/components/custom/arena/ArenaContestRow";
 import ArenaLeaderboardRow from "@/components/custom/arena/ArenaLeaderboardRow";
-import ArenaQuizCard from "@/components/custom/arena/ArenaQuizCard";
-import { EmptyState } from "@/components/custom/feed/EmptyState";
-import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
-import { POST_METADATA_TINTS } from "@/constants/post-metadata-tints";
+import ArenaQuizPanel from "@/components/custom/arena/ArenaQuizPanel";
+import ArenaRewardsPanel from "@/components/custom/arena/ArenaRewardsPanel";
+
 import { Box } from "@/components/ui/box";
-import { Button, ButtonIcon } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
-import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
-import {
-  Tabs,
-  TabsIndicator,
-  TabsList,
-  TabsTrigger,
-  TabsTriggerText,
-} from "@/components/ui/tabs";
+import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
-import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
-import { VStack } from "@/components/ui/vstack";
+import { View } from "@/components/ui/view";
 
-import {
-  MOCK_ARENA_CONTESTS,
-  MOCK_ARENA_LEADERBOARD,
-  MOCK_ARENA_QUIZZES,
-} from "@/constants/mock-data";
+import { ARENA_FEATURED, ARENA_OPEN, ARENA_PODIUM } from "@/constants/mock-data";
+import { WEB_FONT_BODY, WEB_FONT_ROUND, WEB_PALETTE, WEB_TEXT_INK, WEB_TEXT_SUB } from "@/constants/web-reference-theme";
 import { ROUTES } from "@/routes";
 
-type ArenaSection = "contests" | "quizzes" | "leaderboard";
-const SECTIONS: ArenaSection[] = ["contests", "quizzes", "leaderboard"];
+const TABS = ["Contests", "Quizzes", "Leaderboard", "Rewards"] as const;
+type ArenaTab = (typeof TABS)[number];
 
-const STATUS_FILTERS: ArenaContestStatus[] = ["ACTIVE", "UPCOMING", "ENDED"];
-
-const EMPTY_DESCRIPTION_KEY: Record<ArenaContestStatus, string> = {
-  ACTIVE: "arena.no_contests",
-  UPCOMING: "arena.no_contests_upcoming",
-  ENDED: "arena.no_contests_ended",
-};
+const EXTENDED_LEADERBOARD: WebArenaPodiumEntry[] = [
+  ...ARENA_PODIUM,
+  { rank: 4, handle: "pahadi.frames", meta: "Nature · Chopta", pts: "3.6k", medal: "#B7BCC4" },
+  { rank: 5, handle: "devbhoomi.diaries", meta: "Temples · Jageshwar", pts: "3.1k", medal: "#B7BCC4" },
+];
 
 const ArenaScreen = () => {
-  const { t } = useTranslation();
-  const toast = useToast();
-  const [activeSection, setActiveSection] = useState<ArenaSection>("contests");
-  const [activeStatus, setActiveStatus] = useState<ArenaContestStatus>("ACTIVE");
+  const isDark = useColorScheme() === "dark";
+  const [tab, setTab] = useState<ArenaTab>("Contests");
 
-  const featuredContest = useMemo(
-    () =>
-      MOCK_ARENA_CONTESTS.find((contest) => contest.status === "ACTIVE") ??
-      MOCK_ARENA_CONTESTS[0],
-    [],
-  );
-
-  const filteredContests = useMemo(
-    () =>
-      MOCK_ARENA_CONTESTS.filter((contest) => contest.status === activeStatus),
-    [activeStatus],
-  );
-
-  const podium = useMemo(() => MOCK_ARENA_LEADERBOARD.slice(0, 3), []);
-
-  const handleContestPress = useCallback(
-    (contest: ArenaContestItem) => {
-      toast.show({
-        placement: "bottom",
-        render: ({ id }) => (
-          <Toast nativeID={`toast-${id}`} action="muted" variant="solid">
-            <ToastDescription>{t("arena.coming_soon")}</ToastDescription>
-          </Toast>
-        ),
-      });
-    },
-    [t, toast],
-  );
+  const line = isDark ? "#2b3050" : "#E3E4EC";
+  const bg = isDark ? "#12142A" : "#FFFFFF";
 
   const handleStartQuiz = useCallback(() => {
     router.push(ROUTES.ARENA.QUIZ);
   }, []);
 
   return (
-    <KeyboardAvoidingScrollView>
-      <VStack space="lg" className="pb-40">
-        <HStack className="items-center justify-between px-4 pt-2">
-          <Heading size="xl">{t("arena.title")}</Heading>
-          <Button
-            variant="secondary"
-            size="icon"
-            onPress={() => router.push(ROUTES.ARENA.REWARDS)}
-            accessibilityRole="button"
-            accessibilityLabel={t("arena.rewards_a11y")}
-            className="h-10 w-10 rounded-full"
+    <View className="flex-1" style={{ backgroundColor: bg }}>
+      <Box className="flex-row items-center justify-between px-4.5 pb-2 pt-13">
+        <Text className={`${WEB_FONT_ROUND[800]} ${WEB_TEXT_INK} text-[27px]`}>Arena</Text>
+        <Icon as={Star} size="lg" style={{ color: "#E6B325" }} />
+      </Box>
+
+      <Box style={{ borderColor: line }} className="flex-row border-b px-2">
+        {TABS.map((t) => (
+          <Pressable
+            key={t}
+            onPress={() => setTab(t)}
+            style={{ borderColor: tab === t ? WEB_PALETTE.red : "transparent" }}
+            className="flex-1 items-center border-b-2 py-2.75"
           >
-            <ButtonIcon as={Star} className={POST_METADATA_TINTS.amber.iconColor} />
-          </Button>
-        </HStack>
+            <Text
+              style={{ color: tab === t ? WEB_PALETTE.red : undefined }}
+              className={`${tab === t ? WEB_FONT_ROUND[700] : WEB_FONT_ROUND[500]} text-[12.5px] ${
+                tab === t ? "" : WEB_TEXT_SUB
+              }`}
+            >
+              {t}
+            </Text>
+          </Pressable>
+        ))}
+      </Box>
 
-        <Tabs
-          value={activeSection}
-          onValueChange={(value: ArenaSection) => setActiveSection(value)}
-          variant="filled"
-          orientation="horizontal"
-          className="px-4"
-        >
-          <TabsList className="rounded-full">
-            {SECTIONS.map((section) => (
-              <TabsTrigger
-                key={section}
-                value={section}
-                className="flex-1 rounded-full"
-              >
-                <TabsTriggerText className="data-[selected=true]:text-white">
-                  {t(`arena.tab_${section}`)}
-                </TabsTriggerText>
-              </TabsTrigger>
-            ))}
-            <TabsIndicator className="rounded-full bg-theme" />
-          </TabsList>
-        </Tabs>
-
-        {activeSection === "contests" && (
-          <VStack space="lg">
-            <Box className="px-4">
-              <ArenaContestBanner contest={featuredContest} />
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+        {tab === "Contests" ? (
+          <View>
+            <Box className="mx-3.5 mt-3.5 overflow-hidden rounded-2xl">
+              <Box style={{ backgroundColor: ARENA_FEATURED.grad0 }} className="h-32.5 justify-end p-3.5">
+                <Box
+                  style={{ backgroundColor: ARENA_FEATURED.grad1, opacity: 0.35 }}
+                  className="absolute inset-0"
+                />
+                <Text className={`${WEB_FONT_BODY[400]} text-[10.5px] tracking-[1px] text-white opacity-90`}>
+                  {ARENA_FEATURED.tag}
+                </Text>
+                <Text className={`${WEB_FONT_ROUND[800]} mt-0.5 text-[19px] text-white`}>
+                  {ARENA_FEATURED.title}
+                </Text>
+                <Text className={`${WEB_FONT_BODY[400]} mt-0.5 text-xs text-white opacity-90`}>
+                  ◷ {ARENA_FEATURED.days} days left · {ARENA_FEATURED.entries} entries
+                </Text>
+              </Box>
             </Box>
 
-            <HStack space="sm" className="px-4">
-              <Pressable
-                onPress={handleStartQuiz}
-                accessibilityRole="button"
-                accessibilityLabel={t("arena.quiz_shortcut")}
-                className="flex-1 items-center gap-1.5 rounded-2xl border border-border bg-card py-4 active:opacity-70"
-              >
-                <Icon as={HelpCircle} size="lg" className="text-theme" />
-                <Text size="xs" className="font-medium text-foreground">
-                  {t("arena.quiz_shortcut")}
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => setActiveSection("leaderboard")}
-                accessibilityRole="button"
-                accessibilityLabel={t("arena.leaderboard_shortcut")}
-                className="flex-1 items-center gap-1.5 rounded-2xl border border-border bg-card py-4 active:opacity-70"
-              >
-                <Icon as={Trophy} size="lg" className="text-theme" />
-                <Text size="xs" className="font-medium text-foreground">
-                  {t("arena.leaderboard_shortcut")}
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={() => router.push(ROUTES.ARENA.REWARDS)}
-                accessibilityRole="button"
-                accessibilityLabel={t("arena.rewards_shortcut")}
-                className="flex-1 items-center gap-1.5 rounded-2xl border border-border bg-card py-4 active:opacity-70"
-              >
-                <Icon as={Gift} size="lg" className="text-theme" />
-                <Text size="xs" className="font-medium text-foreground">
-                  {t("arena.rewards_shortcut")}
-                </Text>
-              </Pressable>
-            </HStack>
+            <Box className="mt-3 flex-row gap-2 px-3.5">
+              {(
+                [
+                  ["Daily Quiz", handleStartQuiz],
+                  ["Leaderboard", () => setTab("Leaderboard")],
+                  ["Rewards", () => setTab("Rewards")],
+                ] as const
+              ).map(([label, onPress]) => (
+                <Pressable
+                  key={label}
+                  onPress={onPress}
+                  style={{ borderColor: line }}
+                  className="flex-1 items-center rounded-box border py-3"
+                >
+                  <Text className={`${WEB_FONT_ROUND[700]} text-[12px] ${WEB_TEXT_INK}`}>{label}</Text>
+                </Pressable>
+              ))}
+            </Box>
 
-            <VStack space="xs">
-              <HStack space="xs" className="items-center px-4">
-                <Icon
-                  as={Trophy}
-                  size="sm"
-                  className={POST_METADATA_TINTS.amber.iconColor}
-                />
-                <Heading size="sm" className="font-baloo-bold text-foreground">
-                  {t("arena.podium_title")}
-                </Heading>
-              </HStack>
-              <VStack>
-                {podium.map((entry) => (
-                  <ArenaLeaderboardRow key={entry.id} entry={entry} />
-                ))}
-              </VStack>
-            </VStack>
+            <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mx-4.5 mb-2.5 mt-4.5 text-[13px]`}>
+              OPEN CONTESTS
+            </Text>
+            {ARENA_OPEN.map((contest) => (
+              <ArenaContestRow key={contest.title} contest={contest} />
+            ))}
 
-            <Tabs
-              value={activeStatus}
-              onValueChange={(value: ArenaContestStatus) =>
-                setActiveStatus(value)
-              }
-              variant="underlined"
-              orientation="horizontal"
-              className="px-4"
-            >
-              <TabsList className="bg-transparent rounded-none pb-0.5">
-                {STATUS_FILTERS.map((status) => (
-                  <TabsTrigger key={status} value={status} className="flex-1">
-                    <TabsTriggerText>
-                      {t(`arena.status_${status}`)}
-                    </TabsTriggerText>
-                  </TabsTrigger>
-                ))}
-                <TabsIndicator className="border-b" />
-              </TabsList>
-            </Tabs>
+            <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mx-4.5 mb-2.5 mt-2 text-[13px]`}>
+              THIS WEEK&apos;S PODIUM
+            </Text>
+            <Box className="gap-2.25 px-3.5">
+              {ARENA_PODIUM.map((entry) => (
+                <ArenaLeaderboardRow key={entry.rank} entry={entry} />
+              ))}
+            </Box>
+          </View>
+        ) : null}
 
-            <VStack space="md" className="px-4">
-              {filteredContests.length > 0 ? (
-                filteredContests.map((contest) => (
-                  <ArenaContestCard
-                    key={contest.id}
-                    contest={contest}
-                    onPress={handleContestPress}
-                  />
-                ))
-              ) : (
-                <EmptyState
-                  icon={Trophy}
-                  title={t("arena.empty_title")}
-                  description={t(EMPTY_DESCRIPTION_KEY[activeStatus])}
-                  fullScreen={false}
-                />
-              )}
-            </VStack>
-          </VStack>
-        )}
+        {tab === "Quizzes" ? (
+          <Box className="p-4.5">
+            <ArenaQuizPanel />
+          </Box>
+        ) : null}
 
-        {activeSection === "quizzes" && (
-          <VStack space="md" className="px-4">
-            {MOCK_ARENA_QUIZZES.length > 0 ? (
-              MOCK_ARENA_QUIZZES.map((quiz) => (
-                <ArenaQuizCard key={quiz.id} quiz={quiz} onStart={handleStartQuiz} />
-              ))
-            ) : (
-              <EmptyState
-                icon={HelpCircle}
-                title={t("arena.empty_title")}
-                description={t("arena.quizzes_empty")}
-                fullScreen={false}
-              />
-            )}
-          </VStack>
-        )}
+        {tab === "Leaderboard" ? (
+          <Box className="p-3.5">
+            <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mx-1 mb-2.5 text-[13px]`}>
+              TOP CREATORS · THIS WEEK
+            </Text>
+            <Box className="gap-2.25">
+              {EXTENDED_LEADERBOARD.map((entry) => (
+                <ArenaLeaderboardRow key={entry.rank} entry={entry} />
+              ))}
+            </Box>
+          </Box>
+        ) : null}
 
-        {activeSection === "leaderboard" && (
-          <VStack>
-            {MOCK_ARENA_LEADERBOARD.length > 0 ? (
-              MOCK_ARENA_LEADERBOARD.map((entry) => (
-                <ArenaLeaderboardRow key={entry.id} entry={entry} />
-              ))
-            ) : (
-              <EmptyState
-                icon={Trophy}
-                title={t("arena.empty_title")}
-                description={t("arena.leaderboard_empty")}
-                fullScreen={false}
-              />
-            )}
-          </VStack>
-        )}
-      </VStack>
-    </KeyboardAvoidingScrollView>
+        {tab === "Rewards" ? <ArenaRewardsPanel /> : null}
+      </ScrollView>
+    </View>
   );
 };
 

@@ -149,13 +149,22 @@
   --font-inter-semibold: "Inter_600SemiBold";
   --font-inter-bold: "Inter_700Bold";
 
+  /* Gluestack's Heading/Text primitives (and every ui/* component built on
+     top of them — Radio, Checkbox, Toast, Fab, FormControl, Link, Menu,
+     Select) apply `font-heading` / `font-body` as their base font-family
+     class. Without these two tokens those classes resolve to nothing and
+     everything silently falls back to the system font, so this is the one
+     place that guarantees Baloo-for-headings / Inter-for-body app-wide. */
+  --font-heading: "Baloo2_700Bold";
+  --font-body: "Inter_500Medium";
+
   /* Corner radii — rounded-field, rounded-box, rounded-card, rounded-btn */
   --radius-field: 13px;
   --radius-box: 12px;
   --radius-card: 14px;
   --radius-btn: 14px;
 }
-
+Heading,
 Text,
 * {
   line-height: 0;

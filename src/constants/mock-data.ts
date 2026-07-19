@@ -114,188 +114,54 @@ export const FEED_CATEGORIES: FeedCategory[] = [
   },
 ];
 
-export const MOCK_DISCOVER_POSTS: DiscoverPost[] = Array.from(
-  { length: 12 },
-  (_, index) => ({
-    id: `discover-post-${index + 1}`,
-    type: index % 3 === 0 ? "video" : "image",
-    likesCount: Math.round(200 + Math.sin(index) * 150 + index * 37),
-  }),
-);
-
 const HOUR_MS = 60 * 60 * 1000;
-const DAY_MS = HOUR_MS * 24;
 const now = Date.now();
 
-export const MOCK_ARENA_CONTESTS: ArenaContestItem[] = [
-  {
-    id: "contest-1",
-    title: "Harela Green 2026",
-    description: "Capture the first light hitting the peaks near you.",
-    status: "ACTIVE",
-    prize: "₹15,000 + Spotlight Badge",
-    entriesCount: 1400,
-    endsAt: now + DAY_MS * 3,
-    category: "Nature",
-    location: "Harela",
-    tint: "green",
-  },
-  {
-    id: "contest-2",
-    title: "Street Stories of Uttarakhand",
-    description: "Tell a story of daily life in a single candid frame.",
-    status: "ACTIVE",
-    prize: "₹8,000",
-    entriesCount: 189,
-    endsAt: now + DAY_MS * 6,
-    category: "People",
-    location: "Kumaon",
-    tint: "amber",
-  },
-  {
-    id: "contest-3",
-    title: "Monsoon Trails Reel Contest",
-    description: "Short-form video of your favourite monsoon trek.",
-    status: "UPCOMING",
-    prize: "₹10,000 + Feature on Explore",
-    entriesCount: 0,
-    endsAt: now + DAY_MS * 10,
-    category: "Adventure",
-    location: "Garhwal",
-    tint: "sky",
-  },
-  {
-    id: "contest-4",
-    title: "Wildlife of the Hills",
-    description: "Best candid wildlife shot from the Himalayan region.",
-    status: "UPCOMING",
-    prize: "₹12,000",
-    entriesCount: 0,
-    endsAt: now + DAY_MS * 14,
-    category: "Wildlife",
-    location: "Kumaon",
-    tint: "emerald",
-  },
-  {
-    id: "contest-5",
-    title: "Winter Portraits 2025",
-    description: "Portraits that capture the character of hill-town winters.",
-    status: "ENDED",
-    prize: "₹6,000",
-    entriesCount: 271,
-    endsAt: now - DAY_MS * 20,
-    category: "People",
-    location: "Garhwal",
-    tint: "violet",
-  },
-  {
-    id: "contest-6",
-    title: "Food & Culture Spotlight",
-    description: "Show us a dish that tells a story of your hometown.",
-    status: "ENDED",
-    prize: "₹5,000",
-    entriesCount: 156,
-    endsAt: now - DAY_MS * 45,
-    category: "Food",
-    location: "Kumaon",
-    tint: "orange",
-  },
+// ---- Arena data (byte-exact port of inuk.social-web's ARENA_* constants, screens.js ~L2371-2391) ----
+
+export const ARENA_FEATURED: WebArenaFeatured = {
+  tag: "NATURE · HARELA",
+  title: "Harela Green 2026",
+  days: 3,
+  entries: "1.4k",
+  grad0: "#2E7D32",
+  grad1: "#7CB342",
+};
+
+export const ARENA_OPEN: WebArenaContest[] = [
+  { title: "Devbhoomi Thursday — Kedarnath", meta: "Temples · Photo/Story", colour: "#E65100", days: 1, entries: "820" },
+  { title: "Summit Saturday — Roopkund", meta: "Adventure · Video/Reel", colour: "#00695C", days: 4, entries: "610" },
+  { title: "Flavours Wednesday — Bal Mithai", meta: "Food · Photo/Recipe", colour: "#E64A19", days: 2, entries: "540" },
 ];
 
+export const ARENA_PODIUM: WebArenaPodiumEntry[] = [
+  { rank: 1, handle: "aarti.lens", meta: "Culture · Almora", pts: "11.1k", medal: "#E6B325" },
+  { rank: 2, handle: "mnegi", meta: "People · Kunja", pts: "5.8k", medal: "#9AA3AE" },
+  { rank: 3, handle: "himalayan.tales", meta: "Adventure · Munsiyari", pts: "4.2k", medal: "#CD7F32" },
+];
+
+export const ARENA_QUIZ: WebArenaQuizQuestion[] = [
+  { q: "Which river originates from the Gangotri glacier?", opts: ["Bhagirathi", "Alaknanda", "Kali", "Yamuna"], a: 0 },
+  { q: "Uttarakhand is fondly called Devbhoomi — meaning?", opts: ["Land of Gods", "Land of Rivers", "Land of Snow", "Land of Forts"], a: 0 },
+  { q: "What is the winter seat of the Kedarnath deity?", opts: ["Ukhimath", "Guptkashi", "Joshimath", "Rudraprayag"], a: 0 },
+];
+
+export const ARENA_REWARDS: WebArenaReward[] = [
+  { name: "Homestay voucher", pts: 200, col: "#EFE0CE" },
+  { name: "Trek pack", pts: 500, col: "#DCE9E4" },
+  { name: "INUK tee", pts: 150, col: "#EFE0CE" },
+  { name: "Event pass", pts: 300, col: "#D9E5F0" },
+];
+
+/** Multi-quiz teaser list used outside the Arena screen (theme/[themeId].tsx's Quizzes tab). */
 export const MOCK_ARENA_QUIZZES: ArenaQuiz[] = [
   {
     id: "quiz-daily",
     title: "Daily Quiz",
-    questionsCount: 10,
+    questionsCount: ARENA_QUIZ.length,
     streakDays: 7,
     sparksPerCorrect: 5,
   },
-  {
-    id: "quiz-weekly-trivia",
-    title: "Weekly Hills Trivia",
-    questionsCount: 15,
-    streakDays: 0,
-    sparksPerCorrect: 8,
-  },
-];
-
-export const MOCK_ARENA_QUIZ_QUESTIONS: ArenaQuizQuestion[] = [
-  {
-    id: "q1",
-    question: "Which river originates from the Gangotri glacier?",
-    options: ["Bhagirathi", "Alaknanda", "Kali", "Yamuna"],
-    correctIndex: 0,
-  },
-  {
-    id: "q2",
-    question: "Which hill station is known as the 'Lake District of India'?",
-    options: ["Nainital", "Mussoorie", "Almora", "Ranikhet"],
-    correctIndex: 0,
-  },
-  {
-    id: "q3",
-    question: "Harela festival marks the onset of which season?",
-    options: ["Monsoon", "Winter", "Spring", "Autumn"],
-    correctIndex: 0,
-  },
-  {
-    id: "q4",
-    question: "What is a high-altitude meadow in the Himalayas called?",
-    options: ["Bugyal", "Naula", "Tal", "Dhara"],
-    correctIndex: 0,
-  },
-  {
-    id: "q5",
-    question: "Which peak is the second-highest in Uttarakhand?",
-    options: ["Trisul", "Nanda Devi", "Kedarnath", "Kamet"],
-    correctIndex: 0,
-  },
-  {
-    id: "q6",
-    question: "A 'Naula' traditionally refers to a type of what?",
-    options: ["Stepped water well", "Terrace farm", "Wooden bridge", "Prayer wheel"],
-    correctIndex: 0,
-  },
-  {
-    id: "q7",
-    question: "Aipan is a traditional folk art from which region?",
-    options: ["Kumaon", "Garhwal", "Jaunsar", "Tehri"],
-    correctIndex: 0,
-  },
-  {
-    id: "q8",
-    question: "Which of these is a natural freshwater lake in Uttarakhand?",
-    options: ["Bhimtal", "Rishikund", "Sattal Falls", "Corbett Dam"],
-    correctIndex: 0,
-  },
-  {
-    id: "q9",
-    question: "Kedarnath temple is dedicated to which deity?",
-    options: ["Shiva", "Vishnu", "Brahma", "Indra"],
-    correctIndex: 0,
-  },
-  {
-    id: "q10",
-    question: "Munsiyari is a gateway town for treks to which peak group?",
-    options: ["Panchachuli", "Dhauladhar", "Pir Panjal", "Zanskar"],
-    correctIndex: 0,
-  },
-];
-
-export const MOCK_ARENA_LEADERBOARD: ArenaLeaderboardEntry[] = [
-  { id: "lb-1", rank: 1, username: "aarti.lens", categoryLabel: "Culture · Almora", score: 11100 },
-  { id: "lb-2", rank: 2, username: "mnegi", categoryLabel: "People · Kunja", score: 5800 },
-  { id: "lb-3", rank: 3, username: "rohan.mehta", categoryLabel: "Adventure · Garhwal", score: 4200 },
-  { id: "lb-4", rank: 4, username: "priya.travels", categoryLabel: "Nature · Kumaon", score: 3650 },
-  { id: "lb-5", rank: 5, username: "ishita.rawat", categoryLabel: "Food · Nainital", score: 2900 },
-  { id: "lb-6", rank: 6, username: "aarav.clicks", categoryLabel: "Nature · Munsiyari", score: 2100 },
-];
-
-export const MOCK_ARENA_REWARDS: ArenaReward[] = [
-  { id: "reward-homestay", title: "Homestay voucher", cost: 200, tint: "green" },
-  { id: "reward-trekpack", title: "Trek pack", cost: 500, tint: "sky" },
-  { id: "reward-tee", title: "INUK tee", cost: 150, tint: "amber" },
-  { id: "reward-eventpass", title: "Event pass", cost: 300, tint: "violet" },
 ];
 
 export const MOCK_ARENA_WINNINGS: ArenaWinning[] = [
@@ -305,105 +171,6 @@ export const MOCK_ARENA_WINNINGS: ArenaWinning[] = [
     amountLabel: "₹ voucher",
     sparksValue: 250,
   },
-];
-
-export const MOCK_DISCOVER_REGIONS: DiscoverRegion[] = [
-  { id: "region-kumaon", name: "Kumaon", postsCount: 1240, districtsCount: 6 },
-  { id: "region-garhwal", name: "Garhwal", postsCount: 980, districtsCount: 7 },
-];
-
-export const MOCK_DISCOVER_PLACES: DiscoverPlace[] = [
-  {
-    id: "place-kunja",
-    name: "Kunja",
-    type: "Village",
-    region: "Kumaon",
-    district: "Almora",
-    coveragePercent: 62,
-    postsCount: 128,
-    contributorsCount: 34,
-    themesCount: 9,
-    tint: "green",
-  },
-  {
-    id: "place-munsiyari",
-    name: "Munsiyari",
-    type: "Town",
-    region: "Kumaon",
-    district: "Pithoragarh",
-    coveragePercent: 48,
-    postsCount: 402,
-    contributorsCount: 87,
-    themesCount: 14,
-    tint: "sky",
-  },
-];
-
-export const MOCK_DISCOVER_CATEGORIES: DiscoverCategory[] = [
-  {
-    id: "cat-nature",
-    labelKey: "discover.category_nature",
-    icon: "Trees",
-    subcategories: ["Peaks", "Glaciers", "Rivers", "Lakes (tals)", "Waterfalls", "Bugyals", "Forests", "Naulas"],
-    tint: "green",
-  },
-  {
-    id: "cat-culture",
-    labelKey: "discover.category_culture",
-    icon: "Landmark",
-    subcategories: ["Festivals", "Folk Art", "Music", "Dance", "Costumes"],
-    tint: "amber",
-  },
-  {
-    id: "cat-food",
-    labelKey: "discover.category_food",
-    icon: "UtensilsCrossed",
-    subcategories: ["Pahadi Thali", "Sweets", "Street Food", "Beverages"],
-    tint: "orange",
-  },
-  {
-    id: "cat-temples",
-    labelKey: "discover.category_temples",
-    icon: "Building2",
-    subcategories: ["Shiva Temples", "Devi Temples", "Ashrams", "Pilgrim Routes"],
-    tint: "sky",
-  },
-  {
-    id: "cat-people",
-    labelKey: "discover.category_people",
-    icon: "Users",
-    subcategories: ["Portraits", "Daily Life", "Artisans", "Farmers"],
-    tint: "rose",
-  },
-  {
-    id: "cat-adventure",
-    labelKey: "discover.category_adventure",
-    icon: "Mountain",
-    subcategories: ["Trekking", "Camping", "River Rafting", "Skiing"],
-    tint: "blue",
-  },
-  {
-    id: "cat-wildlife",
-    labelKey: "discover.category_wildlife",
-    icon: "PawPrint",
-    subcategories: ["Birds", "Big Cats", "Reptiles", "Insects"],
-    tint: "emerald",
-  },
-  {
-    id: "cat-crafts",
-    labelKey: "discover.category_crafts",
-    icon: "Hammer",
-    subcategories: ["Weaving", "Woodwork", "Pottery", "Aipan Art"],
-    tint: "violet",
-  },
-];
-
-export const MOCK_DISCOVER_TAGS: TrendingTopic[] = [
-  { id: "tag-harela", tag: "Harela2026", postsCount: 2340 },
-  { id: "tag-munsiyari", tag: "Munsiyari", postsCount: 1180 },
-  { id: "tag-aipan", tag: "AipanArt", postsCount: 870 },
-  { id: "tag-pahaditali", tag: "PahadiThali", postsCount: 640 },
-  { id: "tag-kedarnath", tag: "Kedarnath", postsCount: 590 },
 ];
 
 export const MOCK_NOTIFICATIONS: NotificationItem[] = [

@@ -701,6 +701,7 @@ export const postService = {
           (post.locationId && locationMap.get(post.locationId)?.name) ||
           post.place ||
           null,
+        location_id: post.locationId || null,
         tags: Array.isArray(post.tags) ? post.tags : [],
         created_at: post.dateCreated
           ? new Date(post.dateCreated).toISOString()

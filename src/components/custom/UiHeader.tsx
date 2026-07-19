@@ -76,6 +76,7 @@ export function UiHeader({
   const isDark = useIsDarkMode();
   const { t } = useTranslation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  console.log("isAuthenticated", isAuthenticated);
 
   const handleBack = () => {
     if (onBackPress) {
@@ -146,10 +147,7 @@ export function UiHeader({
           />
         )}
         {showBackButton && (
-          <HStack
-            space="sm"
-            className="min-h-10 items-center justify-between"
-          >
+          <HStack space="sm" className="min-h-10 items-center justify-between">
             <Box className="h-10 w-10" />
             <Text
               numberOfLines={1}

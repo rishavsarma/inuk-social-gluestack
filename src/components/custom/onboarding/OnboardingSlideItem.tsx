@@ -33,7 +33,11 @@ type OnboardingSlideItemProps = {
   slide: OnboardingSlide;
 };
 
-export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProps) {
+export function OnboardingSlideItem({
+  index,
+  x,
+  slide,
+}: OnboardingSlideItemProps) {
   const { width: W, height: H } = useWindowDimensions();
   const { t } = useTranslation();
 
@@ -59,7 +63,10 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
   const triggerIn = useCallback(() => {
     setActiveState(true);
 
-    logoOp.value = withTiming(1, { duration: 400, easing: Easing.out(Easing.quad) });
+    logoOp.value = withTiming(1, {
+      duration: 400,
+      easing: Easing.out(Easing.quad),
+    });
     logoTx.value = withSpring(0, { damping: 16, stiffness: 110 });
 
     titleOp.value = withDelay(
@@ -70,18 +77,33 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
       140,
       withTiming(1.0, { duration: 520, easing: Easing.out(Easing.cubic) }),
     );
-    titleTy.value = withDelay(140, withSpring(0, { damping: 18, stiffness: 100 }));
+    titleTy.value = withDelay(
+      140,
+      withSpring(0, { damping: 18, stiffness: 100 }),
+    );
 
     accentOp.value = withDelay(380, withTiming(1, { duration: 200 }));
-    accentW.value = withDelay(380, withSpring(44, { damping: 12, stiffness: 130 }));
+    accentW.value = withDelay(
+      380,
+      withSpring(44, { damping: 12, stiffness: 130 }),
+    );
 
-    subOp.value = withDelay(520, withTiming(1, { duration: 460, easing: Easing.out(Easing.quad) }));
+    subOp.value = withDelay(
+      520,
+      withTiming(1, { duration: 460, easing: Easing.out(Easing.quad) }),
+    );
     subTy.value = withDelay(520, withSpring(0, { damping: 18, stiffness: 90 }));
 
     bgPanX.value = withRepeat(
       withSequence(
-        withTiming(W * 0.022, { duration: 8000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(-W * 0.012, { duration: 8000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(W * 0.022, {
+          duration: 8000,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(-W * 0.012, {
+          duration: 8000,
+          easing: Easing.inOut(Easing.ease),
+        }),
         withTiming(0, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
       ),
       -1,
@@ -89,8 +111,14 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
     );
     bgPanY.value = withRepeat(
       withSequence(
-        withTiming(H * 0.012, { duration: 10000, easing: Easing.inOut(Easing.ease) }),
-        withTiming(-H * 0.008, { duration: 8000, easing: Easing.inOut(Easing.ease) }),
+        withTiming(H * 0.012, {
+          duration: 10000,
+          easing: Easing.inOut(Easing.ease),
+        }),
+        withTiming(-H * 0.008, {
+          duration: 8000,
+          easing: Easing.inOut(Easing.ease),
+        }),
         withTiming(0, { duration: 6000, easing: Easing.inOut(Easing.ease) }),
       ),
       -1,
@@ -209,7 +237,9 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
         />
       ))}
 
-      <Animated.View style={[logoAnim, { position: "absolute", left: 16, top: 80 }]}>
+      <Animated.View
+        style={[logoAnim, { position: "absolute", left: 16, top: 80 }]}
+      >
         <HStack space="sm" className="items-center">
           <LogoIcon size={44} />
           <HStack className="items-center">
@@ -242,7 +272,13 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
 
       <Animated.View
         pointerEvents="none"
-        style={{ position: "absolute", bottom: 145, left: 0, right: 0, paddingHorizontal: 16 }}
+        style={{
+          position: "absolute",
+          bottom: 145,
+          left: 0,
+          right: 0,
+          paddingHorizontal: 16,
+        }}
       >
         <Animated.Text
           style={[
@@ -254,7 +290,7 @@ export function OnboardingSlideItem({ index, x, slide }: OnboardingSlideItemProp
               marginBottom: 12,
             },
           ]}
-          className="text-[40px] font-black leading-[50px] tracking-[-0.8px] text-white"
+          className="text-5xl font-baloo-extrabold tracking-[-0.8px] text-white"
         >
           {t(slide.titleKey)}
         </Animated.Text>

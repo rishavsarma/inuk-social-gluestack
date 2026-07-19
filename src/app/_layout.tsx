@@ -95,7 +95,10 @@ const RootLayout = () => {
               {Platform.OS === "android" && <StatusBar animated />}
               <Stack
                 key={language}
-                screenOptions={{ headerShown: false, animation: "fade" }}
+                screenOptions={{
+                  headerShown: false,
+                  animation: Platform.OS === "android" ? "default" : "fade",
+                }}
               />
             </ThemeProvider>
           </GluestackUIProvider>

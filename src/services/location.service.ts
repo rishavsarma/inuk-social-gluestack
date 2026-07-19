@@ -8,7 +8,7 @@ export const locationService = {
   ) => {
     const { data } = await api.get<LocationSearchResult[]>(
       "/bhugol/api/locations/search",
-      { params: { q: query, limit, lang } },
+      { params: { q: query, settlementsOnly: true, limit, lang } },
     );
     return data;
   },
