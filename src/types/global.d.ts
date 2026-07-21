@@ -441,13 +441,6 @@ interface TrendingTopic {
   postsCount: number;
 }
 
-interface FeedCategory {
-  id: string;
-  labelKey: string;
-  ringClassName: string;
-  imageUrl: string;
-}
-
 interface FeedPostItem {
   id: string | number;
   type: string;
@@ -527,6 +520,11 @@ interface DiscoverSubject {
   breadcrumb: string;
   colour: string;
   onColour: string;
+  /** Light-mode tint/ink pair for the hero — only available when the subject comes
+   * from a taxonomy category (entities), so the hero falls back to the solid
+   * `colour`/`onColour` when absent (tags, location pins) or in dark mode. */
+  background?: string;
+  text?: string;
   icon: string;
   theme: string | null;
 }

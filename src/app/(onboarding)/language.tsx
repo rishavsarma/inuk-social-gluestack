@@ -92,12 +92,7 @@ const OnboardingLanguage = () => {
 
       <View className="flex-1" />
 
-      <Button
-        size="xl"
-        variant="theme"
-        className="rounded-full"
-        onPress={handleContinue}
-      >
+      <Button size="xl" variant="theme" onPress={handleContinue}>
         <ButtonText className="text-white">
           {t("onboarding.continue")}
         </ButtonText>

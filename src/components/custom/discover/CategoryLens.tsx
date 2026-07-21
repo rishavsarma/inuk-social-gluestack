@@ -11,7 +11,7 @@ import { VStack } from "@/components/ui/vstack";
 
 import { resolveTaxonomyIcon } from "@/constants/mdi-icon-map";
 import { CAT_BY_TITLE, POPULAR, TAX } from "@/constants/discover-web-data";
-import { WEB_FONT_BODY, WEB_FONT_ROUND, WEB_TEXT_SUB } from "@/constants/web-reference-theme";
+import { WEB_FONT_BODY, WEB_FONT_ROUND } from "@/constants/web-reference-theme";
 
 const FEATURED_TITLE = "Temples & Deities";
 
@@ -111,7 +111,7 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
       <VStack className="px-3.5 pt-2">
         {TAX.themes.map((th) => (
           <VStack key={th} className="mb-4">
-            <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mb-2.5 px-1 text-[14px]`}>{th}</Text>
+            <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-2.5 px-1 text-[14px]`}>{th}</Text>
             <Box className="flex-row flex-wrap gap-2.5">
               {TAX.categories
                 .filter((x) => x.theme === th)
@@ -161,7 +161,7 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mb-2.5 mt-4.5 px-4.5 text-[14px]`}>
+    <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-2.5 mt-4.5 px-4.5 text-[14px]`}>
       {children}
     </Text>
   );

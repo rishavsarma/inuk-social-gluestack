@@ -5,6 +5,7 @@ import {
   NativeSyntheticEvent,
   ScrollViewProps,
   StyleProp,
+  TextStyle,
   View,
   ViewStyle,
 } from "react-native";
@@ -68,6 +69,13 @@ export interface KeyboardAvoidingScrollViewProps extends Omit<
   title?: string;
   showBackButton?: boolean;
   backAction?: "back" | "home" | (string & {});
+  /** Overrides the sticky nav bar's background/title colour — e.g. to match a
+   * colour-branded category banner instead of the default translucent bar. */
+  headerBackgroundColor?: string;
+  headerTitleClassName?: string;
+  /** Inline colour override for the title, e.g. a category's dynamic ink colour. */
+  headerTitleStyle?: StyleProp<TextStyle>;
+  headerTitleIcon?: React.ReactNode;
   /** Keep the blurred header bar + title permanently visible instead of only on scroll.
    * When set, content is padded by default so it doesn't render underneath the bar. */
   alwaysShowBar?: boolean;
@@ -107,6 +115,10 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
       title = "",
       showBackButton = false,
       backAction = "back",
+      headerBackgroundColor,
+      headerTitleClassName,
+      headerTitleStyle,
+      headerTitleIcon,
       alwaysShowBar = false,
       refreshControl,
       variant = "scroll",
@@ -217,6 +229,10 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
                 showBackButton={showBackButton}
                 backAction={backAction}
                 alwaysShowBar={alwaysShowBar}
+                backgroundColor={headerBackgroundColor}
+                titleClassName={headerTitleClassName}
+                titleStyle={headerTitleStyle}
+                titleIcon={headerTitleIcon}
                 hideBorder
               />
             }
@@ -252,6 +268,10 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
               showBackButton={showBackButton}
               backAction={backAction}
               alwaysShowBar={alwaysShowBar}
+              backgroundColor={headerBackgroundColor}
+              titleClassName={headerTitleClassName}
+              titleStyle={headerTitleStyle}
+              titleIcon={headerTitleIcon}
               hideBorder
             />
           }

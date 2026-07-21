@@ -12,7 +12,13 @@ interface CreatePostPayload {
   subCategoryId?: string;
   tags?: string[];
   visibility?: "SELF" | "FOLLOWERS" | "SHARED" | "ALL";
-  status?: "DRAFT" | "PROCESSING" | "PUBLISHED" | "FAILED" | "DELETED" | "BLOCKED";
+  status?:
+    | "DRAFT"
+    | "PROCESSING"
+    | "PUBLISHED"
+    | "FAILED"
+    | "DELETED"
+    | "BLOCKED";
   postType?: "PHOTO" | "VIDEO" | "CAROUSEL" | "TEXT" | "REEL";
   locationId?: string;
   publishedAt?: string;
@@ -156,99 +162,17 @@ export const postService = {
   },
 
   getPostAwards: async (postId: string): Promise<Award[]> => {
-    try {
-      const searchStr = JSON.stringify({
-        dataOption: "all",
-        criteria: [{ filterKey: "postId", operation: "eq", value: postId }],
-      });
-      const response = await api.get<SearchResponse<Award> | Award[]>(
-        `/content/api/award/search?search=${encodeURIComponent(searchStr)}`,
-      );
-      const awardsArray = Array.isArray(response.data)
-        ? response.data
-        : response.data?.data;
-      if (Array.isArray(awardsArray) && awardsArray.length > 0) {
-        return awardsArray;
-      }
-    } catch (error) {
-      if (__DEV__) {
-        console.warn(
-          `[postService.getPostAwards] Failed to fetch awards from API for post ${postId}, falling back to mock data:`,
-          error,
-        );
-      }
-    }
-
-    // Mock fallback data based on postId
-    await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate networking
-
-    return [
-      {
-        id: `mock-award-spotlight-${postId}`,
-        postId,
-        shape: "shield",
-        theme: "gold",
-        period: "WEEK 25",
-        rank: "1",
-        suffix: "ST",
-        label: "SPOTLIGHT",
-        value: "1st Place Winner",
-        description:
-          "Ranked #1 in Uttarakhand weekly spotlight contest for outstanding cinematography.",
-      },
-      {
-        id: `mock-award-creator-${postId}`,
-        postId,
-        shape: "octagon",
-        theme: "silver",
-        period: "JUNE 2026",
-        rank: "5",
-        suffix: "%",
-        label: "CREATOR",
-        value: "Top 5% Votes",
-        description:
-          "Awarded to creators who received votes placing them in the top 5% overall for June.",
-      },
-      {
-        id: `mock-award-himalayan-${postId}`,
-        postId,
-        shape: "octagon-round",
-        theme: "bronze",
-        period: "2026",
-        rank: "10",
-        suffix: "%",
-        label: "HIMALAYAN",
-        value: "Top 10% Votes",
-        description:
-          "Recognized for ranking in the top 10% of overall engagement and community votes.",
-      },
-      {
-        id: `mock-award-hidden-${postId}`,
-        postId,
-        shape: "scallop",
-        theme: "#EF4444",
-        period: "Q2 2026",
-        rank: "WIN",
-        suffix: "",
-        label: "CHOICE",
-        value: "Spotlight Choice",
-        description:
-          "Recognized for uncovering and documenting a unique, off-the-beaten-path Himalayan destination.",
-      },
-      {
-        id: `mock-award-favorite-${postId}`,
-        postId,
-        shape: "circle",
-        theme: "#3B82F6",
-        period: "WEEK 24",
-        rank: "TOP",
-        suffix: "",
-        label: "FAVORITE",
-        value: "Most Loved Post",
-        description:
-          "Awarded for receiving the highest number of comments and community interactions in a single week.",
-      },
-    ];
+    const searchStr = JSON.stringify({
+      dataOption: "all",
+      criteria: [{ filterKey: "postId", operation: "eq", value: postId }],
+    });
+    const response = await api.get<SearchResponse<Award> | Award[]>(
+      `/content/api/award/search?search=${encodeURIComponent(searchStr)}`,
+    );
+    const awardsArray = Array.isArray(response.data)
+      ? response.data
+      : response.data?.data;
+    return Array.isArray(awardsArray) ? awardsArray : [];
   },
 
   getProfileMedia: async (
@@ -501,7 +425,10 @@ export const postService = {
           return profileRes?.data?.[0] || profileRes?.data || profileRes;
         } catch (e) {
           if (__DEV__) {
-            console.warn(`Failed to fetch profile for ID ${profileId}:`, e);
+            console.warn(
+              `Failed to fetch profile for ID ${profileId}:`,
+              e?.response,
+            );
           }
           return null;
         }
@@ -663,14 +590,12 @@ export const postService = {
           : null;
 
       const stats: RawStatItem[] = postDetail?.stats || [];
-      const likes_count =
-        stats.find((s) => s.statType === "LIKE")?.count || 0;
+      const likes_count = stats.find((s) => s.statType === "LIKE")?.count || 0;
       const comments_count =
         stats.find((s) => s.statType === "COMMENT")?.count || 0;
       const shares_count =
         stats.find((s) => s.statType === "SHARE")?.count || 0;
-      const saves_count =
-        stats.find((s) => s.statType === "SAVE")?.count || 0;
+      const saves_count = stats.find((s) => s.statType === "SAVE")?.count || 0;
       const is_liked = postDetail?.isLiked || false;
 
       const authorId = post.profileId || "84064d0c11c84e15bc3df02a2080ffe6";

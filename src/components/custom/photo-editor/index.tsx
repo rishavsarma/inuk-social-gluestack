@@ -1,4 +1,4 @@
-import * as FileSystem from "expo-file-system";
+import * as FileSystem from "expo-file-system/legacy";
 import { FlipType, manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import {
   Brush,
@@ -487,7 +487,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
 
             <Box className="flex-row items-center gap-2">
               <Button
-                size="xs"
+                size="sm"
                 variant="outline"
                 className="border-zinc-800"
                 onPress={handleReset}
@@ -662,7 +662,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                   contentContainerStyle={{ gap: 8 }}
                 >
                   <Button
-                    size="xs"
+                    size="sm"
                     variant="outline"
                     className="border-zinc-800 px-3 rounded-full"
                     onPress={() => handleCrop("1:1")}
@@ -674,7 +674,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     </ButtonText>
                   </Button>
                   <Button
-                    size="xs"
+                    size="sm"
                     variant="outline"
                     className="border-zinc-800 px-3 rounded-full"
                     onPress={() => handleCrop("16:9")}
@@ -686,7 +686,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     </ButtonText>
                   </Button>
                   <Button
-                    size="xs"
+                    size="sm"
                     variant="outline"
                     className="border-zinc-800 px-3 rounded-full"
                     onPress={() => handleCrop("4:3")}
@@ -714,7 +714,6 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       value={editorState.brightness * 50} // Map 0.5-1.5 to 25-75
                       minValue={25}
                       maxValue={75}
-                      size="sm"
                       onChange={(v) =>
                         setEditorState((prev) => ({
                           ...prev,
@@ -739,7 +738,6 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       value={editorState.contrast * 50}
                       minValue={25}
                       maxValue={75}
-                      size="sm"
                       onChange={(v) =>
                         setEditorState((prev) => ({
                           ...prev,
@@ -764,7 +762,6 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       value={editorState.saturation * 50} // Map 0-2 to 0-100
                       minValue={0}
                       maxValue={100}
-                      size="sm"
                       onChange={(v) =>
                         setEditorState((prev) => ({
                           ...prev,
@@ -836,7 +833,6 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       value={editorState.pixelate}
                       minValue={1.0}
                       maxValue={30.0}
-                      size="sm"
                       onChange={(v) =>
                         setEditorState((prev) => ({ ...prev, pixelate: v }))
                       }
@@ -859,7 +855,6 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       value={editorState.radialPixelRadius}
                       minValue={0.0}
                       maxValue={20.0}
-                      size="sm"
                       onChange={(v) =>
                         setEditorState((prev) => ({
                           ...prev,
@@ -886,7 +881,6 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       value={editorState.liquidStrength}
                       minValue={0.0}
                       maxValue={25.0}
-                      size="sm"
                       onChange={(v) =>
                         setEditorState((prev) => ({
                           ...prev,
@@ -915,7 +909,6 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     value={editorState.blur}
                     minValue={0.0}
                     maxValue={25.0}
-                    size="sm"
                     onChange={(v) =>
                       setEditorState((prev) => ({ ...prev, blur: v }))
                     }
@@ -982,7 +975,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                     contentContainerStyle={{ gap: 6 }}
                   >
                     <Button
-                      size="xs"
+                      size="sm"
                       className={`px-3 rounded-full ${drawType === "free" ? "bg-primary" : "bg-zinc-900 border border-zinc-800"}`}
                       onPress={() => setDrawType("free")}
                       accessibilityRole="button"
@@ -1000,7 +993,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       </ButtonText>
                     </Button>
                     <Button
-                      size="xs"
+                      size="sm"
                       className={`px-3 rounded-full ${drawType === "rect" ? "bg-primary" : "bg-zinc-900 border border-zinc-800"}`}
                       onPress={() => setDrawType("rect")}
                       accessibilityRole="button"
@@ -1018,7 +1011,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       </ButtonText>
                     </Button>
                     <Button
-                      size="xs"
+                      size="sm"
                       className={`px-3 rounded-full ${drawType === "circle" ? "bg-primary" : "bg-zinc-900 border border-zinc-800"}`}
                       onPress={() => setDrawType("circle")}
                       accessibilityRole="button"
@@ -1036,7 +1029,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       </ButtonText>
                     </Button>
                     <Button
-                      size="xs"
+                      size="sm"
                       className={`px-3 rounded-full ${drawType === "arrow" ? "bg-primary" : "bg-zinc-900 border border-zinc-800"}`}
                       onPress={() => setDrawType("arrow")}
                       accessibilityRole="button"
@@ -1063,7 +1056,6 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                       value={brushWidth}
                       minValue={2}
                       maxValue={20}
-                      size="sm"
                       style={{ width: 80 }}
                       onChange={setBrushWidth}
                     >

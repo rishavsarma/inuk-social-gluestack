@@ -312,6 +312,7 @@
   },
   "feed": {
     "title": "Feed",
+    "error_title": "Couldn't load your feed",
     "placeholder": "Your social feed will appear here.",
     "empty": "No posts yet. Tap '+' to create the first photography masterpiece!",
     "likes": "likes",
@@ -460,6 +461,7 @@
     "cover_upload_error": "Failed to update cover photo. Please try again."
   },
   "profile": {
+    "error_title": "Couldn't load this profile",
     "copied": "Copied!",
     "referral_copied": "Referral code \"{{code}}\" copied to clipboard!",
     "share_message": "Join me on Inuk! Use my referral code {{code}} to sign up: https://inukapp.com/join",
@@ -519,9 +521,6 @@
   },
   "theme": {
     "not_found": "Theme not found",
-    "category_label": "Category",
-    "subcategory_label": "Subcategory",
-    "all_subcategories": "All",
     "tab_post": "Post",
     "tab_photo": "Photo",
     "tab_video": "Video",
@@ -645,6 +644,7 @@
   },
   "common": {
     "error_loading": "Something went wrong. Please try again.",
+    "retry": "Retry",
     "not_available": "N/A",
     "user": "User",
     "go_back": "Go back",

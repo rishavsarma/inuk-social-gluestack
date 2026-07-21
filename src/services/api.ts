@@ -1,8 +1,13 @@
 import { useAuthStore } from "@/stores/auth.store";
 import { create, type AxiosError } from "axios";
 
+// Dev-only fallback: a release build must ship with EXPO_PUBLIC_API_URL set
+// (eas.json build profiles) — failing loudly beats silently talking to the dev API.
 const API_BASE_URL =
-  process.env.EXPO_PUBLIC_API_URL ?? "https://dev.apiv2.inuk.in";
+  process.env.EXPO_PUBLIC_API_URL ?? (__DEV__ ? "https://dev.apiv2.inuk.in" : "");
+if (!API_BASE_URL) {
+  throw new Error("EXPO_PUBLIC_API_URL must be set for release builds");
+}
 
 export { API_BASE_URL };
 

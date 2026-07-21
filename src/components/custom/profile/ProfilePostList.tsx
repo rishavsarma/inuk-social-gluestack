@@ -117,7 +117,7 @@ function ProfileGridItem({
                 style={{ flex: 1 }}
                 contentFit="cover"
                 transition={200}
-                onError={() => setErroredUrl(postData.url)}
+                onError={() => setErroredUrl(postData.url ?? null)}
                 alt={t("profile.post_thumbnail_alt", { type: typeStr })}
               />
             )}

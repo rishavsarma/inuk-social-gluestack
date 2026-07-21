@@ -525,7 +525,7 @@ export const AwardBadge = React.memo(function AwardBadge({
   const sparkle2Opacity = useSharedValue(0);
 
   React.useEffect(() => {
-    let timeoutId: NodeJS.Timeout;
+    let timeoutId: ReturnType<typeof setTimeout>;
 
     const runAnimation = () => {
       // Choose random coordinates inside safe bounds on every cycle

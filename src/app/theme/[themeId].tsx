@@ -4,9 +4,9 @@ import { router, useLocalSearchParams, type Href } from "expo-router";
 
 import { useWindowDimensions } from "react-native";
 
-import { Image } from "expo-image";
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
 import {
+  ChevronRight,
   FileText,
   HelpCircle,
   Image as ImageIcon,
@@ -17,20 +17,23 @@ import {
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
+import { useAppTopInset } from "@/hooks/useAppInsets";
 import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { useFeedPostsList } from "@/hooks/usePosts";
 
 import ArenaQuizCard from "@/components/custom/arena/ArenaQuizCard";
+import { CategoryBannerHeader } from "@/components/custom/discover/CategoryBannerHeader";
+import { CategorySubcategoryList } from "@/components/custom/discover/CategorySubcategoryList";
+import PlaceHubModal from "@/components/custom/discover/PlaceHubModal";
 import { EmptyState } from "@/components/custom/feed/EmptyState";
 import { PostSkeleton } from "@/components/custom/feed/PostSkeleton";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import ProfileGridItem from "@/components/custom/profile/ProfilePostList";
-import { ThemeChipRow } from "@/components/custom/theme/ThemeChipRow";
+import { getHeaderBarHeight } from "@/components/custom/UiHeader";
 
 import { Box } from "@/components/ui/box";
 import { Divider } from "@/components/ui/divider";
-import { Heading } from "@/components/ui/heading";
-import { LinearGradient } from "@/components/ui/linear-gradient";
+import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Tabs,
@@ -42,8 +45,12 @@ import {
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
-import { FEED_CATEGORIES, MOCK_ARENA_QUIZZES } from "@/constants/mock-data";
-import { POST_CATEGORIES } from "@/constants/create-post";
+import { MOCK_ARENA_QUIZZES } from "@/constants/mock-data";
+import {
+  CAT_BY_TITLE,
+  THEME_ID_TO_TAXONOMY_TITLE,
+} from "@/constants/discover-web-data";
+import { resolveTaxonomyIcon } from "@/constants/mdi-icon-map";
 import { ROUTES } from "@/routes";
 
 type ThemeTab = "post" | "photo" | "video" | "article" | "quizzes";
@@ -62,50 +69,43 @@ const ThemeScreen = () => {
   const { themeId } = useLocalSearchParams<{ themeId: string }>();
   const { width } = useWindowDimensions();
   const isDark = useIsDarkMode();
+  const safeAreaTopInset = useAppTopInset();
+  const headerBarHeight = getHeaderBarHeight(safeAreaTopInset);
 
-  const theme = useMemo(
-    () => FEED_CATEGORIES.find((item) => item.id === themeId),
-    [themeId],
-  );
+  const taxonomyCategory = useMemo(() => {
+    const title = themeId ? THEME_ID_TO_TAXONOMY_TITLE[themeId] : undefined;
+    return title ? CAT_BY_TITLE[title] : undefined;
+  }, [themeId]);
+
+  const headerTitleIcon = taxonomyCategory ? (
+    <Icon
+      as={resolveTaxonomyIcon(taxonomyCategory.icon, ChevronRight)}
+      size="sm"
+      style={{
+        color: isDark ? taxonomyCategory.onColour : taxonomyCategory.text,
+      }}
+    />
+  ) : undefined;
 
   const [activeTab, setActiveTab] = useState<ThemeTab>("post");
-  const [activeCategoryId, setActiveCategoryId] = useState<string | undefined>(
-    themeId,
-  );
-  const [activeSubcategory, setActiveSubcategory] = useState<string | null>(
-    null,
-  );
+  const [activeSubTitle, setActiveSubTitle] = useState<string | null>(null);
+  const [subject, setSubject] = useState<DiscoverSubject | null>(null);
 
-  const category = useMemo(
-    () => POST_CATEGORIES.find((item) => item.id === activeCategoryId),
-    [activeCategoryId],
-  );
-
-  const categoryOptions = useMemo(
-    () =>
-      POST_CATEGORIES.map((option) => ({
-        id: option.id,
-        labelKey: option.labelKey,
-        accentClassName: option.dotColorClassName,
-      })),
+  const openEntity = useCallback(
+    (name: string, cat: TaxonomyCategory, sub: string) => {
+      setSubject({
+        name,
+        breadcrumb: `${cat.displayTitle} · ${sub}`,
+        colour: cat.colour,
+        onColour: cat.onColour,
+        background: cat.background,
+        text: cat.text,
+        icon: cat.icon,
+        theme: cat.theme,
+      });
+    },
     [],
   );
-
-  const subcategoryOptions = useMemo(
-    () =>
-      category?.subcategoryLabelKeys.map((key) => ({
-        id: key,
-        labelKey: key,
-        accentClassName: category.dotColorClassName,
-      })) ?? [],
-    [category],
-  );
-
-  const handleCategorySelect = useCallback((id: string | null) => {
-    if (!id) return;
-    setActiveCategoryId(id);
-    setActiveSubcategory(null);
-  }, []);
 
   const {
     posts: feedPosts,
@@ -126,14 +126,14 @@ const ThemeScreen = () => {
       result = result.filter((post: FeedPostItem) => post.type === "article");
     }
 
-    if (activeSubcategory) {
-      const keyword = activeSubcategory.split(".").pop()?.toLowerCase();
+    if (activeSubTitle) {
+      const keyword = activeSubTitle.toLowerCase();
       result = result.filter((post: FeedPostItem) =>
-        post.tags?.some((tag) => tag.toLowerCase() === keyword),
+        post.tags?.some((tag) => keyword.includes(tag.toLowerCase())),
       );
     }
     return result;
-  }, [feedPosts, activeTab, activeSubcategory]);
+  }, [feedPosts, activeTab, activeSubTitle]);
 
   const handlePostPress = useCallback((post: FeedPostItem) => {
     const postMediaId = post.media?.[0]?.id;
@@ -186,7 +186,7 @@ const ThemeScreen = () => {
     [handleStartQuiz],
   );
 
-  if (!theme) {
+  if (!taxonomyCategory) {
     return (
       <KeyboardAvoidingScrollView showBackButton alwaysShowBar>
         <VStack className="flex-1 items-center justify-center px-6">
@@ -198,62 +198,22 @@ const ThemeScreen = () => {
 
   const themeHeader = (
     <VStack>
-      {/* <Box className="relative h-56 w-full overflow-hidden bg-muted">
-        <Image
-          source={{ uri: theme.imageUrl }}
-          style={{ width: "100%", height: "100%" }}
-          contentFit="cover"
-          transition={200}
-          alt={t("feed.category_thumbnail_alt", {
-            category: t(theme.labelKey),
-          })}
+      {/* <CategoryBannerHeader
+        category={taxonomyCategory}
+        showIcon={false}
+        showTitle={false}
+        overlapHeaderHeight={headerBarHeight}
+      /> */}
+      <Box className="py-2">
+        <CategorySubcategoryList
+          category={taxonomyCategory}
+          onEntity={openEntity}
+          onSubcategoryToggle={setActiveSubTitle}
+          layout="scroll"
         />
-        <LinearGradient
-          colors={["transparent", "rgba(0,0,0,0.05)", "rgba(0,0,0,0.85)"]}
-          locations={[0, 0.45, 1]}
-          style={{
-            position: "absolute",
-            left: 0,
-            right: 0,
-            bottom: 0,
-            top: 0,
-          }}
-        />
+      </Box>
 
-        <VStack className="absolute bottom-4 left-4 right-4">
-          <Heading
-            size="2xl"
-            numberOfLines={2}
-            className="font-baloo-extrabold text-white"
-          >
-            {t(theme.labelKey)}
-          </Heading>
-        </VStack>
-      </Box> */}
-
-      <VStack space="md" className="pt-4">
-        <ThemeChipRow
-          label={t("theme.category_label")}
-          options={categoryOptions}
-          selectedId={activeCategoryId ?? null}
-          onSelect={handleCategorySelect}
-          getLabel={t}
-          showDot
-        />
-
-        {subcategoryOptions.length > 0 && (
-          <ThemeChipRow
-            label={t("theme.subcategory_label")}
-            options={subcategoryOptions}
-            selectedId={activeSubcategory}
-            onSelect={setActiveSubcategory}
-            getLabel={t}
-            clearLabel={t("theme.all_subcategories")}
-          />
-        )}
-      </VStack>
-
-      <Divider className="mx-4 mt-4" />
+      {/* <Divider className="mx-4 mt-4" /> */}
 
       <Tabs
         value={activeTab}
@@ -281,79 +241,89 @@ const ThemeScreen = () => {
   );
 
   return (
-    <KeyboardAvoidingScrollView
-      variant="list"
-      showBackButton
-      alwaysShowBar
-      title={t(theme.labelKey)}
-    >
-      {({ scrollProps, topInset }) =>
-        activeTab === "quizzes" ? (
-          <FlashList
-            data={MOCK_ARENA_QUIZZES}
-            keyExtractor={(item) => item.id}
-            renderItem={renderQuizItem}
-            {...scrollProps}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingTop: topInset,
-              paddingBottom: 160,
-            }}
-            ListHeaderComponent={themeHeader}
-            ItemSeparatorComponent={() => <Box className="h-3" />}
-            ListEmptyComponent={
-              <EmptyState
-                icon={HelpCircle}
-                title={t("arena.empty_title")}
-                description={t("arena.quizzes_empty")}
-                fullScreen={false}
-              />
-            }
-          />
-        ) : (
-          <FlashList
-            data={filteredPosts}
-            extraData={filteredPosts}
-            numColumns={3}
-            keyExtractor={(item: FeedPostItem) => String(item.id)}
-            renderItem={renderGridItem}
-            {...scrollProps}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingTop: topInset,
-              paddingBottom: 160,
-            }}
-            ListHeaderComponent={themeHeader}
-            ListEmptyComponent={
-              isLoading ? (
-                <VStack space="lg" className="pt-4">
-                  <PostSkeleton />
-                  <PostSkeleton />
-                </VStack>
-              ) : (
+    <>
+      <KeyboardAvoidingScrollView
+        variant="list"
+        showBackButton
+        alwaysShowBar
+        title={taxonomyCategory.displayTitle}
+        headerBackgroundColor={
+          isDark ? taxonomyCategory.colour : taxonomyCategory.background
+        }
+        headerTitleStyle={{
+          color: isDark ? taxonomyCategory.onColour : taxonomyCategory.text,
+        }}
+        headerTitleIcon={headerTitleIcon}
+      >
+        {({ scrollProps, topInset }) =>
+          activeTab === "quizzes" ? (
+            <FlashList
+              data={MOCK_ARENA_QUIZZES}
+              keyExtractor={(item) => item.id}
+              renderItem={renderQuizItem}
+              {...scrollProps}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingTop: topInset,
+                paddingBottom: 160,
+              }}
+              ListHeaderComponent={themeHeader}
+              ItemSeparatorComponent={() => <Box className="h-3" />}
+              ListEmptyComponent={
                 <EmptyState
-                  icon={ImageOff}
-                  title={t("feed.empty")}
-                  description={t("feed.placeholder")}
+                  icon={HelpCircle}
+                  title={t("arena.empty_title")}
+                  description={t("arena.quizzes_empty")}
+                  fullScreen={false}
                 />
-              )
-            }
-            onRefresh={refetch}
-            onEndReached={() => {
-              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-            }}
-            onEndReachedThreshold={0.5}
-            ListFooterComponent={
-              isFetchingNextPage ? (
-                <Box className="items-center py-6">
-                  <Spinner />
-                </Box>
-              ) : null
-            }
-          />
-        )
-      }
-    </KeyboardAvoidingScrollView>
+              }
+            />
+          ) : (
+            <FlashList
+              data={filteredPosts}
+              extraData={filteredPosts}
+              numColumns={3}
+              keyExtractor={(item: FeedPostItem) => String(item.id)}
+              renderItem={renderGridItem}
+              {...scrollProps}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingTop: topInset,
+                paddingBottom: 160,
+              }}
+              ListHeaderComponent={themeHeader}
+              ListEmptyComponent={
+                isLoading ? (
+                  <VStack space="lg" className="pt-4">
+                    <PostSkeleton />
+                    <PostSkeleton />
+                  </VStack>
+                ) : (
+                  <EmptyState
+                    icon={ImageOff}
+                    title={t("feed.empty")}
+                    description={t("feed.placeholder")}
+                  />
+                )
+              }
+              onRefresh={refetch}
+              onEndReached={() => {
+                if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+              }}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={
+                isFetchingNextPage ? (
+                  <Box className="items-center py-6">
+                    <Spinner />
+                  </Box>
+                ) : null
+              }
+            />
+          )
+        }
+      </KeyboardAvoidingScrollView>
+      <PlaceHubModal subject={subject} onClose={() => setSubject(null)} />
+    </>
   );
 };
 

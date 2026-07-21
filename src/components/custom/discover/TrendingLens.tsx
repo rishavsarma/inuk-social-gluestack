@@ -11,7 +11,7 @@ import { VStack } from "@/components/ui/vstack";
 
 import { resolveTaxonomyIcon } from "@/constants/mdi-icon-map";
 import { POPULAR } from "@/constants/discover-web-data";
-import { WEB_FONT_BODY, WEB_FONT_ROUND, WEB_TEXT_SUB } from "@/constants/web-reference-theme";
+import { WEB_FONT_BODY, WEB_FONT_ROUND } from "@/constants/web-reference-theme";
 
 interface TrendingLensProps {
   onEntity: (name: string, cat: TaxonomyCategory, sub: string) => void;
@@ -20,7 +20,7 @@ interface TrendingLensProps {
 function TrendingLens({ onEntity }: TrendingLensProps) {
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingTop: 8 }}>
-      <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mb-2.5 mt-4.5 px-4.5 text-[14px]`}>
+      <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-2.5 mt-4.5 px-4.5 text-[14px]`}>
         Trending this week
       </Text>
       <Box className="flex-row flex-wrap gap-2.5 px-3.5">
@@ -50,7 +50,7 @@ function TrendingLens({ onEntity }: TrendingLensProps) {
           </Pressable>
         ))}
       </Box>
-      <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} mt-5 px-7.5 text-center text-[12.5px]`}>
+      <Text className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-5 px-7.5 text-center text-[12.5px]`}>
         Real-time trending arrives with post activity.
       </Text>
     </ScrollView>

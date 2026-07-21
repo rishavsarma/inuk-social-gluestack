@@ -94,7 +94,7 @@ function FeedPostCardComponent({
                 <Text size="md" className="py-0 font-baloo-bold ">
                   {displayName}
                 </Text>
-                <HStack space="xxs" className="items-center">
+                <HStack space="xs" className="items-center">
                   {location ? (
                     <>
                       <Text

@@ -6,6 +6,7 @@ import { Share, type LayoutChangeEvent } from "react-native";
 
 import { Box } from "@/components/ui/box";
 import { Spinner } from "@/components/ui/spinner";
+import { Text } from "@/components/ui/text";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
@@ -14,7 +15,7 @@ import {
   type ListRenderItemInfo,
   type ViewToken,
 } from "@shopify/flash-list";
-import { ImageOff } from "lucide-react-native";
+import { CloudOff, ImageOff } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
 import { useAuthStore } from "@/stores/auth.store";
@@ -41,6 +42,7 @@ const FeedScreen = () => {
   const {
     posts: feedPosts,
     isLoading,
+    isError,
     isRefetching,
     refetch,
     hasNextPage,
@@ -189,8 +191,9 @@ const FeedScreen = () => {
 
   const handleProfilePress = useCallback((post: FeedPostItem) => {
     const postMediaId = post.media?.[0]?.id;
-    if (!postMediaId || !post.id) return;
-    router.push(ROUTES.USER.PROFILE(post.author?.id) as Href);
+    const authorId = post.author?.id;
+    if (!postMediaId || !post.id || !authorId) return;
+    router.push(ROUTES.USER.PROFILE(authorId) as Href);
   }, []);
 
   const handleCommentPress = useCallback((post: FeedPostItem) => {
@@ -206,7 +209,6 @@ const FeedScreen = () => {
 
   const handleLikePress = useCallback(
     (post: FeedPostItem) => {
-      console.log("post");
       if (!post.id) return;
       likeMutation.mutate({
         postId: String(post.id),
@@ -300,7 +302,14 @@ const FeedScreen = () => {
                 <Box onLayout={handleFeedHeaderLayout}>
                   <FeedHeader />
                 </Box>
-                <FeedCategories />
+                {/* <Text className="px-4 pt-1 text-xs font-semibold text-muted-foreground">
+                  A · Rounded-square
+                </Text> */}
+                <FeedCategories variant="rounded" />
+                {/* <Text className="px-4 pt-1 text-xs font-semibold text-muted-foreground">
+                  C · Glossy gradient
+                </Text>
+                <FeedCategories variant="glossy" /> */}
               </>
             }
             ItemSeparatorComponent={() => <Box className="h-4" />}
@@ -310,6 +319,14 @@ const FeedScreen = () => {
                   <PostSkeleton />
                   <PostSkeleton />
                 </VStack>
+              ) : isError ? (
+                <EmptyState
+                  icon={CloudOff}
+                  title={t("feed.error_title")}
+                  description={t("common.error_loading")}
+                  actionLabel={t("common.retry")}
+                  onAction={refetch}
+                />
               ) : (
                 <EmptyState
                   icon={ImageOff}

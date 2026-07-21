@@ -48,6 +48,11 @@ import { useAppTopInset } from "@/hooks/useAppInsets";
 import { AnimatedStatNumber } from "../NumberFormatter";
 import { LinearGradient } from "@/components/ui/linear-gradient";
 
+/** MountainIcon pinned to a thin stroke — Icon's props don't forward strokeWidth. */
+function ThinMountainIcon(props: React.ComponentProps<typeof MountainIcon>) {
+  return <MountainIcon strokeWidth={1.25} {...props} />;
+}
+
 import { formatCompactNumber } from "@/utils/formatNumber";
 import { ROUTES } from "@/routes";
 
@@ -157,11 +162,7 @@ function ListHeader({
             style={{ width: "100%", height: "100%" }}
           >
             <Box className="flex-1 items-center justify-center">
-              <Icon
-                as={MountainIcon}
-                className="h-20 w-20 text-white/15"
-                strokeWidth={1.25}
-              />
+              <Icon as={ThinMountainIcon} className="h-20 w-20 text-white/15" />
             </Box>
           </LinearGradient>
         )}

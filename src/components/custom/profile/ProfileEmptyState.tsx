@@ -72,7 +72,7 @@ export function ProfileEmptyState({
             justifyContent: "center",
           }}
         >
-          <Icon as={tabIcon} size={36} className="text-white" />
+          <Icon as={tabIcon} className="h-9 w-9 text-white" />
         </LinearGradient>
       </Box>
 

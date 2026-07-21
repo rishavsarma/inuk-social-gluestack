@@ -1,7 +1,6 @@
 import { useCallback, useMemo, useState } from "react";
 
 import { Search } from "lucide-react-native";
-import { useColorScheme } from "react-native";
 
 import CategoryDetailModal from "@/components/custom/discover/CategoryDetailModal";
 import CategoryLens from "@/components/custom/discover/CategoryLens";
@@ -18,14 +17,14 @@ import { Text } from "@/components/ui/text";
 import { View } from "@/components/ui/view";
 import { VStack } from "@/components/ui/vstack";
 
+import { THEME_ACCENT_COLOR } from "@/constants";
 import { TAX, type WebTrendingTag } from "@/constants/discover-web-data";
-import { WEB_FONT_ROUND, WEB_PALETTE, WEB_TEXT_INK, WEB_TEXT_SUB } from "@/constants/web-reference-theme";
+import { WEB_FONT_ROUND } from "@/constants/web-reference-theme";
 
 const LENSES = ["Location", "Category", "Tag", "Trending"] as const;
 type DiscoverLens = (typeof LENSES)[number];
 
 const DiscoverScreen = () => {
-  const isDark = useColorScheme() === "dark";
   const [lens, setLens] = useState<DiscoverLens>("Category");
   const [openCat, setOpenCat] = useState<TaxonomyCategory | null>(null);
   const [subject, setSubject] = useState<DiscoverSubject | null>(null);
@@ -37,6 +36,8 @@ const DiscoverScreen = () => {
       breadcrumb: `${cat.displayTitle} · ${sub}`,
       colour: cat.colour,
       onColour: cat.onColour,
+      background: cat.background,
+      text: cat.text,
       icon: cat.icon,
       theme: cat.theme,
     });
@@ -46,7 +47,7 @@ const DiscoverScreen = () => {
     setSubject({
       name: "#" + t.tag,
       breadcrumb: `Tag · ${t.posts.toLocaleString()} posts`,
-      colour: WEB_PALETTE.red,
+      colour: THEME_ACCENT_COLOR,
       onColour: "#FFFFFF",
       icon: "mdi:pound",
       theme: null,
@@ -64,30 +65,23 @@ const DiscoverScreen = () => {
     );
   }, [q]);
 
-  const bg = isDark ? "#12142A" : "#FFFFFF";
-  const inputBg = isDark ? "#20233B" : "#F0F0F3";
-
   return (
-    <View className="flex-1" style={{ backgroundColor: bg }}>
+    <View className="flex-1 bg-background">
       <Box className="px-4.5 pb-1.5 pt-13">
-        <Text className={`${WEB_FONT_ROUND[800]} ${WEB_TEXT_INK} text-[27px]`}>Discover</Text>
-        <Input
-          style={{ backgroundColor: inputBg }}
-          className="mt-2.5 h-10 min-h-0 rounded-full border-0 px-0"
-        >
+        <Text className={`${WEB_FONT_ROUND[800]} text-foreground text-[27px]`}>Discover</Text>
+        <Input className="mt-2.5 h-10 min-h-0 rounded-full border-transparent bg-muted/40 px-0 dark:bg-input/30">
           <InputSlot className="pl-3.5">
-            <InputIcon as={Search} className={WEB_TEXT_SUB} />
+            <InputIcon as={Search} className="text-muted-foreground" />
           </InputSlot>
           <InputField
             value={q}
             onChangeText={setQ}
             placeholder="Search places, people, tags"
-            placeholderTextColor={isDark ? "#C4C8DB" : "rgba(27,31,59,0.6)"}
             autoCapitalize="none"
             autoCorrect={false}
             returnKeyType="search"
             accessibilityLabel="Search places, people, tags"
-            className={`${WEB_TEXT_INK} text-[14px]`}
+            className="text-[14px]"
           />
         </Input>
         {!q.trim() ? (
@@ -98,14 +92,12 @@ const DiscoverScreen = () => {
                 onPress={() => setLens(l)}
                 accessibilityRole="button"
                 accessibilityLabel={l}
-                style={{ backgroundColor: lens === l ? WEB_PALETTE.red : inputBg }}
-                className="h-8.5 items-center justify-center rounded-full px-4"
+                className={`h-8.5 items-center justify-center rounded-full px-4 ${
+                  lens === l ? "bg-theme" : "bg-muted/40 dark:bg-input/30"
+                }`}
               >
                 <Text
-                  style={{ color: lens === l ? "#FFFFFF" : undefined }}
-                  className={`${lens === l ? WEB_FONT_ROUND[700] : WEB_FONT_ROUND[500]} text-[13.5px] ${
-                    lens === l ? "" : WEB_TEXT_SUB
-                  }`}
+                  className={`${lens === l ? `${WEB_FONT_ROUND[700]} text-white` : `${WEB_FONT_ROUND[500]} text-muted-foreground`} text-[13.5px]`}
                 >
                   {l}
                 </Text>

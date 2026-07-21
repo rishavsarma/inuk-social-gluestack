@@ -74,46 +74,6 @@ export const MOCK_TRENDING_TOPICS: TrendingTopic[] = [
   { id: "topic-6", tag: "SunriseChasers", postsCount: 1900 },
 ];
 
-export const FEED_CATEGORIES: FeedCategory[] = [
-  {
-    id: "nature",
-    labelKey: "feed.categories.nature",
-    ringClassName: "border-emerald-500",
-    imageUrl:
-      "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&q=80&w=150&h=150",
-  },
-  {
-    id: "photography",
-    labelKey: "feed.categories.photography",
-    ringClassName: "border-blue-500",
-    imageUrl: "https://picsum.photos/seed/inuk-photography/200/200",
-  },
-  {
-    id: "design",
-    labelKey: "feed.categories.design",
-    ringClassName: "border-violet-500",
-    imageUrl: "https://picsum.photos/seed/inuk-design/200/200",
-  },
-  {
-    id: "travel",
-    labelKey: "feed.categories.travel",
-    ringClassName: "border-orange-500",
-    imageUrl: "https://picsum.photos/seed/inuk-travel/200/200",
-  },
-  {
-    id: "food",
-    labelKey: "feed.categories.food",
-    ringClassName: "border-red-500",
-    imageUrl: "https://picsum.photos/seed/inuk-food/200/200",
-  },
-  {
-    id: "fashion",
-    labelKey: "feed.categories.fashion",
-    ringClassName: "border-pink-500",
-    imageUrl: "https://picsum.photos/seed/inuk-fashion/200/200",
-  },
-];
-
 const HOUR_MS = 60 * 60 * 1000;
 const now = Date.now();
 

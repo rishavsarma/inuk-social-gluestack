@@ -1,4 +1,5 @@
 /** Byte-exact port of inuk.social-web's Discover data constants (screens.js ~L2085-2117). */
+import { THEME_ACCENT_COLOR } from "@/constants";
 import taxonomyJson from "@/constants/discover-taxonomy.json";
 
 export const TAX = taxonomyJson as TaxonomyData;
@@ -7,8 +8,28 @@ export const CAT_BY_TITLE: Record<string, TaxonomyCategory> = Object.fromEntries
   TAX.categories.map((x) => [x.title, x]),
 );
 
-/** location-lens accent */
-export const LOC = "#00838F";
+function slugifyTaxonomyTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+/** The `/theme/[themeId]` route id for a taxonomy category — a slug of its title. */
+export function taxonomyThemeId(category: TaxonomyCategory): string {
+  return slugifyTaxonomyTitle(category.title);
+}
+
+/** Maps a `/theme/[themeId]` route param back to its taxonomy category title, so the
+ * theme detail page can look the full category up via `CAT_BY_TITLE`. */
+export const THEME_ID_TO_TAXONOMY_TITLE: Record<string, string> = Object.fromEntries(
+  TAX.categories.map((x) => [slugifyTaxonomyTitle(x.title), x.title]),
+);
+
+/** location-lens accent — the app's real brand accent, so Discover's Location
+ * lens matches the rest of the app instead of its own bespoke teal. */
+export const LOC = THEME_ACCENT_COLOR;
 
 interface PopularEntitySeed {
   name: string;

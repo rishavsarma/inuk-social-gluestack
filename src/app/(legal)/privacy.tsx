@@ -108,7 +108,7 @@ const PrivacyScreen = () => {
         {/* Section Cards */}
         <SectionCard title={t("legal.privacy.sec1_title")} icon={Database}>
           <VStack space="md" className="mt-2 pl-1">
-            <VStack space="3xs">
+            <VStack space="2xs">
               <Heading
                 size="xs"
                 className="text-foreground font-semibold text-xs"
@@ -120,7 +120,7 @@ const PrivacyScreen = () => {
               </Text>
             </VStack>
             <VStack space="md" className="h-px bg-zinc-900 my-2" />
-            <VStack space="3xs">
+            <VStack space="2xs">
               <Heading
                 size="xs"
                 className="text-foreground font-semibold text-xs"

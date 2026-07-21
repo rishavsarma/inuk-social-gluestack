@@ -140,7 +140,9 @@ const VerifyOtp = () => {
         },
         {
           onSuccess: (res) => {
-            setToken(res?.data?.token);
+            const token = res?.data?.token;
+            if (!token) return;
+            setToken(token);
             router.push({
               pathname: ROUTES.AUTH.SET_PASSWORD,
               params: { mode: "set-password" },

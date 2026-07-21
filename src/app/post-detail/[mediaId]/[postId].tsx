@@ -331,7 +331,6 @@ const PostDetail = () => {
       !isVideoPost,
     );
 
-  console.log("photoDetails", JSON.stringify(photoDetails));
   const { data: videoDetails, isLoading: isLoadingVideo } =
     usePostVideoDetailsQuery(
       id,

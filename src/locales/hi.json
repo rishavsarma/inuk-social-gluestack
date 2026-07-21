@@ -260,6 +260,7 @@
   },
   "feed": {
     "title": "फ़ीड",
+    "error_title": "फ़ीड लोड नहीं हो सकी",
     "placeholder": "आपकी फ़ीड यहाँ दिखाई देगी।",
     "empty": "अभी कोई पोस्ट नहीं है। पहली शानदार फ़ोटो बनाने के लिए '+' दबाएं!",
     "likes": "पसंद",
@@ -416,6 +417,7 @@
     "avatar_alt": "{{name}} की प्रोफ़ाइल तस्वीर",
     "cover_photo_alt": "{{name}} का कवर फ़ोटो",
     "post_thumbnail_alt": "{{type}} पोस्ट थंबनेल",
+    "error_title": "प्रोफ़ाइल लोड नहीं हो सकी",
     "copied": "कॉपी हो गया!",
     "referral_copied": "रेफ़रल कोड \"{{code}}\" क्लिपबोर्ड पर कॉपी हो गया!",
     "share_message": "Inuk पर मेरे साथ जुड़ें! साइन अप करने के लिए मेरा रेफ़रल कोड {{code}} उपयोग करें: https://inukapp.com/join",
@@ -515,6 +517,7 @@
   },
   "common": {
     "error_loading": "कुछ गलत हो गया। कृपया पुनः प्रयास करें。",
+    "retry": "पुनः प्रयास करें",
     "not_available": "लागू नहीं",
     "user": "उपयोगकर्ता",
     "go_back": "वापस जाएं",
@@ -705,9 +708,6 @@
   },
   "theme": {
     "not_found": "थीम नहीं मिली",
-    "category_label": "श्रेणी",
-    "subcategory_label": "उपश्रेणी",
-    "all_subcategories": "सभी",
     "tab_post": "पोस्ट",
     "tab_photo": "फ़ोटो",
     "tab_video": "वीडियो",

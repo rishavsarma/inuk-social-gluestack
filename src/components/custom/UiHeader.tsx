@@ -7,7 +7,7 @@ import { router } from "expo-router";
 import { ArrowLeftIcon } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Platform, StyleSheet } from "react-native";
+import { Platform, StyleSheet, TextStyle, type StyleProp } from "react-native";
 import Animated, {
   Extrapolation,
   interpolate,
@@ -45,6 +45,11 @@ export interface HeaderProps {
   customBackButton?: React.ReactNode;
   className?: string;
   titleClassName?: string;
+  /** Inline colour override for the title, e.g. a category's dynamic ink colour that
+   * a static className can't express. Applied alongside titleClassName. */
+  titleStyle?: StyleProp<TextStyle>;
+  /** Rendered immediately before the title text, e.g. a category icon. */
+  titleIcon?: React.ReactNode;
   topInset?: number;
   blurTint?: "light" | "dark" | "default" | "prominent" | "regular";
   blurIntensity?: number;
@@ -65,6 +70,8 @@ export function UiHeader({
   customBackButton,
   className,
   titleClassName,
+  titleStyle,
+  titleIcon,
   topInset = 0,
   blurTint,
   blurIntensity,
@@ -76,7 +83,6 @@ export function UiHeader({
   const isDark = useIsDarkMode();
   const { t } = useTranslation();
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  console.log("isAuthenticated", isAuthenticated);
 
   const handleBack = () => {
     if (onBackPress) {
@@ -149,15 +155,19 @@ export function UiHeader({
         {showBackButton && (
           <HStack space="sm" className="min-h-10 items-center justify-between">
             <Box className="h-10 w-10" />
-            <Text
-              numberOfLines={1}
-              className={cn(
-                "flex-1 text-center text-base font-bold text-foreground",
-                titleClassName,
-              )}
-            >
-              {title}
-            </Text>
+            <HStack space="xs" className="flex-1 items-center justify-center">
+              {titleIcon}
+              <Text
+                numberOfLines={1}
+                style={titleStyle}
+                className={cn(
+                  "shrink text-center text-base font-bold text-foreground",
+                  titleClassName,
+                )}
+              >
+                {title}
+              </Text>
+            </HStack>
             <Box className="h-10 w-10 items-center justify-center">
               {rightElement}
             </Box>

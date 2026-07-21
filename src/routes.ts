@@ -7,7 +7,6 @@ export const ROUTES = {
   } as const,
   AUTH: {
     HOME: "/(auth)" as const,
-    SIGNUP: "/(auth)/signup" as const,
     SET_PASSWORD: "/(auth)/set-password" as const,
     SET_REFERRAL: "/(auth)/set-referral" as const,
     SET_PROFILE: "/(auth)/set-profile" as const,
@@ -27,8 +26,6 @@ export const ROUTES = {
   CONTENT: {
     POST_DETAILS: (mediaId: string, postId: string) =>
       `/post-detail/${mediaId}/${postId}` as const,
-    POST_COMMENTS: (mediaId: string | number, postId: string | number) =>
-      `/post/${mediaId}/${postId}?comments=true` as const,
     THEME_DETAILS: (id: string) => `/theme/${id}` as const,
   },
   ARENA: {
@@ -49,7 +46,6 @@ export const ROUTES = {
     DATA_PRIVACY: "/profile-menu/data-privacy" as const,
     LANGUAGE: "/profile-menu/language" as const,
     THEME: "/profile-menu/theme" as const,
-    MY_POSTS: "/my-posts" as const,
   },
   LEGAL: {
     TERMS: "/(legal)/terms" as const,

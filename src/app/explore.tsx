@@ -7,9 +7,9 @@ import { View } from "react-native";
 
 import { FlashList } from "@shopify/flash-list";
 
+import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Divider } from "@/components/ui/divider";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
@@ -27,10 +27,9 @@ import { MOCK_SEARCH_PROFILES, MOCK_TRENDING_TOPICS } from "@/constants/mock-dat
 import { formatCompactNumber } from "@/utils/formatNumber";
 
 import { EmptyState } from "@/components/custom/feed/EmptyState";
-import ProfileListItem, {
-  ProfileListItemSkeleton,
-} from "@/components/custom/profile/ProfileListItem";
-import SuggestedProfileCard from "@/components/custom/profile/SuggestedProfileCard";
+import SuggestedProfileCard, {
+  SuggestedProfileCardSkeleton,
+} from "@/components/custom/profile/SuggestedProfileCard";
 
 const SEARCH_DEBOUNCE_MS = 300;
 
@@ -101,7 +100,7 @@ const SearchScreen = () => {
 
   const renderItem = useCallback(
     ({ item }: { item: NetworkProfileItem }) => (
-      <ProfileListItem
+      <SuggestedProfileCard
         profile={item}
         isSelf={item.id === currentUserId}
         isFollowLoading={
@@ -112,99 +111,6 @@ const SearchScreen = () => {
     ),
     [currentUserId, handleToggleFollow, isFollowPending, followVariables],
   );
-
-  const listEmptyComponent = useMemo(() => {
-    if (!debouncedQuery.trim()) {
-      return (
-        <VStack space="lg" className="px-4 pt-2">
-          <Card className="gap-3 rounded-2xl">
-            <HStack space="xs" className="items-center">
-              <Icon as={Flame} size="sm" className="text-theme" />
-              <Heading size="sm" className="font-baloo-bold text-foreground">
-                {t("search.trending_searches")}
-              </Heading>
-            </HStack>
-            <HStack space="sm" className="flex-row flex-wrap">
-              {MOCK_TRENDING_TOPICS.map((topic, index) => (
-                <Pressable
-                  key={topic.id}
-                  onPress={() => setQuery(topic.tag)}
-                  accessibilityRole="button"
-                  accessibilityLabel={topic.tag}
-                  className="w-[48%] gap-1 rounded-xl border border-border bg-input/10 p-3 active:opacity-70"
-                >
-                  <HStack className="items-center justify-between">
-                    <Text className="font-baloo-bold text-xs text-theme">
-                      #{index + 1}
-                    </Text>
-                    <Icon as={Flame} size="xs" className="text-theme/50" />
-                  </HStack>
-                  <Text
-                    numberOfLines={1}
-                    className="font-baloo-bold text-sm text-foreground"
-                  >
-                    #{topic.tag}
-                  </Text>
-                  <Text size="xs" className="text-muted-foreground">
-                    {t("search.trending_posts_count", {
-                      count: formatCompactNumber(topic.postsCount),
-                    })}
-                  </Text>
-                </Pressable>
-              ))}
-            </HStack>
-          </Card>
-
-          <Card className="gap-3 rounded-2xl">
-            <HStack space="xs" className="items-center">
-              <Icon as={Users} size="sm" className="text-theme" />
-              <Heading size="sm" className="font-baloo-bold text-foreground">
-                {t("search.suggested_for_you")}
-              </Heading>
-            </HStack>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerClassName="gap-3 pb-1"
-            >
-              {suggestedProfiles.map((profile) => (
-                <SuggestedProfileCard
-                  key={profile.id}
-                  profile={profile}
-                  isSelf={profile.id === currentUserId}
-                  onToggleFollow={handleToggleSuggestedFollow}
-                />
-              ))}
-            </ScrollView>
-          </Card>
-        </VStack>
-      );
-    }
-    if (isLoading) {
-      return (
-        <VStack>
-          {Array.from({ length: 6 }).map((_, index) => (
-            <ProfileListItemSkeleton key={index} />
-          ))}
-        </VStack>
-      );
-    }
-    return (
-      <EmptyState
-        icon={SearchIcon}
-        title={t("search.no_results")}
-        description={t("search.no_results_sub", { query: debouncedQuery })}
-        fullScreen={false}
-      />
-    );
-  }, [
-    debouncedQuery,
-    isLoading,
-    t,
-    currentUserId,
-    suggestedProfiles,
-    handleToggleSuggestedFollow,
-  ]);
 
   return (
     <View className="flex-1 bg-background">
@@ -251,35 +157,116 @@ const SearchScreen = () => {
         </Input>
       </HStack>
 
-      <FlashList
-        data={results}
-        renderItem={renderItem}
-        keyExtractor={(item: NetworkProfileItem) => item.id}
-        refreshing={isRefetching}
-        onRefresh={refetch}
-        onEndReached={() => {
-          if (hasNextPage && !isFetchingNextPage) fetchNextPage();
-        }}
-        onEndReachedThreshold={0.4}
-        ItemSeparatorComponent={() => <Divider className="ml-16" />}
-        ListHeaderComponent={
-          debouncedQuery.trim() && results.length > 0 ? (
-            <Text size="xs" className="px-4 pb-2 pt-1 text-muted-foreground">
-              {t("search.results_count", { count: results.length })}
-            </Text>
-          ) : null
-        }
-        ListEmptyComponent={listEmptyComponent}
-        ListFooterComponent={
-          isFetchingNextPage ? (
-            <VStack className="py-4">
-              <ProfileListItemSkeleton />
-            </VStack>
-          ) : null
-        }
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 8, paddingBottom: 24 }}
-      />
+      {!debouncedQuery.trim() ? (
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingTop: 8, paddingBottom: 24 }}
+        >
+          <VStack space="lg" className="px-4 pt-2">
+            <Card className="gap-3 rounded-2xl">
+              <HStack space="xs" className="items-center">
+                <Icon as={Flame} size="sm" className="text-theme" />
+                <Heading size="sm" className="font-baloo-bold text-foreground">
+                  {t("search.trending_searches")}
+                </Heading>
+              </HStack>
+              <HStack space="sm" className="flex-row flex-wrap">
+                {MOCK_TRENDING_TOPICS.map((topic, index) => (
+                  <Pressable
+                    key={topic.id}
+                    onPress={() => setQuery(topic.tag)}
+                    accessibilityRole="button"
+                    accessibilityLabel={topic.tag}
+                    className="w-[48%] gap-1 rounded-xl border border-border bg-input/10 p-3 active:opacity-70"
+                  >
+                    <HStack className="items-center justify-between">
+                      <Text className="font-baloo-bold text-xs text-theme">
+                        #{index + 1}
+                      </Text>
+                      <Icon as={Flame} size="xs" className="text-theme/50" />
+                    </HStack>
+                    <Text
+                      numberOfLines={1}
+                      className="font-baloo-bold text-sm text-foreground"
+                    >
+                      #{topic.tag}
+                    </Text>
+                    <Text size="xs" className="text-muted-foreground">
+                      {t("search.trending_posts_count", {
+                        count: formatCompactNumber(topic.postsCount),
+                      })}
+                    </Text>
+                  </Pressable>
+                ))}
+              </HStack>
+            </Card>
+
+            <Card className="gap-3 rounded-2xl">
+              <HStack space="xs" className="items-center">
+                <Icon as={Users} size="sm" className="text-theme" />
+                <Heading size="sm" className="font-baloo-bold text-foreground">
+                  {t("search.suggested_for_you")}
+                </Heading>
+              </HStack>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerClassName="gap-3 pb-1"
+              >
+                {suggestedProfiles.map((profile) => (
+                  <SuggestedProfileCard
+                    key={profile.id}
+                    profile={profile}
+                    isSelf={profile.id === currentUserId}
+                    onToggleFollow={handleToggleSuggestedFollow}
+                  />
+                ))}
+              </ScrollView>
+            </Card>
+          </VStack>
+        </ScrollView>
+      ) : isLoading ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerClassName="gap-3 px-4 pt-4"
+        >
+          {Array.from({ length: 4 }).map((_, index) => (
+            <SuggestedProfileCardSkeleton key={index} />
+          ))}
+        </ScrollView>
+      ) : results.length === 0 ? (
+        <EmptyState
+          icon={SearchIcon}
+          title={t("search.no_results")}
+          description={t("search.no_results_sub", { query: debouncedQuery })}
+        />
+      ) : (
+        <VStack className="flex-1">
+          <Text size="xs" className="px-4 pb-2 pt-3 text-muted-foreground">
+            {t("search.results_count", { count: results.length })}
+          </Text>
+          <FlashList
+            horizontal
+            style={{ flex: 1 }}
+            data={results}
+            renderItem={renderItem}
+            keyExtractor={(item: NetworkProfileItem) => item.id}
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            onEndReached={() => {
+              if (hasNextPage && !isFetchingNextPage) fetchNextPage();
+            }}
+            onEndReachedThreshold={0.4}
+            ItemSeparatorComponent={() => <Box className="w-3" />}
+            ListFooterComponent={
+              isFetchingNextPage ? <SuggestedProfileCardSkeleton /> : null
+            }
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+          />
+        </VStack>
+      )}
     </View>
   );
 };

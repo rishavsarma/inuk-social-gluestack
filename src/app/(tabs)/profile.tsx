@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/custom/feed/EmptyState";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import ListHeader, {
   SwipeableTabContent,
@@ -12,7 +13,9 @@ import { useGetProfile } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
 import { FlashList } from "@shopify/flash-list";
 import { Href, router, useLocalSearchParams } from "expo-router";
+import { CloudOff } from "lucide-react-native";
 import React, { useCallback, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { RefreshControl, useWindowDimensions } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
@@ -26,6 +29,7 @@ type ProfileTab = (typeof PROFILE_TABS)[number];
 
 // ─── Profile Screen ─────────────────────────────────────────────────
 const ProfileScreen = () => {
+  const { t } = useTranslation();
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState<ProfileTab>("image");
   const { id: userId } = useLocalSearchParams<{ id?: string }>();
@@ -36,6 +40,7 @@ const ProfileScreen = () => {
   const {
     data: profileData,
     isLoading: isLoadingProfile,
+    isError: isProfileError,
     isRefetching,
     refetch,
   } = useGetProfile(profileId);
@@ -80,6 +85,20 @@ const ProfileScreen = () => {
     refetch();
     refetchPhotoPosts();
   }, [refetch, refetchPhotoPosts]);
+
+  if (isProfileError && !profileData) {
+    return (
+      <KeyboardAvoidingScrollView disableTopInset>
+        <EmptyState
+          icon={CloudOff}
+          title={t("profile.error_title")}
+          description={t("common.error_loading")}
+          actionLabel={t("common.retry")}
+          onAction={refetch}
+        />
+      </KeyboardAvoidingScrollView>
+    );
+  }
 
   if (isLoadingProfile || !profileData) {
     return (
