@@ -1003,6 +1003,7 @@
   },
   "arena": {
     "title": "एरीना",
+    "search_placeholder": "प्रतियोगिताएं, क्विज़, क्रिएटर्स खोजें",
     "tab_contests": "प्रतियोगिताएं",
     "tab_quizzes": "क्विज़",
     "tab_leaderboard": "लीडरबोर्ड",

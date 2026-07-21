@@ -1,7 +1,6 @@
 import React from "react";
 
 import { Pressable } from "@/components/ui/pressable";
-import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
@@ -14,7 +13,7 @@ interface TagLensProps {
 
 function TagLens({ onTag }: TagLensProps) {
   return (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+    <VStack>
       <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-2.5 mt-4.5 px-4.5 text-[14px]`}>
         Trending tags
       </Text>
@@ -36,7 +35,7 @@ function TagLens({ onTag }: TagLensProps) {
           </Pressable>
         ))}
       </VStack>
-    </ScrollView>
+    </VStack>
   );
 }
 

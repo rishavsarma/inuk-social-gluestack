@@ -2,50 +2,71 @@ import React from "react";
 
 import { router } from "expo-router";
 
-import { View } from "react-native";
+import { Button, ButtonIcon } from "@/components/ui/button";
 
-import { Button } from "@/components/ui/button";
-import { BellIcon, Icon } from "@/components/ui/icon";
-
-import { SearchIcon } from "lucide-react-native";
+import { SearchIcon, BellIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
+import { Badge, BadgeText, BadgeIcon } from "@/components/ui/badge";
 
 import Logo from "@/components/custom/Logo";
 
 import { ROUTES } from "@/routes";
+import { HStack } from "@/components/ui/hstack";
 
-function FeedHeader() {
+function FeedHeader({
+  firstWord = "soc",
+  secondWord = "ial",
+  showNotificationsBadge,
+  showSearchButton,
+}: {
+  firstWord?: string;
+  secondWord?: string;
+  showNotificationsBadge?: boolean;
+  showSearchButton?: boolean;
+}) {
   const { t } = useTranslation();
 
   return (
-    <View className="flex-row  items-center justify-between px-2 py-2">
-      <Logo size={34} />
+    <HStack className="flex-row  items-center justify-between px-2 py-2">
+      <Logo size={34} firstWord={firstWord} secondWord={secondWord} />
 
-      <View className="flex-row items-center gap-3">
-        <Button
-          variant="ghost"
+      <HStack space="sm" className="items-center">
+        {/* <Button
+          variant="outline"
           size="icon"
           onPress={() => router.push(ROUTES.TABS.EXPLORE)}
           accessibilityRole="button"
           accessibilityLabel={t("search.title")}
           className="rounded-full"
         >
-          <Icon as={SearchIcon} className="size-5 text-foreground" />
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          onPress={() => router.push(ROUTES.TABS.NOTIFICATIONS)}
-          accessibilityRole="button"
-          accessibilityLabel={t("notifications.title")}
-          className="rounded-full"
-        >
-          <Icon as={BellIcon} className="size-5 text-foreground" />
-          <View className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full border-[1.5px] border-background bg-destructive" />
-        </Button>
-      </View>
-    </View>
+          <ButtonIcon as={SearchIcon} size="lg" className="stroke-3" />
+          </Button> */}
+        {showSearchButton && (
+          <Button
+            variant="outline"
+            size="default"
+            onPress={() => router.push(ROUTES.TABS.EXPLORE)}
+            accessibilityRole="button"
+            accessibilityLabel={t("search.title")}
+            className="rounded-full bg-card h-12 w-12"
+          >
+            <ButtonIcon as={SearchIcon} size="" className="size-6 stroke-2" />
+          </Button>
+        )}
+        {showNotificationsBadge && (
+          <Button
+            variant="outline"
+            size="default"
+            onPress={() => router.push(ROUTES.TABS.NOTIFICATIONS)}
+            accessibilityRole="button"
+            accessibilityLabel={t("search.title")}
+            className="rounded-full bg-card h-12 w-12"
+          >
+            <ButtonIcon as={BellIcon} size="" className="size-6 stroke-2" />
+          </Button>
+        )}
+      </HStack>
+    </HStack>
   );
 }
 

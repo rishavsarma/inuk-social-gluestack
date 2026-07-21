@@ -38,7 +38,7 @@ function PostAuthorHeader({
 
   return (
     <HStack space="md" className="items-center justify-between">
-      <HStack space="md" className="flex-1 items-center">
+      <HStack space="sm" className="flex-1 items-center">
         <Avatar className="h-14 w-14 border-2 border-white/30">
           <AvatarFallbackText>{post.author.display_name}</AvatarFallbackText>
           <AvatarImage
@@ -83,15 +83,17 @@ function PostAuthorHeader({
           )}
         </Button>
       )}
-      <Pressable
-        onPress={onOptionsPress}
-        accessibilityRole="button"
-        accessibilityLabel={t("post_detail.post_options")}
-        hitSlop={8}
-        className="h-10 w-10 items-center justify-center"
-      >
-        <Icon as={SlidersHorizontal} size="md" className="text-white" />
-      </Pressable>
+      {onOptionsPress && (
+        <Pressable
+          onPress={onOptionsPress}
+          accessibilityRole="button"
+          accessibilityLabel={t("post_detail.post_options")}
+          hitSlop={8}
+          className="h-10 w-10 items-center justify-center"
+        >
+          <Icon as={SlidersHorizontal} size="md" className="text-white" />
+        </Pressable>
+      )}
     </HStack>
   );
 }

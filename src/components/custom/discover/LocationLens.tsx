@@ -7,7 +7,6 @@ import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { ScrollView } from "@/components/ui/scroll-view";
 
 import { LOC, PLACES, REGIONS } from "@/constants/discover-web-data";
 import { WEB_FONT_BODY, WEB_FONT_ROUND } from "@/constants/web-reference-theme";
@@ -18,7 +17,7 @@ interface LocationLensProps {
 
 function LocationLens({ onPlace }: LocationLensProps) {
   return (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120 }}>
+    <VStack>
       <Box className="mx-3.5 mt-2 h-30 items-center justify-center rounded-2xl bg-muted">
         <Icon as={Map} size="lg" style={{ color: LOC }} />
         <Text className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-1.5 text-[12.5px]`}>
@@ -81,7 +80,7 @@ function LocationLens({ onPlace }: LocationLensProps) {
           </Pressable>
         ))}
       </Box>
-    </ScrollView>
+    </VStack>
   );
 }
 

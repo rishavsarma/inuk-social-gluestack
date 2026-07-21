@@ -6,7 +6,6 @@ import { Share, type LayoutChangeEvent } from "react-native";
 
 import { Box } from "@/components/ui/box";
 import { Spinner } from "@/components/ui/spinner";
-import { Text } from "@/components/ui/text";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
@@ -290,7 +289,6 @@ const FeedScreen = () => {
             data={posts}
             extraData={posts}
             keyExtractor={(item: FeedPostItem) => String(item.id)}
-            renderItem={renderItem}
             {...scrollProps}
             viewabilityConfig={viewabilityConfig}
             onViewableItemsChanged={handleViewableItemsChanged}
@@ -298,21 +296,15 @@ const FeedScreen = () => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingTop: topInset, paddingBottom: 160 }}
             ListHeaderComponent={
-              <>
+              <VStack>
                 <Box onLayout={handleFeedHeaderLayout}>
-                  <FeedHeader />
+                  <FeedHeader showNotificationsBadge showSearchButton />
                 </Box>
-                {/* <Text className="px-4 pt-1 text-xs font-semibold text-muted-foreground">
-                  A · Rounded-square
-                </Text> */}
                 <FeedCategories variant="rounded" />
-                {/* <Text className="px-4 pt-1 text-xs font-semibold text-muted-foreground">
-                  C · Glossy gradient
-                </Text>
-                <FeedCategories variant="glossy" /> */}
-              </>
+              </VStack>
             }
-            ItemSeparatorComponent={() => <Box className="h-4" />}
+            renderItem={renderItem}
+            ItemSeparatorComponent={() => <Box className="h-2" />}
             ListEmptyComponent={
               isLoading ? (
                 <VStack space="lg" className="pt-4">

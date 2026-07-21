@@ -4,7 +4,7 @@ import { useAuthStore } from "@/stores/auth.store";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
-import { ArrowLeftIcon } from "lucide-react-native";
+import { ChevronLeft, SearchIcon, X } from "lucide-react-native";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Platform, StyleSheet, TextStyle, type StyleProp } from "react-native";
@@ -18,18 +18,27 @@ import Animated, {
 import { Box } from "@/components/ui/box";
 import { Button, ButtonIcon } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
+import { Icon } from "@/components/ui/icon";
+import { Input, InputField, InputIcon, InputSlot } from "@/components/ui/input";
+import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 
 const BACK_BUTTON_SIZE = 40;
 const BAR_VERTICAL_PADDING = 8;
+/** Keep in sync with the `showSearch` bar's `h-10` className below. */
+export const SEARCH_BAR_HEIGHT = 40;
 
 /** Total height of the sticky nav bar (top padding + content + bottom padding).
  * Use this to pad content when `alwaysShowBar` keeps the bar permanently visible,
- * so it doesn't sit underneath it. */
-export function getHeaderBarHeight(topInset: number = 0) {
+ * so it doesn't sit underneath it. Pass `contentHeight` when the bar's row is
+ * taller than the default (e.g. `SEARCH_BAR_HEIGHT` for `showSearch`). */
+export function getHeaderBarHeight(
+  topInset: number = 0,
+  contentHeight: number = BACK_BUTTON_SIZE,
+) {
   return (
     (topInset > 0 ? topInset : BAR_VERTICAL_PADDING) +
-    BACK_BUTTON_SIZE +
+    contentHeight +
     BAR_VERTICAL_PADDING
   );
 }
@@ -50,6 +59,24 @@ export interface HeaderProps {
   titleStyle?: StyleProp<TextStyle>;
   /** Rendered immediately before the title text, e.g. a category icon. */
   titleIcon?: React.ReactNode;
+  /** Replaces the title row with a full-width search bar. By default this bar
+   * navigates to the Explore/search screen when pressed; pass `onSearchChange`
+   * to make it an editable input instead (e.g. on the Explore screen itself). */
+  showSearch?: boolean;
+  /** Placeholder text for the `showSearch` bar. Defaults to `t("search.placeholder")`. */
+  searchPlaceholder?: string;
+  /** Current text for the `showSearch` bar. Providing this (with `onSearchChange`)
+   * switches the bar from a navigate-away button to an editable input. */
+  searchValue?: string;
+  /** Called as the user types in the `showSearch` bar. Its presence is what
+   * switches the bar into editable-input mode. */
+  onSearchChange?: (text: string) => void;
+  /** Autofocuses the `showSearch` input when in editable mode. */
+  searchAutoFocus?: boolean;
+  /** Shows a small search icon button as `rightElement` that navigates to the
+   * Explore/search screen — for use alongside a title/back button. Ignored if
+   * `rightElement` is also passed, and has no effect when `showSearch` is set. */
+  showSearchButton?: boolean;
   topInset?: number;
   blurTint?: "light" | "dark" | "default" | "prominent" | "regular";
   blurIntensity?: number;
@@ -72,6 +99,12 @@ export function UiHeader({
   titleClassName,
   titleStyle,
   titleIcon,
+  showSearch = false,
+  searchPlaceholder,
+  searchValue,
+  onSearchChange,
+  searchAutoFocus = false,
+  showSearchButton = false,
   topInset = 0,
   blurTint,
   blurIntensity,
@@ -101,6 +134,24 @@ export function UiHeader({
       router.replace(backAction as any);
     }
   };
+
+  const resolvedSearchPlaceholder =
+    searchPlaceholder ?? t("search.placeholder");
+
+  const resolvedRightElement =
+    rightElement ??
+    (showSearchButton ? (
+      <Button
+        variant="outline"
+        size="icon"
+        onPress={() => router.push(ROUTES.TABS.EXPLORE)}
+        accessibilityRole="button"
+        accessibilityLabel={t("search.title")}
+        className="rounded-full"
+      >
+        <ButtonIcon as={SearchIcon} />
+      </Button>
+    ) : null);
 
   const navBarStyle = useAnimatedStyle(() => {
     if (transparent) return { opacity: 0 };
@@ -152,25 +203,79 @@ export function UiHeader({
             style={StyleSheet.absoluteFill}
           />
         )}
-        {showBackButton && (
-          <HStack space="sm" className="min-h-10 items-center justify-between">
-            <Box className="h-10 w-10" />
-            <HStack space="xs" className="flex-1 items-center justify-center">
-              {titleIcon}
-              <Text
-                numberOfLines={1}
-                style={titleStyle}
-                className={cn(
-                  "shrink text-center text-base font-bold text-foreground",
-                  titleClassName,
-                )}
+        {(showBackButton || showSearch || showSearchButton || rightElement) && (
+          <HStack space="sm" className="min-h-12 items-center">
+            {showBackButton && <Box className="h-12 w-12" />}
+            {showSearch ? (
+              <Pressable
+                className="flex-1"
+                onPress={
+                  onSearchChange
+                    ? undefined
+                    : () => router.push(ROUTES.TABS.EXPLORE)
+                }
+                accessibilityRole={onSearchChange ? undefined : "button"}
+                accessibilityLabel={
+                  onSearchChange ? undefined : resolvedSearchPlaceholder
+                }
               >
-                {title}
-              </Text>
-            </HStack>
-            <Box className="h-10 w-10 items-center justify-center">
-              {rightElement}
-            </Box>
+                <Input
+                  className="rounded-full  bg-card"
+                  pointerEvents={onSearchChange ? "auto" : "none"}
+                >
+                  <InputSlot className="pl-2">
+                    <InputIcon
+                      as={SearchIcon}
+                      className="h-5 w-5 text-muted-foreground"
+                    />
+                  </InputSlot>
+                  <InputField
+                    value={searchValue ?? ""}
+                    onChangeText={onSearchChange}
+                    editable={!!onSearchChange}
+                    placeholder={resolvedSearchPlaceholder}
+                    autoFocus={searchAutoFocus}
+                    autoCapitalize="none"
+                    autoCorrect={false}
+                    returnKeyType="search"
+                    accessibilityLabel={resolvedSearchPlaceholder}
+                    className="text-sm"
+                  />
+                  {onSearchChange && searchValue ? (
+                    <InputSlot
+                      onPress={() => onSearchChange("")}
+                      accessibilityRole="button"
+                      accessibilityLabel={t("search.clear")}
+                      className="pr-3.5"
+                    >
+                      <Icon as={X} className="h-4 w-4 text-muted-foreground" />
+                    </InputSlot>
+                  ) : null}
+                </Input>
+              </Pressable>
+            ) : (
+              <>
+                <HStack
+                  space="xs"
+                  className="flex-1 items-center font-baloo-bold justify-center"
+                >
+                  {titleIcon}
+                  <Text
+                    numberOfLines={1}
+                    style={titleStyle}
+                    className={cn(
+                      "shrink text-center text-base font-baloo-bold text-foreground",
+                      titleClassName,
+                    )}
+                  >
+                    {title}
+                  </Text>
+                </HStack>
+                <Box className="h-10 w-10 items-center justify-center">
+                  {resolvedRightElement}
+                </Box>
+              </>
+            )}
           </HStack>
         )}
       </Animated.View>
@@ -189,9 +294,9 @@ export function UiHeader({
               onPress={handleBack}
               accessibilityRole="button"
               accessibilityLabel={t("common.go_back")}
-              className="h-10 w-10 rounded-full opacity-90"
+              className="h-12 w-12 rounded-full bg-card opacity-90"
             >
-              <ButtonIcon as={ArrowLeftIcon} size="lg" />
+              <ButtonIcon as={ChevronLeft} size="lg" />
             </Button>
           )}
         </Box>

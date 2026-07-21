@@ -5,6 +5,7 @@ import { Href, router } from "expo-router";
 import { Pressable, StyleSheet } from "react-native";
 
 import {
+  BadgeCheck,
   Bookmark,
   Dot,
   Heart,
@@ -40,6 +41,7 @@ import { formatCompactNumber } from "@/utils/formatNumber";
 
 import { POST_CONSTANTS } from "@/constants";
 import { ROUTES } from "@/routes";
+import { Badge, BadgeIcon } from "@/components/ui/badge";
 
 const MEDIA_HEIGHT = POST_CONSTANTS.SCREEN_WIDTH * 1.25;
 
@@ -86,10 +88,7 @@ function FeedPostCardV2Component({
     if (!locationId) return;
     router.push(ROUTES.TABS.DISCOVER as Href);
   };
-  const caption =
-    post.caption?.trim() +
-      "dbasdhjsahdas dhgasjhd hd gsh dhsgdhs hd s dgsh gdhs d hsgd sgd fsdgs hdshdsh gshdshd hs dsh dshhd shds dhsd hsd shd sghwghgwuhwdbew djwedhw edh weg wegjj djhdhegd wedbwe edwdwl h gd egdevdhebhebdehdbhe dhdjnjdakdjska djsadsajd" ||
-    "";
+  const caption = post.caption?.trim() || "";
   const mediaItem = post.media?.[0] ?? null;
   const mediaUrl = mediaItem?.url ?? null;
   const isLiked = !!post.is_liked;
@@ -99,7 +98,7 @@ function FeedPostCardV2Component({
   const isMe = post.author?.is_me ?? false;
 
   return (
-    <Card className="gap-2 overflow-hidden rounded-none border-0 px-0 pb-0 shadow-none">
+    <Card className="gap-2 overflow-hidden rounded-none border-0 px-0  shadow-none">
       <HStack space="lg" className="items-center justify-between px-2">
         <Pressable onPress={() => onProfilePress(post)} className="flex-1">
           <HStack space="sm" className="flex-1 items-center">
@@ -112,10 +111,11 @@ function FeedPostCardV2Component({
               />
             </Avatar>
             <VStack>
-              <HStack>
+              <HStack space="xs" className="items-center">
                 <Text size="md" className="py-0 font-baloo-bold">
                   {displayName}
                 </Text>
+                <Icon as={BadgeCheck} className="h-4 w-4 text-green-600" />
               </HStack>
               <HStack className="items-center">
                 <Text size="xs" className=" text-muted-foreground">
@@ -206,7 +206,7 @@ function FeedPostCardV2Component({
 
       <VStack space="xs" className="px-3">
         <HStack className="items-center justify-between  py-2">
-          <HStack space="xl" className="items-center">
+          <HStack space="lg" className="items-center">
             <Pressable
               onPress={() => onLikePress(post)}
               hitSlop={10}
@@ -238,7 +238,7 @@ function FeedPostCardV2Component({
             >
               <HStack space="xs" className="items-center">
                 <Icon
-                  as={MessageCircle}
+                  as={MessageSquare}
                   size="lg"
                   className="text-foreground"
                 />
@@ -254,11 +254,7 @@ function FeedPostCardV2Component({
               accessibilityLabel={t("post_detail.share_post")}
             >
               <HStack space="xs" className="items-center">
-                <Icon
-                  as={SendHorizontal}
-                  size="lg"
-                  className="text-foreground"
-                />
+                <Icon as={Share2} size="lg" className="text-foreground" />
                 <Text size="sm" className="font-semibold text-foreground">
                   {formatCompactNumber(sharesCount)}
                 </Text>

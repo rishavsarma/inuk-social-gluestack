@@ -6,7 +6,6 @@ import { useWindowDimensions } from "react-native";
 
 import { FlashList, type ListRenderItemInfo } from "@shopify/flash-list";
 import {
-  ChevronRight,
   FileText,
   HelpCircle,
   Image as ImageIcon,
@@ -33,7 +32,6 @@ import { getHeaderBarHeight } from "@/components/custom/UiHeader";
 
 import { Box } from "@/components/ui/box";
 import { Divider } from "@/components/ui/divider";
-import { Icon } from "@/components/ui/icon";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Tabs,
@@ -50,7 +48,6 @@ import {
   CAT_BY_TITLE,
   THEME_ID_TO_TAXONOMY_TITLE,
 } from "@/constants/discover-web-data";
-import { resolveTaxonomyIcon } from "@/constants/mdi-icon-map";
 import { ROUTES } from "@/routes";
 
 type ThemeTab = "post" | "photo" | "video" | "article" | "quizzes";
@@ -76,16 +73,6 @@ const ThemeScreen = () => {
     const title = themeId ? THEME_ID_TO_TAXONOMY_TITLE[themeId] : undefined;
     return title ? CAT_BY_TITLE[title] : undefined;
   }, [themeId]);
-
-  const headerTitleIcon = taxonomyCategory ? (
-    <Icon
-      as={resolveTaxonomyIcon(taxonomyCategory.icon, ChevronRight)}
-      size="sm"
-      style={{
-        color: isDark ? taxonomyCategory.onColour : taxonomyCategory.text,
-      }}
-    />
-  ) : undefined;
 
   const [activeTab, setActiveTab] = useState<ThemeTab>("post");
   const [activeSubTitle, setActiveSubTitle] = useState<string | null>(null);
@@ -198,12 +185,10 @@ const ThemeScreen = () => {
 
   const themeHeader = (
     <VStack>
-      {/* <CategoryBannerHeader
+      <CategoryBannerHeader
         category={taxonomyCategory}
-        showIcon={false}
-        showTitle={false}
         overlapHeaderHeight={headerBarHeight}
-      /> */}
+      />
       <Box className="py-2">
         <CategorySubcategoryList
           category={taxonomyCategory}
@@ -245,15 +230,11 @@ const ThemeScreen = () => {
       <KeyboardAvoidingScrollView
         variant="list"
         showBackButton
+        showSearch
         alwaysShowBar
-        title={taxonomyCategory.displayTitle}
         headerBackgroundColor={
           isDark ? taxonomyCategory.colour : taxonomyCategory.background
         }
-        headerTitleStyle={{
-          color: isDark ? taxonomyCategory.onColour : taxonomyCategory.text,
-        }}
-        headerTitleIcon={headerTitleIcon}
       >
         {({ scrollProps, topInset }) =>
           activeTab === "quizzes" ? (

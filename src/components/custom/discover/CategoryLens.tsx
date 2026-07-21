@@ -24,7 +24,7 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
   const featured = CAT_BY_TITLE[FEATURED_TITLE];
 
   return (
-    <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 120, paddingTop: 8 }}>
+    <VStack className="pt-2">
       {featured ? (
         <>
           <Pressable
@@ -155,7 +155,7 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
           </VStack>
         ))}
       </VStack>
-    </ScrollView>
+    </VStack>
   );
 }
 

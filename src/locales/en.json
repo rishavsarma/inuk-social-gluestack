@@ -1003,6 +1003,7 @@
   },
   "arena": {
     "title": "Arena",
+    "search_placeholder": "Search contests, quizzes, creators",
     "tab_contests": "Contests",
     "tab_quizzes": "Quizzes",
     "tab_leaderboard": "Leaderboard",

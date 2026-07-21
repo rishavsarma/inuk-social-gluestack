@@ -1,17 +1,4 @@
-import {
-  Avatar,
-  AvatarFallbackText,
-  AvatarImage,
-} from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
-import {
-  Button,
-  ButtonIcon,
-  ButtonSpinner,
-  ButtonText,
-} from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
-import { HStack } from "@/components/ui/hstack";
 import {
   ImageViewer,
   ImageViewerCloseButton,
@@ -20,12 +7,9 @@ import {
   ImageViewerNavigation,
 } from "@/components/ui/image-viewer";
 import { LinearGradient } from "@/components/ui/linear-gradient";
-import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { POST_CONSTANTS } from "@/constants";
-import { useTimeAgo } from "@/hooks/useTimeAgo";
 import { Image } from "expo-image";
-import { UserPlus } from "lucide-react-native";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
@@ -33,6 +17,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from "react-native-reanimated";
+import PostAuthorHeader from "./PostAuthorHeader";
 
 const PostPhotoGallery = React.memo(function PostMediaGallery({
   post,
@@ -45,9 +30,6 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
   const media = post.post.media;
-  const is_me = post.author.is_me;
-  const isFollowing = post.author.is_following;
-  const createdAt = useTimeAgo(post.post.created_at);
 
   if (!media || media.length === 0) {
     return <View style={StyleSheet.absoluteFill} className="bg-neutral-800" />;
@@ -139,65 +121,11 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
             </Box>
           )}
           {/* Avatar and name info pill */}
-          <HStack space="md" className="items-center flex-1">
-            <Avatar className="h-16 w-16">
-              <AvatarFallbackText className="text-white">
-                {post.author.display_name}
-              </AvatarFallbackText>
-              <AvatarImage
-                source={{
-                  uri: post.author.avatar_url,
-                }}
-                alt={t("profile.avatar_alt", {
-                  name: post.author.display_name,
-                })}
-              />
-            </Avatar>
-            <HStack className="justify-between items-center w-full flex-1">
-              <VStack className="justify-start items-start">
-                <Heading size="lg" className="text-white">
-                  {post.author.display_name}
-                </Heading>
-                <Text size="sm" className="text-white/70">
-                  {createdAt || `@${post.author.username}`}
-                </Text>
-              </VStack>
-              {!is_me && (
-                <Button
-                  variant={"theme"}
-                  className="rounded-full"
-                  onPress={onFollowPress}
-                  disabled={isFollowLoading}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    isFollowing
-                      ? t("network.unfollow_a11y", {
-                          name: post.author.display_name,
-                        })
-                      : t("network.follow_a11y", {
-                          name: post.author.display_name,
-                        })
-                  }
-                >
-                  {isFollowLoading ? (
-                    <ButtonSpinner color={isFollowing ? undefined : "white"} />
-                  ) : (
-                    <>
-                      <ButtonIcon
-                        as={UserPlus}
-                        className={isFollowing ? "" : "text-white"}
-                      />
-                      <ButtonText className={isFollowing ? "" : "text-white"}>
-                        {isFollowing
-                          ? t("network.following_btn")
-                          : t("network.follow")}
-                      </ButtonText>
-                    </>
-                  )}
-                </Button>
-              )}
-            </HStack>
-          </HStack>
+          <PostAuthorHeader
+            post={post}
+            onFollowPress={onFollowPress}
+            isFollowLoading={isFollowLoading}
+          />
         </VStack>
       </View>
 

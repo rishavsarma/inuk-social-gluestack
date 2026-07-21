@@ -25,7 +25,7 @@ import Animated, {
 import { useAppBottomInset, useAppTopInset } from "@/hooks/useAppInsets";
 
 import { useTabBar } from "./bottom-tabs/TabBarContext";
-import { getHeaderBarHeight, UiHeader } from "./UiHeader";
+import { getHeaderBarHeight, SEARCH_BAR_HEIGHT, UiHeader } from "./UiHeader";
 
 const AnimatedKeyboardAwareScrollView = Animated.createAnimatedComponent(
   KeyboardAwareScrollView,
@@ -58,8 +58,8 @@ export interface KeyboardAvoidingScrollViewProps extends Omit<
   "contentContainerStyle" | "children"
 > {
   children:
-  | React.ReactNode
-  | ((props: KeyboardAvoidingListRenderProps) => React.ReactNode);
+    | React.ReactNode
+    | ((props: KeyboardAvoidingListRenderProps) => React.ReactNode);
   contentContainerStyle?: StyleProp<ViewStyle>;
   innerStyle?: StyleProp<ViewStyle>;
   disableTopInset?: boolean;
@@ -76,6 +76,24 @@ export interface KeyboardAvoidingScrollViewProps extends Omit<
   /** Inline colour override for the title, e.g. a category's dynamic ink colour. */
   headerTitleStyle?: StyleProp<TextStyle>;
   headerTitleIcon?: React.ReactNode;
+  /** Replaces the header's title row with a full-width search bar. By default it
+   * navigates to the Explore/search screen when pressed; pass `onSearchChange`
+   * to make it an editable input instead (e.g. on the Explore screen itself). */
+  showSearch?: boolean;
+  /** Placeholder text for the `showSearch` bar. Defaults to `t("search.placeholder")`. */
+  searchPlaceholder?: string;
+  /** Current text for the `showSearch` bar. Providing this (with `onSearchChange`)
+   * switches the bar from a navigate-away button to an editable input. */
+  searchValue?: string;
+  /** Called as the user types in the `showSearch` bar. Its presence is what
+   * switches the bar into editable-input mode. */
+  onSearchChange?: (text: string) => void;
+  /** Autofocuses the `showSearch` input when in editable mode. */
+  searchAutoFocus?: boolean;
+  /** Shows a small search icon button in the header bar (alongside the title/back
+   * button) that navigates to the Explore/search screen. Has no effect when
+   * `showSearch` is set. */
+  showSearchButton?: boolean;
   /** Keep the blurred header bar + title permanently visible instead of only on scroll.
    * When set, content is padded by default so it doesn't render underneath the bar. */
   alwaysShowBar?: boolean;
@@ -119,6 +137,12 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
       headerTitleClassName,
       headerTitleStyle,
       headerTitleIcon,
+      showSearch = false,
+      searchPlaceholder,
+      searchValue,
+      onSearchChange,
+      searchAutoFocus = false,
+      showSearchButton = false,
       alwaysShowBar = false,
       refreshControl,
       variant = "scroll",
@@ -129,7 +153,10 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
       const { tabBarTranslateY, isInsideTabBar } = useTabBar();
 
       const contentTopPadding = alwaysShowBar
-        ? getHeaderBarHeight(topInset)
+        ? getHeaderBarHeight(
+            topInset,
+            showSearch ? SEARCH_BAR_HEIGHT : undefined,
+          )
         : disableTopInset
           ? 0
           : topInset;
@@ -179,10 +206,10 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
 
       const clonedRefreshControl = refreshControl
         ? React.cloneElement(refreshControl as React.ReactElement<any>, {
-          progressViewOffset:
-            (refreshControl as React.ReactElement<any>).props
-              .progressViewOffset ?? (disableTopInset ? 40 : topInset + 20),
-        })
+            progressViewOffset:
+              (refreshControl as React.ReactElement<any>).props
+                .progressViewOffset ?? (disableTopInset ? 40 : topInset + 20),
+          })
         : undefined;
 
       const settleTabBar = useCallback(() => {
@@ -221,7 +248,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
 
         return (
           <View className="flex-1 bg-background">
-            {!hideHeader &&
+            {!hideHeader && (
               <UiHeader
                 scrollY={scrollY}
                 topInset={topInset}
@@ -233,12 +260,18 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
                 titleClassName={headerTitleClassName}
                 titleStyle={headerTitleStyle}
                 titleIcon={headerTitleIcon}
+                showSearch={showSearch}
+                searchPlaceholder={searchPlaceholder}
+                searchValue={searchValue}
+                onSearchChange={onSearchChange}
+                searchAutoFocus={searchAutoFocus}
+                showSearchButton={showSearchButton}
                 hideBorder
               />
-            }
+            )}
             <KeyboardAvoidingView
               behavior="padding"
-              keyboardVerticalOffset={bottomInset}
+              // keyboardVerticalOffset={bottomInset}
               style={{ flex: 1 }}
             >
               <ScrollYContext.Provider value={scrollY}>
@@ -260,7 +293,7 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
 
       return (
         <View className="flex-1 bg-background">
-          {!hideHeader &&
+          {!hideHeader && (
             <UiHeader
               scrollY={scrollY}
               topInset={topInset}
@@ -272,9 +305,15 @@ export const KeyboardAvoidingScrollView: React.FC<KeyboardAvoidingScrollViewProp
               titleClassName={headerTitleClassName}
               titleStyle={headerTitleStyle}
               titleIcon={headerTitleIcon}
+              showSearch={showSearch}
+              searchPlaceholder={searchPlaceholder}
+              searchValue={searchValue}
+              onSearchChange={onSearchChange}
+              searchAutoFocus={searchAutoFocus}
+              showSearchButton={showSearchButton}
               hideBorder
             />
-          }
+          )}
           <AnimatedKeyboardAwareScrollView
             onScroll={scrollHandler}
             scrollEventThrottle={16}

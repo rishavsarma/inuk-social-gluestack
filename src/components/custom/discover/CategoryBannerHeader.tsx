@@ -10,6 +10,7 @@ import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 
 import { resolveTaxonomyIcon } from "@/constants/mdi-icon-map";
 import { WEB_FONT_BODY, WEB_FONT_ROUND } from "@/constants/web-reference-theme";
+import { HStack } from "@/components/ui/hstack";
 
 interface CategoryBannerHeaderProps {
   category: TaxonomyCategory;
@@ -35,7 +36,7 @@ export function CategoryBannerHeader({
   overlapHeaderHeight = 0,
 }: CategoryBannerHeaderProps) {
   const isDark = useIsDarkMode();
-  const paddingTop = (onBack ? 52 : 16) + overlapHeaderHeight;
+  const paddingTop = overlapHeaderHeight;
 
   const bannerBg = isDark ? category.colour : category.background;
   const bannerText = isDark ? category.onColour : category.text;
@@ -49,41 +50,41 @@ export function CategoryBannerHeader({
       }}
       className="px-4.5 pb-4.5"
     >
-      {onBack ? (
-        <Pressable
-          onPress={onBack}
-          accessibilityRole="button"
-          accessibilityLabel="Back"
-          hitSlop={8}
-          className={`mb-3 h-9 w-9 items-center justify-center rounded-full ${isDark ? "bg-white/20" : "bg-black/10"}`}
-        >
-          <Icon as={ChevronLeft} size="md" style={{ color: bannerText }} />
-        </Pressable>
-      ) : null}
-      <Box className="flex-row items-center gap-3">
+      <HStack space="sm" className="items-center">
         {showIcon ? (
           <Box
-            style={{ backgroundColor: isDark ? "rgba(255,255,255,0.2)" : category.colour }}
+            style={{
+              backgroundColor: isDark
+                ? "rgba(255,255,255,0.2)"
+                : category.colour,
+            }}
             className="h-14 w-14 items-center justify-center rounded-full"
           >
-            <Icon as={resolveTaxonomyIcon(category.icon, ChevronRight)} size="xl" style={{ color: category.onColour }} />
+            <Icon
+              as={resolveTaxonomyIcon(category.icon, ChevronRight)}
+              size="xl"
+              style={{ color: category.onColour }}
+            />
           </Box>
         ) : null}
         <VStack className="flex-1">
           {showTitle ? (
-            <Text style={{ color: bannerText }} className={`${WEB_FONT_ROUND[800]} text-[22px]`}>
+            <Text
+              style={{ color: bannerText }}
+              className={`font-baloo-bold text-3xl`}
+            >
               {category.displayTitle}
             </Text>
           ) : null}
           <Text
             numberOfLines={2}
             style={{ color: bannerText }}
-            className={`${WEB_FONT_BODY[400]} text-[12.5px] opacity-[0.85]`}
+            className={`text-xs text-muted-foreground`}
           >
             {category.summary}
           </Text>
         </VStack>
-      </Box>
+      </HStack>
     </Box>
   );
 }

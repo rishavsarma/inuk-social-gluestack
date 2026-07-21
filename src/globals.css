@@ -177,4 +177,5 @@ Text,
 .font-baloo-bold,
 .font-baloo-extrabold {
   line-height: 0;
+  line-height: none;
 }

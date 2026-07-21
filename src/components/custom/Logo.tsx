@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { HStack } from "@/components/ui/hstack";
@@ -7,6 +5,8 @@ import { Heading } from "../ui/heading";
 
 type LogoProps = {
   size?: number;
+  firstWord?: string;
+  secondWord?: string;
 };
 
 export function LogoIcon({ size = 34 }: { size: number }) {
@@ -23,26 +23,32 @@ export function LogoIcon({ size = 34 }: { size: number }) {
   );
 }
 
-export function LogoWordmark() {
+export function LogoWordmark({
+  firstWord = "soc",
+  secondWord = "ial",
+}: {
+  firstWord: string;
+  secondWord: string;
+}) {
   return (
     <HStack className="items-center">
       <Heading
         size="3xl"
         className="font-baloo-extrabold font-normal text-foreground leading-none tracking-tight"
       >
-        soc
+        {firstWord}
       </Heading>
       <Heading
         size="3xl"
         className="font-baloo-extrabold font-normal underline text-theme leading-none tracking-tight"
       >
-        ial
+        {secondWord}
       </Heading>
     </HStack>
   );
 }
 
-function Logo({ size = 36 }: LogoProps) {
+function Logo({ size = 36, firstWord = "soc", secondWord = "ial" }: LogoProps) {
   const { t } = useTranslation();
 
   return (
@@ -53,7 +59,7 @@ function Logo({ size = 36 }: LogoProps) {
       accessibilityLabel={t("common.app_logo_alt")}
     >
       <LogoIcon size={size} />
-      <LogoWordmark />
+      <LogoWordmark firstWord={firstWord} secondWord={secondWord} />
     </HStack>
   );
 }
