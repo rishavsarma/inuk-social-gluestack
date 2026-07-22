@@ -1112,7 +1112,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className={`w-5 h-5 ${activeTab === "transform" ? "text-primary" : "text-zinc-500"}`}
               />
               <Text
-                className={`text-[10px] mt-1 ${activeTab === "transform" ? "text-primary font-bold" : "text-zinc-500"}`}
+                className={`text-xs mt-1 ${activeTab === "transform" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
                 {t("auth.transform")}
               </Text>
@@ -1132,7 +1132,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className={`w-5 h-5 ${activeTab === "adjust" ? "text-primary" : "text-zinc-500"}`}
               />
               <Text
-                className={`text-[10px] mt-1 ${activeTab === "adjust" ? "text-primary font-bold" : "text-zinc-500"}`}
+                className={`text-xs mt-1 ${activeTab === "adjust" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
                 {t("auth.adjust")}
               </Text>
@@ -1152,7 +1152,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className={`w-5 h-5 ${activeTab === "filters" ? "text-primary" : "text-zinc-500"}`}
               />
               <Text
-                className={`text-[10px] mt-1 ${activeTab === "filters" ? "text-primary font-bold" : "text-zinc-500"}`}
+                className={`text-xs mt-1 ${activeTab === "filters" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
                 {t("auth.filters")}
               </Text>
@@ -1172,7 +1172,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className={`w-5 h-5 ${activeTab === "effects" ? "text-primary" : "text-zinc-500"}`}
               />
               <Text
-                className={`text-[10px] mt-1 ${activeTab === "effects" ? "text-primary font-bold" : "text-zinc-500"}`}
+                className={`text-xs mt-1 ${activeTab === "effects" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
                 {t("auth.effects")}
               </Text>
@@ -1192,7 +1192,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className={`w-5 h-5 ${activeTab === "blur" ? "text-primary" : "text-zinc-500"}`}
               />
               <Text
-                className={`text-[10px] mt-1 ${activeTab === "blur" ? "text-primary font-bold" : "text-zinc-500"}`}
+                className={`text-xs mt-1 ${activeTab === "blur" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
                 {t("auth.blur")}
               </Text>
@@ -1212,7 +1212,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className={`w-5 h-5 ${activeTab === "stickers" ? "text-primary" : "text-zinc-500"}`}
               />
               <Text
-                className={`text-[10px] mt-1 ${activeTab === "stickers" ? "text-primary font-bold" : "text-zinc-500"}`}
+                className={`text-xs mt-1 ${activeTab === "stickers" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
                 {t("auth.stickers")}
               </Text>
@@ -1232,7 +1232,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className={`w-5 h-5 ${activeTab === "text" ? "text-primary" : "text-zinc-500"}`}
               />
               <Text
-                className={`text-[10px] mt-1 ${activeTab === "text" ? "text-primary font-bold" : "text-zinc-500"}`}
+                className={`text-xs mt-1 ${activeTab === "text" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
                 {t("auth.text")}
               </Text>
@@ -1252,7 +1252,7 @@ export const PhotoEditor: React.FC<PhotoEditorProps> = ({
                 className={`w-5 h-5 ${activeTab === "draw" ? "text-primary" : "text-zinc-500"}`}
               />
               <Text
-                className={`text-[10px] mt-1 ${activeTab === "draw" ? "text-primary font-bold" : "text-zinc-500"}`}
+                className={`text-xs mt-1 ${activeTab === "draw" ? "text-primary font-bold" : "text-zinc-500"}`}
               >
                 {t("auth.draw")}
               </Text>

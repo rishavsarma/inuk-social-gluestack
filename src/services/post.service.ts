@@ -1,4 +1,5 @@
 import { useAuthStore } from "@/stores/auth.store";
+import { buildImageUrl } from "@/utils/media";
 import { api } from "./api";
 import { getFollowingConnectionSafe, profileService } from "./profile.service";
 import { locationService } from "./location.service";
@@ -563,7 +564,7 @@ export const postService = {
         id: m.id || m.mediaId || String(Math.random()),
         url: isVideo
           ? (m.hlsMasterUrl ?? "")
-          : `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${m.mediaId || m.id}/jpg/1080`,
+          : buildImageUrl(String(m.mediaId || m.id), 1080, "jpg"),
         type: isVideo ? "video" : "image",
         width: m.width || 1080,
         height: m.height || 1080,
@@ -586,7 +587,7 @@ export const postService = {
         "Inuk User";
       const avatar_url =
         authorProfile?.avatar && authorProfile?.avatar !== "string"
-          ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${authorProfile.avatar}/jpeg/720`
+          ? buildImageUrl(authorProfile.avatar)
           : null;
 
       const stats: RawStatItem[] = postDetail?.stats || [];

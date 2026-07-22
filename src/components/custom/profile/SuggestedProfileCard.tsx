@@ -8,11 +8,14 @@ import {
   AvatarFallbackText,
   AvatarImage,
 } from "@/components/ui/avatar";
-import { Button, ButtonSpinner, ButtonText } from "@/components/ui/button";
 import { Pressable } from "@/components/ui/pressable";
 import { Skeleton, SkeletonText } from "@/components/ui/skeleton";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
+
+import { FollowButton } from "@/components/custom/FollowButton";
+
+import { useProfileCardData } from "@/hooks/useProfile";
 
 import { ROUTES } from "@/routes";
 
@@ -30,15 +33,7 @@ function SuggestedProfileCard({
   onToggleFollow,
 }: SuggestedProfileCardProps) {
   const { t } = useTranslation();
-
-  const fullName =
-    [profile.firstName, profile.lastName].filter(Boolean).join(" ") ||
-    profile.username ||
-    t("common.user");
-
-  const avatarUrl = profile.avatar
-    ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.avatar}/jpeg/150`
-    : undefined;
+  const { fullName, avatarUrl } = useProfileCardData(profile);
 
   return (
     <Pressable
@@ -73,29 +68,18 @@ function SuggestedProfileCard({
         </Text>
       ) : null}
       {!isSelf && onToggleFollow ? (
-        <Button
-          variant={profile.isFollowing ? "outline" : "theme"}
-          size="sm"
+        <FollowButton
+          isFollowing={!!profile.isFollowing}
+          isFollowLoading={isFollowLoading}
+          displayName={fullName}
           onPress={() => onToggleFollow(profile)}
-          disabled={isFollowLoading}
-          accessibilityRole="button"
-          accessibilityLabel={
-            profile.isFollowing
-              ? t("network.unfollow_a11y", { name: fullName })
-              : t("network.follow_a11y", { name: fullName })
-          }
-          className="mt-3 w-full rounded-full"
-        >
-          {isFollowLoading ? (
-            <ButtonSpinner color={profile.isFollowing ? undefined : "white"} />
-          ) : (
-            <ButtonText className={profile.isFollowing ? "" : "text-white"}>
-              {profile.isFollowing
-                ? t("network.following_btn")
-                : t("network.follow")}
-            </ButtonText>
-          )}
-        </Button>
+          size="sm"
+          variant="default"
+          outlineWhenFollowing
+          showSpinnerWhenLoading
+          showIcon={false}
+          className="mt-3 w-full"
+        />
       ) : null}
     </Pressable>
   );

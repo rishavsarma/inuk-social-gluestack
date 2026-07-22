@@ -20,7 +20,7 @@ export function AnimatedStatNumber({ value }: { value: number }) {
   }, [value]);
 
   return (
-    <Text className="text-[17px] font-bold text-foreground">
+    <Text className="text-lg font-bold text-foreground">
       {formatCompactNumber(displayed)}
     </Text>
   );

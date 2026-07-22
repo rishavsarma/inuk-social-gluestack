@@ -139,7 +139,7 @@ const NetworkScreen = () => {
                 variant="underlined"
                 orientation="horizontal"
               >
-                <TabsList className="bg-transparent rounded-none pb-0.5">
+                <TabsList className="bg-transparent rounded-none pb-1">
                   <TabsTrigger value="followers" className="flex-1">
                     <TabsTriggerText>{t("network.followers")}</TabsTriggerText>
                   </TabsTrigger>

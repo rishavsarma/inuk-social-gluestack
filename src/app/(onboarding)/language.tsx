@@ -5,19 +5,12 @@ import { View } from "react-native";
 
 import { Button, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
-import { CircleIcon } from "@/components/ui/icon";
-import {
-  Radio,
-  RadioGroup,
-  RadioIcon,
-  RadioIndicator,
-  RadioLabel,
-} from "@/components/ui/radio";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import Logo from "@/components/custom/Logo";
 import { OnboardingStepHeader } from "@/components/custom/onboarding/OnboardingStepHeader";
+import { SelectableRadioList } from "@/components/custom/SelectableRadioList";
 import { useAppInsets } from "@/hooks/useAppInsets";
 import { LANGUAGES } from "@/constants";
 import { ROUTES } from "@/routes";
@@ -62,33 +55,14 @@ const OnboardingLanguage = () => {
         </VStack>
       </VStack>
 
-      <RadioGroup value={selectedLanguage} onChange={setSelectedLanguage}>
-        <VStack space="md" className="w-full">
-          {LANGUAGES.map((item) => {
-            const isSelected = item.id === selectedLanguage;
-            return (
-              <Radio
-                key={item.id}
-                value={item.id}
-                size="md"
-                className={
-                  "w-full flex-row-reverse items-center justify-between rounded-lg border px-4 py-4 active:opacity-70 " +
-                  (isSelected
-                    ? "border-theme bg-theme/10"
-                    : "border-border bg-card")
-                }
-              >
-                <RadioIndicator>
-                  <RadioIcon as={CircleIcon} />
-                </RadioIndicator>
-                <RadioLabel className="flex-1 text-lg font-semibold text-foreground font-baloo-semibold ">
-                  {t(item.labelKey)}
-                </RadioLabel>
-              </Radio>
-            );
-          })}
-        </VStack>
-      </RadioGroup>
+      <SelectableRadioList
+        items={LANGUAGES.map((item) => ({
+          id: item.id,
+          label: t(item.labelKey),
+        }))}
+        value={selectedLanguage}
+        onChange={setSelectedLanguage}
+      />
 
       <View className="flex-1" />
 

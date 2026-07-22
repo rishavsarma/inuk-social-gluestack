@@ -1,15 +1,9 @@
 import { useRouter } from "expo-router";
-import { ArrowLeft, Eye, EyeOff } from "lucide-react-native";
+import { Eye, EyeOff } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import {
-  Button,
-  ButtonIcon,
-  ButtonSpinner,
-  ButtonText,
-} from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button, ButtonText } from "@/components/ui/button";
 import {
   FormControl,
   FormControlError,
@@ -24,17 +18,16 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
-import { ChevronRightIcon, Icon } from "@/components/ui/icon";
-import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { useSignInInitiateOtp, useVerifyPassword } from "@/hooks/useAuth";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
 import { useJourneyStore } from "@/stores/journey.store";
-import Logo from "@/components/custom/Logo";
+import AuthScreenLayout from "@/components/custom/AuthScreenLayout";
+import AuthSubmitButton from "@/components/custom/AuthSubmitButton";
+import BackToLoginButton from "@/components/custom/BackToLoginButton";
 
 const PasswordLogin = () => {
   const { t } = useTranslation();
-  const bottomInset = useAppBottomInset();
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [password, setPassword] = useState("");
@@ -115,153 +108,118 @@ const PasswordLogin = () => {
 
   return (
     <KeyboardAvoidingScrollView>
-      <VStack className="flex-1 justify-between bg-background relative">
-        {/* Brand/Logo Section */}
-        <VStack
-          className="flex-1 items-center justify-center px-6 py-12"
-          space="md"
-        >
-          <Logo size={40} />
-        </VStack>
+      <AuthScreenLayout>
+        <VStack space="2xl">
+          <VStack space="xs">
+            <Heading size="2xl" className="font-bold text-foreground">
+              {t("auth.password_login_title")}
+            </Heading>
+            <Text size="sm" className="text-muted-foreground">
+              {t("auth.password_login_subtitle", {
+                phone: `${countryCode} ${phone}`,
+              })}
+            </Text>
+          </VStack>
 
-        {/* Bottom Card Form */}
-        <Card
-          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none rounded-t-4xl"
-          style={{ paddingBottom: bottomInset + 20 }}
-        >
-          <VStack space="2xl">
+          <FormControl
+            isInvalid={!!error}
+            isDisabled={isPending}
+            className="w-full"
+          >
             <VStack space="xs">
-              <Heading size="2xl" className="font-bold text-foreground">
-                {t("auth.password_login_title")}
-              </Heading>
-              <Text size="sm" className="text-muted-foreground">
-                {t("auth.password_login_subtitle", {
-                  phone: `${countryCode} ${phone}`,
-                })}
-              </Text>
-            </VStack>
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm font-semibold">
+                  {t("auth.password_label")}
+                </FormControlLabelText>
+              </FormControlLabel>
 
-            <FormControl
-              isInvalid={!!error}
-              isDisabled={isPending}
-              className="w-full"
-            >
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.password_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
+              {/* Password Input with eye icon toggle */}
+              <Input className="w-full flex-row items-center">
+                <InputField
+                  secureTextEntry={!showPassword}
+                  autoCorrect={false}
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  textContentType="password"
+                  keyboardType="ascii-capable"
+                  placeholder={t("auth.password_placeholder")}
+                  accessibilityLabel={t("auth.password_label")}
+                  value={password}
+                  clearTextOnFocus={false}
+                  onChangeText={(val) => {
+                    setPassword(val);
+                    // if (error) setError(null);
+                  }}
+                  className="flex-1 text-base text-foreground"
+                />
 
-                {/* Password Input with eye icon toggle */}
-                <Input className="w-full flex-row items-center">
-                  <InputField
-                    secureTextEntry={!showPassword}
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    textContentType="password"
-                    keyboardType="ascii-capable"
-                    placeholder={t("auth.password_placeholder")}
-                    accessibilityLabel={t("auth.password_label")}
-                    value={password}
-                    clearTextOnFocus={false}
-                    onChangeText={(val) => {
-                      setPassword(val);
-                      // if (error) setError(null);
-                    }}
-                    className="flex-1 text-base text-foreground"
+                <InputSlot
+                  onPress={handleToggle}
+                  className="pr-3"
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showPassword
+                      ? t("auth.hide_password")
+                      : t("auth.show_password")
+                  }
+                  accessibilityState={{ selected: showPassword }}
+                >
+                  <InputIcon
+                    as={showPassword ? EyeOff : Eye}
+                    className="w-5 h-5 text-muted-foreground"
                   />
+                </InputSlot>
+              </Input>
 
-                  <InputSlot
-                    onPress={handleToggle}
-                    className="pr-3"
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      showPassword
-                        ? t("auth.hide_password")
-                        : t("auth.show_password")
-                    }
-                    accessibilityState={{ selected: showPassword }}
-                  >
-                    <InputIcon
-                      as={showPassword ? EyeOff : Eye}
-                      className="w-5 h-5 text-muted-foreground"
-                    />
-                  </InputSlot>
-                </Input>
-
-                {/* <FormControlHelper>
+              {/* <FormControlHelper>
                   <FormControlHelperText>
                     {t("auth.password_helper")}
                   </FormControlHelperText>
                 </FormControlHelper> */}
 
-                {error && (
-                  <FormControlError>
-                    <FormControlErrorText>{error}</FormControlErrorText>
-                  </FormControlError>
-                )}
-              </VStack>
-            </FormControl>
-
-            {/* Sign In Button */}
-            <Button
-              size="xl"
-              variant="theme"
-              onPress={handleSignIn}
-              disabled={isPending}
-              className="gap-1"
-              accessibilityRole="button"
-              accessibilityLabel={t("auth.sign_in")}
-              accessibilityState={{ disabled: isPending }}
-            >
-              <ButtonText>{t("auth.sign_in")}</ButtonText>
-              {isPending ? (
-                <ButtonSpinner color={"white"} />
-              ) : (
-                <Icon as={ChevronRightIcon} className="text-white stroke-2" />
+              {error && (
+                <FormControlError>
+                  <FormControlErrorText>{error}</FormControlErrorText>
+                </FormControlError>
               )}
+            </VStack>
+          </FormControl>
+
+          {/* Sign In Button */}
+          <AuthSubmitButton
+            label={t("auth.sign_in")}
+            onPress={handleSignIn}
+            isLoading={isPending}
+            disabled={isPending}
+          />
+
+          {/* Switch authentication method / forgot password actions */}
+          <HStack space="xs" className="justify-between items-center">
+            <BackToLoginButton />
+
+            <Button
+              variant="link"
+              size="default"
+              disabled={isPendingOtp}
+              onPress={() => {
+                sendOtp();
+                router.push({
+                  pathname: ROUTES.AUTH.VERIFY_OTP,
+                  params: { mode: "sign-in" },
+                });
+              }}
+              className="p-0"
+              accessibilityRole="button"
+              accessibilityLabel={t("auth.login_with_otp")}
+              accessibilityState={{ disabled: isPendingOtp }}
+            >
+              <ButtonText className="font-semibold text-primary">
+                {t("auth.login_with_otp")}
+              </ButtonText>
             </Button>
-
-            {/* Switch authentication method / forgot password actions */}
-            <HStack space="xs" className="justify-between items-center">
-              <Button
-                variant="link"
-                size="default"
-                onPress={() => router.replace(ROUTES.AUTH.HOME)}
-                className="p-0"
-                accessibilityRole="button"
-                accessibilityLabel={t("auth.back_to_login")}
-              >
-                <ButtonIcon as={ArrowLeft} />
-                <ButtonText className="">{t("auth.back_to_login")}</ButtonText>
-              </Button>
-
-              <Button
-                variant="link"
-                size="default"
-                disabled={isPendingOtp}
-                onPress={() => {
-                  sendOtp();
-                  router.push({
-                    pathname: ROUTES.AUTH.VERIFY_OTP,
-                    params: { mode: "sign-in" },
-                  });
-                }}
-                className="p-0"
-                accessibilityRole="button"
-                accessibilityLabel={t("auth.login_with_otp")}
-                accessibilityState={{ disabled: isPendingOtp }}
-              >
-                <ButtonText className="font-semibold text-primary">
-                  {t("auth.login_with_otp")}
-                </ButtonText>
-              </Button>
-            </HStack>
-          </VStack>
-        </Card>
-      </VStack>
+          </HStack>
+        </VStack>
+      </AuthScreenLayout>
     </KeyboardAvoidingScrollView>
   );
 };

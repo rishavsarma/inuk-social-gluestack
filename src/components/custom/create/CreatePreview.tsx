@@ -22,6 +22,7 @@ import { useSettingStore } from "@/stores/setting.store";
 import { POST_CATEGORIES, VISIBILITY_OPTIONS } from "@/constants/create-post";
 import type { CreatePostMode } from "@/constants/create-post";
 import { useAuthStore } from "@/stores/auth.store";
+import { buildImageUrl } from "@/utils/media";
 
 function PreviewVideoPlayer({ uri, isActive }: { uri: string; isActive: boolean }) {
   const isFocused = useIsFocused();
@@ -103,7 +104,7 @@ export function CreatePreview({
   const displayName = user?.name || t("common.user");
   const avatarUrl =
     user?.avatar && user.avatar !== "string"
-      ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${user.avatar}/jpeg/150`
+      ? buildImageUrl(user.avatar, 150)
       : undefined;
 
   return (
@@ -154,7 +155,7 @@ export function CreatePreview({
         <Box className="relative h-96 w-full overflow-hidden rounded-none bg-card">
           <HStack
             space="xs"
-            className="absolute left-2.5 top-2.5 z-10 items-center rounded-full bg-black/40 px-2.5 py-1"
+            className="absolute left-2.5 top-2.5 z-10 items-center rounded-full bg-black/40 px-3 py-1"
           >
             <Box className={`h-1.5 w-1.5 rounded-full ${category.dotColorClassName}`} />
             <Text size="xs" className="font-semibold text-white">
@@ -337,8 +338,8 @@ export function CreatePreview({
                 accessibilityLabel={t(opt.labelKey)}
                 className={
                   isSelected
-                    ? "flex-1 items-center gap-1.5 rounded-xl border border-theme bg-theme/10 px-2 py-3.5"
-                    : "flex-1 items-center gap-1.5 rounded-xl border border-border bg-card/70 px-2 py-3.5"
+                    ? "flex-1 items-center gap-2 rounded-xl border border-theme bg-theme/10 px-2 py-4"
+                    : "flex-1 items-center gap-2 rounded-xl border border-border bg-card/70 px-2 py-4"
                 }
               >
                 <Icon

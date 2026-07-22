@@ -11,7 +11,7 @@ import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 
 import { useWalletStore } from "@/stores/wallet.store";
 
-import { WEB_FONT_ROUND, WEB_PALETTE } from "@/constants/web-reference-theme";
+import { WEB_BORDER_LINE, WEB_FONT_ROUND, WEB_PALETTE } from "@/constants/web-reference-theme";
 
 interface ArenaRewardTileProps {
   reward: WebArenaReward;
@@ -42,15 +42,14 @@ function ArenaRewardTile({ reward }: ArenaRewardTileProps) {
       onPress={handlePress}
       accessibilityRole="button"
       accessibilityLabel={reward.name}
-      style={{ borderColor: isDark ? "#2b3050" : "#E3E4EC" }}
-      className="flex-1 overflow-hidden rounded-field border"
+      className={`flex-1 overflow-hidden rounded-field border ${WEB_BORDER_LINE}`}
     >
       <Box style={{ backgroundColor: reward.col }} className="h-14.5" />
-      <Box className="p-2.5">
-        <Text className={`${WEB_FONT_ROUND[700]} text-[13px] ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
+      <Box className="p-3">
+        <Text className={`${WEB_FONT_ROUND[700]} text-sm ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
           {reward.name}
         </Text>
-        <Text style={{ color: WEB_PALETTE.red }} className={`${WEB_FONT_ROUND[700]} mt-0.5 text-[11.5px]`}>
+        <Text style={{ color: WEB_PALETTE.red }} className={`${WEB_FONT_ROUND[700]} mt-1 text-xs`}>
           ★ {reward.pts}
         </Text>
       </Box>

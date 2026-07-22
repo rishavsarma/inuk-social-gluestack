@@ -9,6 +9,7 @@ import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
+import { SPACING_PX } from "@/constants";
 import { resolveTaxonomyIcon } from "@/constants/mdi-icon-map";
 
 interface CategorySubcategoryListProps {
@@ -86,8 +87,8 @@ function EntityChipGrid({
         contentContainerStyle={{ paddingRight: 16 }}
       >
         <VStack space="sm">
-          <Box className="flex-row gap-2.25">{rows[0].map(renderCard)}</Box>
-          <Box className="flex-row gap-2.25">{rows[1].map(renderCard)}</Box>
+          <Box className="flex-row gap-2">{rows[0].map(renderCard)}</Box>
+          <Box className="flex-row gap-2">{rows[1].map(renderCard)}</Box>
         </VStack>
       </ScrollView>
     </Box>
@@ -116,7 +117,7 @@ export function CategorySubcategoryList({
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          contentContainerStyle={{ gap: 10, paddingHorizontal: 16 }}
+          contentContainerStyle={{ gap: SPACING_PX[3], paddingHorizontal: SPACING_PX[4] }}
         >
           {category.subs.map((s) => {
             const open = openSub === s.title;
@@ -128,7 +129,7 @@ export function CategorySubcategoryList({
                 accessibilityLabel={s.title}
                 accessibilityState={{ selected: open }}
                 style={open ? { backgroundColor: category.colour } : undefined}
-                className={`${open ? "" : "bg-card"} flex-row items-center gap-2.5 rounded-lg py-2 pl-2 pr-3.5`}
+                className={`${open ? "" : "bg-card"} flex-row items-center gap-3 rounded-lg py-2 pl-2 pr-4`}
               >
                 <Box
                   style={{
@@ -150,14 +151,14 @@ export function CategorySubcategoryList({
                 <VStack>
                   <Text
                     numberOfLines={1}
-                    className={`font-baloo-bold text-[13px] ${
+                    className={`font-baloo-bold text-sm ${
                       open ? "text-white" : "text-foreground"
                     }`}
                   >
                     {s.title}
                   </Text>
                   <Text
-                    className={`font-inter text-[10.5px] ${
+                    className={`font-inter text-xs ${
                       open ? "text-white/80" : "text-muted-foreground"
                     }`}
                   >
@@ -196,7 +197,7 @@ export function CategorySubcategoryList({
               accessibilityRole="button"
               accessibilityLabel={s.title}
               accessibilityState={{ expanded: open }}
-              className="bg-muted flex-row items-center gap-3 rounded-2xl p-3.5"
+              className="bg-muted flex-row items-center gap-3 rounded-2xl p-4"
             >
               <Box
                 style={{ backgroundColor: category.colour }}
@@ -211,7 +212,7 @@ export function CategorySubcategoryList({
                   style={{ color: category.onColour }}
                 />
               </Box>
-              <Text className="font-baloo-bold text-foreground flex-1 text-[15px]">
+              <Text className="font-baloo-bold text-foreground flex-1 text-base">
                 {s.title}
               </Text>
               <Text className="font-inter text-muted-foreground text-xs">
@@ -228,7 +229,7 @@ export function CategorySubcategoryList({
                 category={category}
                 sub={s}
                 onEntity={onEntity}
-                className="px-1 pt-2.5"
+                className="px-1 pt-3"
               />
             ) : null}
           </Box>

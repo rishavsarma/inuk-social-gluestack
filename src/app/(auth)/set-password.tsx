@@ -1,15 +1,8 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft, Check, Eye, EyeOff, X } from "lucide-react-native";
+import { Check, Eye, EyeOff, X } from "lucide-react-native";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-import {
-  Button,
-  ButtonIcon,
-  ButtonSpinner,
-  ButtonText,
-} from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import {
   FormControl,
   FormControlError,
@@ -24,16 +17,16 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
-import { ChevronRightIcon, Icon } from "@/components/ui/icon";
+import { Icon } from "@/components/ui/icon";
 import { Progress, ProgressFilledTrack } from "@/components/ui/progress";
-import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import { useResetPasswordUpdate, useSignUpSetPassword } from "@/hooks/useAuth";
-import Logo from "@/components/custom/Logo";
+import AuthScreenLayout from "@/components/custom/AuthScreenLayout";
+import AuthSubmitButton from "@/components/custom/AuthSubmitButton";
+import BackToLoginButton from "@/components/custom/BackToLoginButton";
 
 const SetPassword = () => {
-  const bottomInset = useAppBottomInset();
   const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams<{
@@ -192,253 +185,214 @@ const SetPassword = () => {
 
   return (
     <KeyboardAvoidingScrollView>
-      <VStack className="flex-1 justify-between bg-background relative">
-        {/* Brand/Logo Section */}
-        <VStack
-          className="flex-1 items-center justify-center px-6 py-12"
-          space="md"
-        >
-          <Logo size={40} />
-        </VStack>
+      <AuthScreenLayout>
+        <VStack space="lg">
+          <VStack>
+            <Heading size="xl" className="font-bold text-foreground">
+              {t("auth.set_password_title")}
+            </Heading>
+            <Text size="sm" className="text-muted-foreground">
+              {t("auth.set_password_subtitle")}
+            </Text>
+          </VStack>
 
-        {/* Bottom Card Form */}
-        <Card
-          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none rounded-t-4xl"
-          style={{ paddingBottom: bottomInset + 20 }}
-        >
-          <VStack space="lg">
-            <VStack>
-              <Heading size="xl" className="font-bold text-foreground">
-                {t("auth.set_password_title")}
-              </Heading>
-              <Text size="sm" className="text-muted-foreground">
-                {t("auth.set_password_subtitle")}
-              </Text>
-            </VStack>
+          {/* Password input */}
+          <FormControl
+            isInvalid={!!passwordError}
+            isDisabled={
+              isResetPasswordUpdatePending || isSignUpSetPasswordPending
+            }
+            className="w-full"
+          >
+            <VStack space="xs">
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm font-semibold">
+                  {t("auth.new_password_label")}
+                </FormControlLabelText>
+              </FormControlLabel>
 
-            {/* Password input */}
-            <FormControl
-              isInvalid={!!passwordError}
-              isDisabled={
-                isResetPasswordUpdatePending || isSignUpSetPasswordPending
-              }
-              className="w-full"
-            >
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.new_password_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
-
-                <Input className="w-full flex-row items-center">
-                  <InputField
-                    secureTextEntry={!showPassword}
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    textContentType="newPassword"
-                    keyboardType="ascii-capable"
-                    placeholder={t("auth.new_password_placeholder")}
-                    accessibilityLabel={t("auth.new_password_label")}
-                    value={password}
-                    onChangeText={(val) => {
-                      setPassword(val);
-                      if (passwordError) setPasswordError(null);
-                    }}
-                    className="flex-1 text-base text-foreground"
+              <Input className="w-full flex-row items-center">
+                <InputField
+                  secureTextEntry={!showPassword}
+                  autoCorrect={false}
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  textContentType="newPassword"
+                  keyboardType="ascii-capable"
+                  placeholder={t("auth.new_password_placeholder")}
+                  accessibilityLabel={t("auth.new_password_label")}
+                  value={password}
+                  onChangeText={(val) => {
+                    setPassword(val);
+                    if (passwordError) setPasswordError(null);
+                  }}
+                  className="flex-1 text-base text-foreground"
+                />
+                <InputSlot
+                  onPress={() => setShowPassword((prev) => !prev)}
+                  className="pr-3"
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showPassword
+                      ? t("auth.hide_password")
+                      : t("auth.show_password")
+                  }
+                  accessibilityState={{ selected: showPassword }}
+                >
+                  <InputIcon
+                    as={showPassword ? EyeOff : Eye}
+                    className="w-5 h-5 text-muted-foreground"
                   />
-                  <InputSlot
-                    onPress={() => setShowPassword((prev) => !prev)}
-                    className="pr-3"
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      showPassword
-                        ? t("auth.hide_password")
-                        : t("auth.show_password")
-                    }
-                    accessibilityState={{ selected: showPassword }}
-                  >
-                    <InputIcon
-                      as={showPassword ? EyeOff : Eye}
-                      className="w-5 h-5 text-muted-foreground"
-                    />
-                  </InputSlot>
-                </Input>
+                </InputSlot>
+              </Input>
 
-                {/* Password Strength Bar */}
-                {password.length > 0 && (
-                  <VStack space="xs" className="mt-2">
-                    <HStack className="justify-between items-center">
-                      <Text size="xs" className="text-muted-foreground">
-                        Password Strength:
-                      </Text>
-                      <Text
-                        size="xs"
+              {/* Password Strength Bar */}
+              {password.length > 0 && (
+                <VStack space="xs" className="mt-2">
+                  <HStack className="justify-between items-center">
+                    <Text size="xs" className="text-muted-foreground">
+                      Password Strength:
+                    </Text>
+                    <Text
+                      size="xs"
+                      className={cn(
+                        strengthScore >= 5
+                          ? "text-green-500 font-bold"
+                          : strengthScore >= 3
+                            ? "text-yellow-500 font-bold"
+                            : "text-red-500 font-bold",
+                      )}
+                    >
+                      {strengthLabel}
+                    </Text>
+                  </HStack>
+                  <Progress
+                    value={progressValue}
+                    className="h-1.5 w-full bg-muted/20 rounded-full overflow-hidden"
+                  >
+                    <ProgressFilledTrack className={trackColorClassName} />
+                  </Progress>
+                </VStack>
+              )}
+
+              {/* Password Rules Checklist */}
+              <VStack space="xs" className="mt-3">
+                {rules.map((rule) => {
+                  const hasInput = password.length > 0;
+                  let colorClass = "text-muted-foreground";
+                  let icon = Check;
+                  if (hasInput) {
+                    if (rule.met) {
+                      colorClass = "text-green-500 font-medium";
+                      icon = Check;
+                    } else {
+                      colorClass = "text-red-500";
+                      icon = X;
+                    }
+                  }
+                  return (
+                    <HStack key={rule.key} space="xs" className="items-center">
+                      <Icon
+                        as={icon}
                         className={cn(
-                          strengthScore >= 5
-                            ? "text-green-500 font-bold"
-                            : strengthScore >= 3
-                              ? "text-yellow-500 font-bold"
-                              : "text-red-500 font-bold",
+                          "w-4 h-4",
+                          hasInput
+                            ? rule.met
+                              ? "text-green-500"
+                              : "text-red-500"
+                            : "text-muted-foreground/40",
                         )}
-                      >
-                        {strengthLabel}
+                      />
+                      <Text size="xs" className={colorClass}>
+                        {rule.label}
                       </Text>
                     </HStack>
-                    <Progress
-                      value={progressValue}
-                      className="h-1.5 w-full bg-muted/20 rounded-full overflow-hidden"
-                    >
-                      <ProgressFilledTrack className={trackColorClassName} />
-                    </Progress>
-                  </VStack>
-                )}
-
-                {/* Password Rules Checklist */}
-                <VStack space="xs" className="mt-3">
-                  {rules.map((rule) => {
-                    const hasInput = password.length > 0;
-                    let colorClass = "text-muted-foreground";
-                    let icon = Check;
-                    if (hasInput) {
-                      if (rule.met) {
-                        colorClass = "text-green-500 font-medium";
-                        icon = Check;
-                      } else {
-                        colorClass = "text-red-500";
-                        icon = X;
-                      }
-                    }
-                    return (
-                      <HStack
-                        key={rule.key}
-                        space="xs"
-                        className="items-center"
-                      >
-                        <Icon
-                          as={icon}
-                          className={cn(
-                            "w-4 h-4",
-                            hasInput
-                              ? rule.met
-                                ? "text-green-500"
-                                : "text-red-500"
-                              : "text-muted-foreground/40",
-                          )}
-                        />
-                        <Text size="xs" className={colorClass}>
-                          {rule.label}
-                        </Text>
-                      </HStack>
-                    );
-                  })}
-                </VStack>
-
-                {passwordError && (
-                  <FormControlError className="mt-2">
-                    <FormControlErrorText>{passwordError}</FormControlErrorText>
-                  </FormControlError>
-                )}
+                  );
+                })}
               </VStack>
-            </FormControl>
 
-            {/* Confirm Password input */}
-            <FormControl
-              isInvalid={!!confirmPasswordError}
-              isDisabled={
-                isResetPasswordUpdatePending || isSignUpSetPasswordPending
-              }
-              className="w-full"
-            >
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.confirm_password_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
-
-                <Input className="w-full flex-row items-center">
-                  <InputField
-                    secureTextEntry={!showConfirmPassword}
-                    autoCorrect={false}
-                    autoCapitalize="none"
-                    spellCheck={false}
-                    textContentType="newPassword"
-                    keyboardType="ascii-capable"
-                    placeholder={t("auth.confirm_password_placeholder")}
-                    accessibilityLabel={t("auth.confirm_password_label")}
-                    value={confirmPassword}
-                    onChangeText={(val) => {
-                      setConfirmPassword(val);
-                      if (confirmPasswordError) setConfirmPasswordError(null);
-                    }}
-                    className="flex-1 text-base text-foreground"
-                  />
-                  <InputSlot
-                    onPress={() => setShowConfirmPassword((prev) => !prev)}
-                    className="pr-3"
-                    accessibilityRole="button"
-                    accessibilityLabel={
-                      showConfirmPassword
-                        ? t("auth.hide_password")
-                        : t("auth.show_password")
-                    }
-                    accessibilityState={{ selected: showConfirmPassword }}
-                  >
-                    <InputIcon
-                      as={showConfirmPassword ? EyeOff : Eye}
-                      className="w-5 h-5 text-muted-foreground"
-                    />
-                  </InputSlot>
-                </Input>
-
-                {confirmPasswordError && (
-                  <FormControlError>
-                    <FormControlErrorText>
-                      {confirmPasswordError}
-                    </FormControlErrorText>
-                  </FormControlError>
-                )}
-              </VStack>
-            </FormControl>
-
-            {/* Submit Button */}
-            <Button
-              variant="theme"
-              size="xl"
-              onPress={handleSetPassword}
-              disabled={
-                isResetPasswordUpdatePending || isSignUpSetPasswordPending
-              }
-              className="gap-1"
-              accessibilityRole="button"
-              accessibilityLabel={t("auth.set_password_button")}
-              accessibilityState={{
-                disabled:
-                  isResetPasswordUpdatePending || isSignUpSetPasswordPending,
-              }}
-            >
-              <ButtonText>{t("auth.set_password_button")}</ButtonText>
-              {isResetPasswordUpdatePending || isSignUpSetPasswordPending ? (
-                <ButtonSpinner color={"white"} />
-              ) : (
-                <Icon as={ChevronRightIcon} className="text-white stroke-2" />
+              {passwordError && (
+                <FormControlError className="mt-2">
+                  <FormControlErrorText>{passwordError}</FormControlErrorText>
+                </FormControlError>
               )}
-            </Button>
-            <HStack space="xs" className="justify-between items-center">
-              <Button
-                variant="link"
-                size="default"
-                onPress={() => router.replace(ROUTES.AUTH.HOME)}
-                className="p-0"
-                accessibilityRole="button"
-                accessibilityLabel={t("auth.back_to_login")}
-              >
-                <ButtonIcon as={ArrowLeft} />
-                <ButtonText className="">{t("auth.back_to_login")}</ButtonText>
-              </Button>
-              {/* <Button
+            </VStack>
+          </FormControl>
+
+          {/* Confirm Password input */}
+          <FormControl
+            isInvalid={!!confirmPasswordError}
+            isDisabled={
+              isResetPasswordUpdatePending || isSignUpSetPasswordPending
+            }
+            className="w-full"
+          >
+            <VStack space="xs">
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm font-semibold">
+                  {t("auth.confirm_password_label")}
+                </FormControlLabelText>
+              </FormControlLabel>
+
+              <Input className="w-full flex-row items-center">
+                <InputField
+                  secureTextEntry={!showConfirmPassword}
+                  autoCorrect={false}
+                  autoCapitalize="none"
+                  spellCheck={false}
+                  textContentType="newPassword"
+                  keyboardType="ascii-capable"
+                  placeholder={t("auth.confirm_password_placeholder")}
+                  accessibilityLabel={t("auth.confirm_password_label")}
+                  value={confirmPassword}
+                  onChangeText={(val) => {
+                    setConfirmPassword(val);
+                    if (confirmPasswordError) setConfirmPasswordError(null);
+                  }}
+                  className="flex-1 text-base text-foreground"
+                />
+                <InputSlot
+                  onPress={() => setShowConfirmPassword((prev) => !prev)}
+                  className="pr-3"
+                  accessibilityRole="button"
+                  accessibilityLabel={
+                    showConfirmPassword
+                      ? t("auth.hide_password")
+                      : t("auth.show_password")
+                  }
+                  accessibilityState={{ selected: showConfirmPassword }}
+                >
+                  <InputIcon
+                    as={showConfirmPassword ? EyeOff : Eye}
+                    className="w-5 h-5 text-muted-foreground"
+                  />
+                </InputSlot>
+              </Input>
+
+              {confirmPasswordError && (
+                <FormControlError>
+                  <FormControlErrorText>
+                    {confirmPasswordError}
+                  </FormControlErrorText>
+                </FormControlError>
+              )}
+            </VStack>
+          </FormControl>
+
+          {/* Submit Button */}
+          <AuthSubmitButton
+            label={t("auth.set_password_button")}
+            onPress={handleSetPassword}
+            isLoading={
+              isResetPasswordUpdatePending || isSignUpSetPasswordPending
+            }
+            disabled={
+              isResetPasswordUpdatePending || isSignUpSetPasswordPending
+            }
+          />
+          <HStack space="xs" className="justify-between items-center">
+            <BackToLoginButton />
+            {/* <Button
                 variant="link"
                 size="default"
                 onPress={() =>
@@ -453,10 +407,9 @@ const SetPassword = () => {
                   {t("auth.login_with_password")}
                 </ButtonText>
               </Button> */}
-            </HStack>
-          </VStack>
-        </Card>
-      </VStack>
+          </HStack>
+        </VStack>
+      </AuthScreenLayout>
     </KeyboardAvoidingScrollView>
   );
 };

@@ -246,7 +246,7 @@ export function UiHeader({
                       onPress={() => onSearchChange("")}
                       accessibilityRole="button"
                       accessibilityLabel={t("search.clear")}
-                      className="pr-3.5"
+                      className="pr-4"
                     >
                       <Icon as={X} className="h-4 w-4 text-muted-foreground" />
                     </InputSlot>

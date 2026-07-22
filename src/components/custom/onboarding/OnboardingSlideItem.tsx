@@ -321,7 +321,7 @@ export function OnboardingSlideItem({
               textShadowRadius: 5,
             },
           ]}
-          className="text-[15.5px] font-normal leading-6 tracking-[0.1px] text-white/80"
+          className="text-base font-normal leading-6 tracking-[0.1px] text-white/80"
         >
           {t(slide.subtitleKey)}
         </Animated.Text>

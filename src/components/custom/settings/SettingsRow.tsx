@@ -37,7 +37,7 @@ export function SettingsRow({
       accessibilityLabel={title}
       className={onPress ? "active:opacity-70" : undefined}
     >
-      <HStack space="sm" className="items-center px-4 py-2.5">
+      <HStack space="sm" className="items-center px-4 py-3">
         <Box
           className={`p-2 items-center justify-center rounded-full ${iconBg}`}
         >

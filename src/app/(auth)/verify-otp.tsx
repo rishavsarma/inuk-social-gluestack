@@ -1,16 +1,9 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { ArrowLeft } from "lucide-react-native";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OtpInput } from "react-native-otp-entry";
 
-import {
-  Button,
-  ButtonIcon,
-  ButtonSpinner,
-  ButtonText,
-} from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
+import { Button, ButtonText } from "@/components/ui/button";
 import {
   FormControl,
   FormControlError,
@@ -24,8 +17,6 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
-import { ChevronRightIcon, Icon } from "@/components/ui/icon";
-import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { ROUTES } from "@/routes";
 import { THEME_RGB } from "@/constants";
 
@@ -39,10 +30,11 @@ import { useAuthStore } from "@/stores/auth.store";
 import { useJourneyStore } from "@/stores/journey.store";
 import { useSettingStore } from "@/stores/setting.store";
 import { useColorScheme } from "react-native";
-import Logo from "@/components/custom/Logo";
+import AuthScreenLayout from "@/components/custom/AuthScreenLayout";
+import AuthSubmitButton from "@/components/custom/AuthSubmitButton";
+import BackToLoginButton from "@/components/custom/BackToLoginButton";
 
 const VerifyOtp = () => {
-  const bottomInset = useAppBottomInset();
   const { t } = useTranslation();
   const router = useRouter();
   const params = useLocalSearchParams<{
@@ -190,197 +182,152 @@ const VerifyOtp = () => {
 
   return (
     <KeyboardAvoidingScrollView keyboardMode="layout">
-      <VStack className="flex-1 justify-between bg-background ">
-        {/* Brand/Logo Section */}
-        <VStack
-          className="flex-1 items-center justify-center px-6 py-12"
-          space="md"
-        >
-          <Logo size={40} />
-        </VStack>
+      <AuthScreenLayout>
+        <VStack space="2xl">
+          <VStack space="xs">
+            <Heading size="2xl" className="font-bold text-foreground">
+              {t("auth.verify_otp_title")}
+            </Heading>
+            <HStack space="xs" className="items-center justify-between ">
+              <Text size="sm" className="text-muted-foreground leading-none">
+                {t("auth.verify_otp_subtitle", {
+                  phone: `${countryCode} ${phone}`,
+                })}
+              </Text>
+              <Button
+                variant="ghost"
+                size="sm"
+                onPress={handleResend}
+                className=""
+                disabled={isResendOtpPending || timer > 0}
+                accessibilityRole="button"
+                accessibilityLabel={
+                  timer > 0
+                    ? t("auth.resend_code_in", { seconds: timer })
+                    : t("auth.resend_code")
+                }
+                accessibilityState={{
+                  disabled: isResendOtpPending || timer > 0,
+                }}
+              >
+                {timer > 0 ? (
+                  <ButtonText className="">
+                    {t("auth.resend_code_in", { seconds: timer })}
+                  </ButtonText>
+                ) : (
+                  <ButtonText className="">{t("auth.resend_code")}</ButtonText>
+                )}
+              </Button>
+            </HStack>
+          </VStack>
 
-        {/* Bottom Card Form */}
-        <Card
-          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none rounded-t-4xl"
-          style={{ paddingBottom: bottomInset + 20 }}
-        >
-          <VStack space="2xl">
+          <FormControl
+            isInvalid={!!error}
+            isDisabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
+            className="w-full"
+          >
             <VStack space="xs">
-              <Heading size="2xl" className="font-bold text-foreground">
-                {t("auth.verify_otp_title")}
-              </Heading>
-              <HStack space="xs" className="items-center justify-between ">
-                <Text size="sm" className="text-muted-foreground leading-none">
-                  {t("auth.verify_otp_subtitle", {
-                    phone: `${countryCode} ${phone}`,
-                  })}
-                </Text>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onPress={handleResend}
-                  className=""
-                  disabled={isResendOtpPending || timer > 0}
-                  accessibilityRole="button"
-                  accessibilityLabel={
-                    timer > 0
-                      ? t("auth.resend_code_in", { seconds: timer })
-                      : t("auth.resend_code")
-                  }
-                  accessibilityState={{
-                    disabled: isResendOtpPending || timer > 0,
-                  }}
-                >
-                  {timer > 0 ? (
-                    <ButtonText className="">
-                      {t("auth.resend_code_in", { seconds: timer })}
-                    </ButtonText>
-                  ) : (
-                    <ButtonText className="">
-                      {t("auth.resend_code")}
-                    </ButtonText>
-                  )}
-                </Button>
-              </HStack>
-            </VStack>
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm font-semibold">
+                  {t("auth.otp_label")}
+                </FormControlLabelText>
+              </FormControlLabel>
 
-            <FormControl
-              isInvalid={!!error}
-              isDisabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
-              className="w-full"
-            >
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.otp_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
+              {/* 6-digit styled OTP Input */}
+              <OtpInput
+                numberOfDigits={6}
+                focusColor={isDark ? THEME_RGB.dark.primary : THEME_RGB.light.primary}
+                onTextChange={(val) => {
+                  setCode(val);
+                  if (error) setError(null);
+                }}
+                theme={{
+                  pinCodeContainerStyle: {
+                    borderColor: isDark
+                      ? THEME_RGB.dark.border
+                      : THEME_RGB.light.border,
+                    backgroundColor: isDark
+                      ? THEME_RGB.dark.card
+                      : THEME_RGB.light.card,
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    width: 45,
+                    height: 50,
+                  },
+                  focusedPinCodeContainerStyle: {
+                    borderColor: isDark
+                      ? THEME_RGB.dark.primary
+                      : THEME_RGB.light.primary,
+                  },
+                  pinCodeTextStyle: {
+                    color: isDark ? THEME_RGB.dark.foreground : THEME_RGB.light.foreground,
+                    fontSize: 18,
+                    fontWeight: "600",
+                  },
+                  focusStickStyle: {
+                    backgroundColor: isDark
+                      ? THEME_RGB.dark.primary
+                      : THEME_RGB.light.primary,
+                  },
+                }}
+                type="numeric"
+                disabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
+              />
 
-                {/* 6-digit styled OTP Input */}
-                <OtpInput
-                  numberOfDigits={6}
-                  focusColor={isDark ? THEME_RGB.dark.primary : THEME_RGB.light.primary}
-                  onTextChange={(val) => {
-                    setCode(val);
-                    if (error) setError(null);
-                  }}
-                  theme={{
-                    pinCodeContainerStyle: {
-                      borderColor: isDark
-                        ? THEME_RGB.dark.border
-                        : THEME_RGB.light.border,
-                      backgroundColor: isDark
-                        ? THEME_RGB.dark.card
-                        : THEME_RGB.light.card,
-                      borderRadius: 8,
-                      borderWidth: 1,
-                      width: 45,
-                      height: 50,
-                    },
-                    focusedPinCodeContainerStyle: {
-                      borderColor: isDark
-                        ? THEME_RGB.dark.primary
-                        : THEME_RGB.light.primary,
-                    },
-                    pinCodeTextStyle: {
-                      color: isDark ? THEME_RGB.dark.foreground : THEME_RGB.light.foreground,
-                      fontSize: 18,
-                      fontWeight: "600",
-                    },
-                    focusStickStyle: {
-                      backgroundColor: isDark
-                        ? THEME_RGB.dark.primary
-                        : THEME_RGB.light.primary,
-                    },
-                  }}
-                  type="numeric"
-                  disabled={
-                    isSignInVerifyOtpPending || isSignUpVerifyOtpPending
-                  }
-                />
-
-                {/* <FormControlHelper>
+              {/* <FormControlHelper>
                   <FormControlHelperText>
                     {t("auth.otp_helper")}
                   </FormControlHelperText>
                 </FormControlHelper> */}
 
-                {error && (
-                  <FormControlError>
-                    <FormControlErrorText>{error}</FormControlErrorText>
-                  </FormControlError>
-                )}
-              </VStack>
-            </FormControl>
-
-            {/* Verify Button */}
-            <Button
-              size="xl"
-              variant="theme"
-              onPress={handleVerify}
-              disabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
-              className="gap-1"
-              accessibilityRole="button"
-              accessibilityLabel={t("auth.verify")}
-              accessibilityState={{
-                disabled: isSignInVerifyOtpPending || isSignUpVerifyOtpPending,
-              }}
-            >
-              <ButtonText className="">{t("auth.verify")}</ButtonText>
-              {isSignInVerifyOtpPending || isSignUpVerifyOtpPending ? (
-                <ButtonSpinner color={"white"} />
-              ) : (
-                <Icon as={ChevronRightIcon} className="text-white stroke-2" />
+              {error && (
+                <FormControlError>
+                  <FormControlErrorText>{error}</FormControlErrorText>
+                </FormControlError>
               )}
-            </Button>
+            </VStack>
+          </FormControl>
 
-            {/* Timer and Resend Actions */}
-            <HStack space="xs" className="justify-between items-center">
+          {/* Verify Button */}
+          <AuthSubmitButton
+            label={t("auth.verify")}
+            onPress={handleVerify}
+            isLoading={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
+            disabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
+          />
+
+          {/* Timer and Resend Actions */}
+          <HStack space="xs" className="justify-between items-center">
+            <BackToLoginButton
+              disabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
+            />
+            {isSignIn && (
               <Button
                 variant="link"
                 size="default"
-                onPress={() => router.replace(ROUTES.AUTH.HOME)}
-                className="p-0"
                 disabled={isSignInVerifyOtpPending || isSignUpVerifyOtpPending}
+                onPress={() =>
+                  router.push({
+                    pathname: ROUTES.AUTH.PASSWORD_LOGIN,
+                    params: { phone, countryCode },
+                  })
+                }
+                className="p-0"
                 accessibilityRole="button"
-                accessibilityLabel={t("auth.back_to_login")}
+                accessibilityLabel={t("auth.login_with_password")}
                 accessibilityState={{
-                  disabled: isSignInVerifyOtpPending || isSignUpVerifyOtpPending,
+                  disabled:
+                    isSignInVerifyOtpPending || isSignUpVerifyOtpPending,
                 }}
               >
-                <ButtonIcon as={ArrowLeft} />
-                <ButtonText className="">{t("auth.back_to_login")}</ButtonText>
+                <ButtonText className="font-semibold text-primary">
+                  {t("auth.login_with_password")}
+                </ButtonText>
               </Button>
-              {isSignIn && (
-                <Button
-                  variant="link"
-                  size="default"
-                  disabled={
-                    isSignInVerifyOtpPending || isSignUpVerifyOtpPending
-                  }
-                  onPress={() =>
-                    router.push({
-                      pathname: ROUTES.AUTH.PASSWORD_LOGIN,
-                      params: { phone, countryCode },
-                    })
-                  }
-                  className="p-0"
-                  accessibilityRole="button"
-                  accessibilityLabel={t("auth.login_with_password")}
-                  accessibilityState={{
-                    disabled:
-                      isSignInVerifyOtpPending || isSignUpVerifyOtpPending,
-                  }}
-                >
-                  <ButtonText className="font-semibold text-primary">
-                    {t("auth.login_with_password")}
-                  </ButtonText>
-                </Button>
-              )}
-            </HStack>
-          </VStack>
-        </Card>
-      </VStack>
+            )}
+          </HStack>
+        </VStack>
+      </AuthScreenLayout>
     </KeyboardAvoidingScrollView>
   );
 };

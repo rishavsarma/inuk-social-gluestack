@@ -13,6 +13,8 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
+import { buildImageUrl } from "@/utils/media";
+
 function ProfileGridItem({
   item,
   type,
@@ -45,8 +47,7 @@ function ProfileGridItem({
     url:
       type === "video"
         ? item.thumbnailUrl
-        : (item.media?.[0]?.url ??
-          `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${item.mediaId}/jpeg/720`),
+        : (item.media?.[0]?.url ?? buildImageUrl(item.mediaId)),
   };
 
   const typeStr = (item.type || item.postType || "photo").toLowerCase();
@@ -95,7 +96,7 @@ function ProfileGridItem({
           >
             <Text
               numberOfLines={4}
-              className="text-center text-[11px] font-semibold leading-snug tracking-tight text-foreground/90"
+              className="text-center text-xs font-semibold leading-snug tracking-tight text-foreground/90"
             >
               {item.caption || t("profile.text_post_fallback")}
             </Text>

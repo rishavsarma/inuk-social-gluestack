@@ -95,7 +95,7 @@ function LoadingDots() {
 
   return (
     <View
-      className="flex-row items-center gap-1.5"
+      className="flex-row items-center gap-2"
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >

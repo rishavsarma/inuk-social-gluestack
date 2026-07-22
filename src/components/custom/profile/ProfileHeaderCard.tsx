@@ -54,6 +54,7 @@ function ThinMountainIcon(props: React.ComponentProps<typeof MountainIcon>) {
 }
 
 import { formatCompactNumber } from "@/utils/formatNumber";
+import { buildImageUrl } from "@/utils/media";
 import { ROUTES } from "@/routes";
 
 const PROFILE_TABS = ["image", "video", "text"] as const;
@@ -128,12 +129,8 @@ function ListHeader({
   const hasAvatar = !!profile.avatar && profile.avatar !== "string";
   const userDetail = {
     name: profile.givenName,
-    cover: hasCoverPhoto
-      ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.coverPhoto}/jpeg/720`
-      : undefined,
-    avatar: hasAvatar
-      ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.avatar}/jpeg/720`
-      : undefined,
+    cover: hasCoverPhoto ? buildImageUrl(profile.coverPhoto) : undefined,
+    avatar: hasAvatar ? buildImageUrl(profile.avatar) : undefined,
     username: profile.username,
     bio: profile.bio,
     post: stats.post,
@@ -339,7 +336,7 @@ function ListHeader({
           )}
         </HStack>
         {userDetail.bio && (
-          <Text className="mt-1.5 text-[14px] leading-5 text-foreground">
+          <Text className="mt-2 text-sm leading-5 text-foreground">
             {userDetail.bio}
           </Text>
         )}
@@ -352,7 +349,7 @@ function ListHeader({
         className=" justify-between "
         orientation="horizontal"
       >
-        <TabsList className="bg-transparent rounded-none pb-0.5">
+        <TabsList className="bg-transparent rounded-none pb-1">
           <TabsTrigger value="image" className=" flex-1">
             <TabsTriggerIcon as={ImageIcon} className="w-6 h-6" />
           </TabsTrigger>

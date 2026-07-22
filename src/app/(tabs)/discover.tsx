@@ -90,7 +90,7 @@ const DiscoverScreen = () => {
               }`}
             >
               <Text
-                className={`${lens === l ? `${WEB_FONT_ROUND[700]} text-white` : `${WEB_FONT_ROUND[500]} text-muted-foreground`} text-[13.5px]`}
+                className={`${lens === l ? `${WEB_FONT_ROUND[700]} text-white` : `${WEB_FONT_ROUND[500]} text-muted-foreground`} text-sm`}
               >
                 {t(LENS_LABEL_KEYS[l])}
               </Text>

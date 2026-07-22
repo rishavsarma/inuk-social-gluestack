@@ -4,8 +4,7 @@ import { useRouter, useIsFocused, type Href } from "expo-router";
 
 import { ArrowLeft, Camera, Type, Video, X } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
-import { Platform, View, useWindowDimensions } from "react-native";
-import { GlassView } from "expo-glass-effect";
+import { View, useWindowDimensions } from "react-native";
 import Animated, {
     Easing,
     useAnimatedStyle,
@@ -26,6 +25,7 @@ import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
+import GlassPillBar from "@/components/custom/GlassPillBar";
 import { Pressable } from "@/components/ui/pressable";
 import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
@@ -360,7 +360,7 @@ const CreateScreen = () => {
 
     // Sliding Indicator Logic
     const TAB_BAR_WIDTH = width - 32; // left: 16, right: 16
-    const CONTENT_WIDTH = TAB_BAR_WIDTH - 12; // px-1.5 is 6px padding on each side
+    const CONTENT_WIDTH = TAB_BAR_WIDTH - 16; // px-2 is 8px padding on each side
     const TAB_WIDTH = CONTENT_WIDTH / 3;
 
     const indicatorPosition = useSharedValue(0);
@@ -517,99 +517,35 @@ const CreateScreen = () => {
                         bottom: 0,
                     }}
                 >
-                    {Platform.OS === "ios" ? (
-                        <GlassView
-                            isInteractive
-                            glassEffectStyle="regular"
-                            style={{
-                                marginHorizontal: 16,
-                                marginBottom: Platform.OS === "ios" ? 30 : insets.bottom || 16,
-                                borderRadius: 9999,
-                                overflow: "hidden",
-                                borderWidth: 0.1,
-                                borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
-                                backgroundColor: isDark ? "rgba(0,0,0,0.5)" : "rgba(245,245,247,0.5)",
-                                shadowColor: "#000",
-                                shadowOffset: { width: 0, height: 12 },
-                                shadowRadius: 32,
-                                shadowOpacity: isDark ? 0.6 : 0.14,
-                                elevation: 180,
-                            }}
-                        >
-                            <View className="relative flex-row px-1.5 py-1">
-                                <Animated.View
-                                    style={[
-                                        {
-                                            position: "absolute",
-                                            top: 4,
-                                            bottom: 4,
-                                            left: 6,
-                                            width: TAB_WIDTH,
-                                            borderRadius: 9999,
-                                            backgroundColor: isDark
-                                                ? "rgba(255,255,255,0.08)"
-                                                : "rgba(0,0,0,0.05)",
-                                        },
-                                        indicatorStyle,
-                                    ]}
+                    <GlassPillBar isDark={isDark} bottomInset={insets.bottom || 16}>
+                        <View className="relative flex-row px-2 py-1">
+                            <Animated.View
+                                style={[
+                                    {
+                                        position: "absolute",
+                                        top: 4,
+                                        bottom: 4,
+                                        left: 8,
+                                        width: TAB_WIDTH,
+                                        borderRadius: 9999,
+                                        backgroundColor: isDark
+                                            ? "rgba(255,255,255,0.08)"
+                                            : "rgba(0,0,0,0.05)",
+                                    },
+                                    indicatorStyle,
+                                ]}
+                            />
+                            {MODES.map((m, i) => (
+                                <SwitcherItem
+                                    key={m.id}
+                                    item={m}
+                                    isActive={i === safeIndex}
+                                    isDark={isDark}
+                                    onPress={() => setMode(m.id)}
                                 />
-                                {MODES.map((m, i) => (
-                                    <SwitcherItem
-                                        key={m.id}
-                                        item={m}
-                                        isActive={i === safeIndex}
-                                        isDark={isDark}
-                                        onPress={() => setMode(m.id)}
-                                    />
-                                ))}
-                            </View>
-                        </GlassView>
-                    ) : (
-                        <View
-                            style={{
-                                marginHorizontal: 16,
-                                marginBottom: insets.bottom || 16,
-                                borderRadius: 9999,
-                                overflow: "hidden",
-                                borderWidth: 0.1,
-                                borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
-                                backgroundColor: isDark ? "rgba(14,14,14,0.96)" : "rgba(245,245,247,0.96)",
-                                shadowColor: "#000",
-                                shadowOffset: { width: 0, height: 12 },
-                                shadowRadius: 32,
-                                shadowOpacity: isDark ? 0.6 : 0.14,
-                                elevation: 180,
-                            }}
-                        >
-                            <View className="relative flex-row px-1.5 py-1">
-                                <Animated.View
-                                    style={[
-                                        {
-                                            position: "absolute",
-                                            top: 4,
-                                            bottom: 4,
-                                            left: 6,
-                                            width: TAB_WIDTH,
-                                            borderRadius: 9999,
-                                            backgroundColor: isDark
-                                                ? "rgba(255,255,255,0.08)"
-                                                : "rgba(0,0,0,0.05)",
-                                        },
-                                        indicatorStyle,
-                                    ]}
-                                />
-                                {MODES.map((m, i) => (
-                                    <SwitcherItem
-                                        key={m.id}
-                                        item={m}
-                                        isActive={i === safeIndex}
-                                        isDark={isDark}
-                                        onPress={() => setMode(m.id)}
-                                    />
-                                ))}
-                            </View>
+                            ))}
                         </View>
-                    )}
+                    </GlassPillBar>
                 </Animated.View>
             ) : null}
         </VStack>

@@ -25,30 +25,23 @@ import { Share } from "react-native";
 import { useTranslation } from "react-i18next";
 import * as Clipboard from "expo-clipboard";
 
-import {
-  AlertDialog,
-  AlertDialogBackdrop,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-} from "@/components/ui/alert-dialog";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { Box } from "@/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
+import { Button, ButtonIcon } from "@/components/ui/button";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
+import { ConfirmAlertDialog } from "@/components/custom/ConfirmAlertDialog";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import {
   SettingsRow,
   SettingsSectionHeader,
 } from "@/components/custom/settings/SettingsRow";
 import { LANGUAGES, THEMES } from "@/constants";
+import { useFeedbackToast } from "@/hooks/useFeedbackToast";
 import { useGetProfile } from "@/hooks/useProfile";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
@@ -59,6 +52,7 @@ const ProfileMenuScreen = () => {
   const user = useAuthStore((state) => state.user);
   const logout = useAuthStore((state) => state.logout);
   const toast = useToast();
+  const showFeedbackToast = useFeedbackToast();
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
 
   const theme = useSettingStore((state) => state.theme);
@@ -113,17 +107,6 @@ const ProfileMenuScreen = () => {
     }
   };
 
-  const showFeedbackToast = (message: string) => {
-    toast.show({
-      placement: "bottom",
-      render: ({ id }) => (
-        <Toast nativeID={`toast-${id}`} action="muted" variant="solid">
-          <ToastDescription>{message}</ToastDescription>
-        </Toast>
-      ),
-    });
-  };
-
   const handleToggleProMembership = () => {
     const nextIsProMember = !isProMember;
     try {
@@ -136,9 +119,10 @@ const ProfileMenuScreen = () => {
         nextIsProMember
           ? t("settings.pro_icon_applied")
           : t("settings.pro_icon_reverted"),
+        "bottom",
       );
     } catch {
-      showFeedbackToast(t("settings.pro_icon_error"));
+      showFeedbackToast(t("settings.pro_icon_error"), "bottom");
     }
   };
 
@@ -319,43 +303,15 @@ const ProfileMenuScreen = () => {
       </VStack>
 
       {/* Logout confirmation */}
-      <AlertDialog
+      <ConfirmAlertDialog
         isOpen={showLogoutConfirm}
         onClose={() => setShowLogoutConfirm(false)}
-      >
-        <AlertDialogBackdrop />
-        <AlertDialogContent className="bg-card">
-          <AlertDialogHeader>
-            <Heading size="md" className="text-foreground">
-              {t("profile_bottom_sheet.log_out")}
-            </Heading>
-          </AlertDialogHeader>
-          <AlertDialogBody className="">
-            <Text className="text-muted-foreground">
-              {t("profile_bottom_sheet.confirm_logout")}
-            </Text>
-          </AlertDialogBody>
-          <AlertDialogFooter className="pt-4">
-            <Button
-              variant="outline"
-              onPress={() => setShowLogoutConfirm(false)}
-              accessibilityRole="button"
-              accessibilityLabel={t("profile_bottom_sheet.cancel")}
-            >
-              <ButtonText>{t("profile_bottom_sheet.cancel")}</ButtonText>
-            </Button>
-            <Button
-              variant="destructive"
-              onPress={handleConfirmLogout}
-              accessibilityRole="button"
-              accessibilityLabel={t("profile_bottom_sheet.log_out")}
-              accessibilityHint={t("profile_bottom_sheet.confirm_logout")}
-            >
-              <ButtonText>{t("profile_bottom_sheet.log_out")}</ButtonText>
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+        title={t("profile_bottom_sheet.log_out")}
+        description={t("profile_bottom_sheet.confirm_logout")}
+        cancelLabel={t("profile_bottom_sheet.cancel")}
+        confirmLabel={t("profile_bottom_sheet.log_out")}
+        onConfirm={handleConfirmLogout}
+      />
     </KeyboardAvoidingScrollView>
   );
 };

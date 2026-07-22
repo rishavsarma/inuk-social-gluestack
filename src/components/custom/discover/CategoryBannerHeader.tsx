@@ -48,7 +48,7 @@ export function CategoryBannerHeader({
         paddingTop,
         marginTop: -overlapHeaderHeight,
       }}
-      className="px-4.5 pb-4.5"
+      className="px-4 pb-4"
     >
       <HStack space="sm" className="items-center">
         {showIcon ? (

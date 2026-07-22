@@ -94,6 +94,32 @@ export const POST_CONSTANTS = {
   HERO_HEIGHT: SCREEN_WIDTH * 1.1,
 };
 
+/** Raw px for the rare case where a `size` prop or `text-*`/spacing className
+ * isn't reachable (third-party component style props, Skia canvas text,
+ * animated style objects). Mirrors CLAUDE.md's Design Tokens scale — update
+ * both together if that scale ever changes. */
+export const FONT_SIZE_PX = {
+  xs: 12,
+  sm: 14,
+  base: 16,
+  lg: 18,
+  xl: 20,
+  "2xl": 24,
+  "3xl": 30,
+} as const;
+
+/** Raw px for the NativeWind numeric spacing scale (`p-1`…`p-12`), for the
+ * rare inline-style-only case. Mirrors CLAUDE.md's Design Tokens scale. */
+export const SPACING_PX = {
+  1: 4,
+  2: 8,
+  3: 12,
+  4: 16,
+  6: 24,
+  8: 32,
+  12: 48,
+} as const;
+
 /** Minimum Sparks balance kept back and not offered for redemption in the
  * Arena Rewards catalog — shown as "Redeemable: N" on the balance card. */
 export const MIN_REDEEMABLE_SPARKS = 500;

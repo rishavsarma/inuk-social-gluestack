@@ -15,7 +15,7 @@ import {
   Inter_700Bold,
 } from "@expo-google-fonts/inter";
 import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
-import { THEME_RGB } from "@/constants";
+import { FONT_SIZE_PX, THEME_RGB } from "@/constants";
 import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { useSettingStore } from "@/stores/setting.store";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -50,7 +50,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
     >
       <Text
         style={{
-          fontSize: 16,
+          fontSize: FONT_SIZE_PX.base,
           textAlign: "center",
           marginBottom: 16,
           color: isDark ? THEME_RGB.dark.foreground : THEME_RGB.light.foreground,
@@ -61,7 +61,7 @@ export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
       {__DEV__ && (
         <Text
           style={{
-            fontSize: 12,
+            fontSize: FONT_SIZE_PX.xs,
             textAlign: "center",
             marginBottom: 16,
             color: isDark ? THEME_RGB.dark.foreground : THEME_RGB.light.foreground,

@@ -104,7 +104,7 @@ const ExifItem = memo(function ExifItem({
     <HStack className="flex-1 flex-row items-center gap-3">
       <Box
         className={cn(
-          "p-2.5 items-center justify-center rounded-lg",
+          "p-3 items-center justify-center rounded-lg",
           style.iconBg,
         )}
       >

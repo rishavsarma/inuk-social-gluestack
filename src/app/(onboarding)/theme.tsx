@@ -5,19 +5,11 @@ import { View } from "react-native";
 
 import { Button, ButtonText } from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
-import { HStack } from "@/components/ui/hstack";
-import { CircleIcon } from "@/components/ui/icon";
-import {
-  Radio,
-  RadioGroup,
-  RadioIcon,
-  RadioIndicator,
-  RadioLabel,
-} from "@/components/ui/radio";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import { OnboardingStepHeader } from "@/components/custom/onboarding/OnboardingStepHeader";
+import { SelectableRadioList } from "@/components/custom/SelectableRadioList";
 import { useAppInsets } from "@/hooks/useAppInsets";
 import { THEMES } from "@/constants";
 import { ROUTES } from "@/routes";
@@ -66,39 +58,15 @@ const OnboardingTheme = () => {
         </VStack>
       </VStack>
 
-      <RadioGroup
+      <SelectableRadioList
+        items={THEMES.map((item) => ({
+          id: item.id,
+          label: t(item.labelKey),
+        }))}
         value={selectedTheme}
-        onChange={(val: string) => setSelectedTheme(val as AppTheme)}
-      >
-        <VStack space="md" className="w-full">
-          {THEMES.map((item) => {
-            const isSelected = item.id === selectedTheme;
-            return (
-              <Radio
-                key={item.id}
-                value={item.id}
-                size="md"
-                className={
-                  "w-full flex-row-reverse items-center justify-between rounded-lg border px-4 py-4 active:opacity-70 " +
-                  (isSelected
-                    ? "border-theme bg-theme/10"
-                    : "border-border bg-card")
-                }
-              >
-                <RadioIndicator>
-                  <RadioIcon as={CircleIcon} />
-                </RadioIndicator>
-                <HStack space="md" className="flex-1 items-center">
-                  <ThemeSwatch id={item.id} />
-                  <RadioLabel className="flex-1 text-lg font-semibold text-foreground font-baloo-semibold ">
-                    {t(item.labelKey)}
-                  </RadioLabel>
-                </HStack>
-              </Radio>
-            );
-          })}
-        </VStack>
-      </RadioGroup>
+        onChange={setSelectedTheme}
+        renderLeading={(id) => <ThemeSwatch id={id} />}
+      />
 
       <View className="flex-1" />
 

@@ -8,7 +8,7 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
 import { ARENA_QUIZ } from "@/constants/mock-data";
-import { WEB_FONT_BODY, WEB_FONT_ROUND, WEB_PALETTE, WEB_TEXT_SUB } from "@/constants/web-reference-theme";
+import { WEB_BORDER_LINE, WEB_FONT_BODY, WEB_FONT_ROUND, WEB_PALETTE, WEB_TEXT_SUB } from "@/constants/web-reference-theme";
 
 function ArenaQuizPanel() {
   const [i, setI] = useState(0);
@@ -24,10 +24,10 @@ function ArenaQuizPanel() {
   return (
     <VStack>
       <Box className="mb-3 flex-row justify-between">
-        <Text className={`${WEB_FONT_ROUND[800]} text-[16px] ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
+        <Text className={`${WEB_FONT_ROUND[800]} text-base ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
           Daily Quiz
         </Text>
-        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} text-[12.5px]`}>
+        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} text-xs`}>
           Q{i + 1} / {ARENA_QUIZ.length} · 0:18
         </Text>
       </Box>
@@ -40,7 +40,7 @@ function ArenaQuizPanel() {
           className="h-1.25 rounded-full"
         />
       </Box>
-      <Text className={`${WEB_FONT_ROUND[700]} mb-3.5 text-[16px] ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
+      <Text className={`${WEB_FONT_ROUND[700]} mb-4 text-base ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
         {item.q}
       </Text>
       {item.opts.map((o, k) => {
@@ -50,10 +50,10 @@ function ArenaQuizPanel() {
             key={o}
             onPress={() => setSel(k)}
             style={{
-              borderColor: on ? WEB_PALETTE.red : isDark ? "#2b3050" : "#E3E4EC",
+              borderColor: on ? WEB_PALETTE.red : undefined,
               backgroundColor: on ? (isDark ? "#3A1E18" : "#FBEAE4") : "transparent",
             }}
-            className="mb-2 flex-row items-center gap-2.5 rounded-box border-[1.5px] p-3"
+            className={`mb-2 flex-row items-center gap-3 rounded-box border-[1.5px] p-3 ${on ? "" : WEB_BORDER_LINE}`}
           >
             <Box
               style={{ borderColor: on ? WEB_PALETTE.red : isDark ? "#C4C8DB" : "rgba(27,31,59,0.6)" }}
@@ -61,20 +61,20 @@ function ArenaQuizPanel() {
             >
               <Text
                 style={{ color: on ? WEB_PALETTE.red : undefined }}
-                className={`text-[11px] ${on ? "" : WEB_TEXT_SUB}`}
+                className={`text-xs ${on ? "" : WEB_TEXT_SUB}`}
               >
                 {String.fromCharCode(65 + k)}
               </Text>
             </Box>
-            <Text className={`${WEB_FONT_BODY[400]} text-[14px] ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
+            <Text className={`${WEB_FONT_BODY[400]} text-sm ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
               {o}
             </Text>
           </Pressable>
         );
       })}
-      <Box className="mb-3.5 mt-1.5 flex-row justify-between">
-        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} text-[11.5px]`}>+5 Sparks · 7-day streak</Text>
-        <Text style={{ color: WEB_PALETTE.red }} className={`${WEB_FONT_BODY[400]} text-[11.5px]`}>
+      <Box className="mb-4 mt-2 flex-row justify-between">
+        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} text-xs`}>+5 Sparks · 7-day streak</Text>
+        <Text style={{ color: WEB_PALETTE.red }} className={`${WEB_FONT_BODY[400]} text-xs`}>
           Answer after each ›
         </Text>
       </Box>
@@ -83,7 +83,7 @@ function ArenaQuizPanel() {
         style={{ backgroundColor: WEB_PALETTE.red }}
         className="h-11 items-center justify-center rounded-full"
       >
-        <Text className={`${WEB_FONT_ROUND[700]} text-[14px] text-white`}>Next question</Text>
+        <Text className={`${WEB_FONT_ROUND[700]} text-sm text-white`}>Next question</Text>
       </Pressable>
     </VStack>
   );

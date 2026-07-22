@@ -4,6 +4,8 @@ import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
+import SectionTitle from "@/components/custom/discover/SectionTitle";
+
 import { TRENDING_TAGS, type WebTrendingTag } from "@/constants/discover-web-data";
 import { WEB_FONT_BODY, WEB_FONT_ROUND } from "@/constants/web-reference-theme";
 
@@ -14,22 +16,20 @@ interface TagLensProps {
 function TagLens({ onTag }: TagLensProps) {
   return (
     <VStack>
-      <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-2.5 mt-4.5 px-4.5 text-[14px]`}>
-        Trending tags
-      </Text>
-      <VStack className="px-3.5">
+      <SectionTitle>Trending tags</SectionTitle>
+      <VStack className="px-4">
         {TRENDING_TAGS.map((t) => (
           <Pressable
             key={t.tag}
             onPress={() => onTag(t)}
             accessibilityRole="button"
             accessibilityLabel={`#${t.tag}`}
-            className="flex-row items-center justify-between border-b border-border py-3.5"
+            className="flex-row items-center justify-between border-b border-border py-4"
           >
-            <Text className={`${WEB_FONT_ROUND[700]} text-theme text-[16px]`}>
+            <Text className={`${WEB_FONT_ROUND[700]} text-theme text-base`}>
               #{t.tag}
             </Text>
-            <Text className={`${WEB_FONT_BODY[400]} text-muted-foreground text-[12.5px]`}>
+            <Text className={`${WEB_FONT_BODY[400]} text-muted-foreground text-xs`}>
               {t.posts.toLocaleString()} posts
             </Text>
           </Pressable>

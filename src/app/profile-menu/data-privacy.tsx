@@ -3,34 +3,25 @@ import React, { useState } from "react";
 import { Download, Mail, PauseCircle, Sparkles, Trash2 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
-import {
-  AlertDialog,
-  AlertDialogBackdrop,
-  AlertDialogBody,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-} from "@/components/ui/alert-dialog";
-import { Button, ButtonText } from "@/components/ui/button";
-import { Heading } from "@/components/ui/heading";
 import { Switch } from "@/components/ui/switch";
 import { Text } from "@/components/ui/text";
-import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
+import { ConfirmAlertDialog } from "@/components/custom/ConfirmAlertDialog";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import {
   SettingsRow,
   SettingsSectionHeader,
 } from "@/components/custom/settings/SettingsRow";
 import { THEME_ACCENT_COLOR } from "@/constants";
+import { useFeedbackToast } from "@/hooks/useFeedbackToast";
 import { useAccountSettingsStore } from "@/stores/accountSettings.store";
 
 type ConfirmKind = "deactivate" | "delete" | null;
 
 const DataPrivacyScreen = () => {
   const { t } = useTranslation();
-  const toast = useToast();
+  const showToast = useFeedbackToast();
   const [confirmKind, setConfirmKind] = useState<ConfirmKind>(null);
 
   const aiStoryConsent = useAccountSettingsStore((s) => s.aiStoryConsent);
@@ -41,17 +32,6 @@ const DataPrivacyScreen = () => {
   );
 
   const switchColors = { true: THEME_ACCENT_COLOR };
-
-  const showToast = (message: string) => {
-    toast.show({
-      placement: "top",
-      render: ({ id }) => (
-        <Toast nativeID={`toast-${id}`} action="muted" variant="solid">
-          <ToastDescription>{message}</ToastDescription>
-        </Toast>
-      ),
-    });
-  };
 
   const handleDownloadData = () => {
     showToast(t("data_privacy.download_data_toast"));
@@ -136,51 +116,27 @@ const DataPrivacyScreen = () => {
         </VStack>
       </VStack>
 
-      <AlertDialog isOpen={confirmKind !== null} onClose={() => setConfirmKind(null)}>
-        <AlertDialogBackdrop />
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <Heading size="md" className="text-foreground">
-              {confirmKind === "deactivate"
-                ? t("data_privacy.deactivate_account")
-                : t("data_privacy.delete_account")}
-            </Heading>
-          </AlertDialogHeader>
-          <AlertDialogBody>
-            <Text className="text-muted-foreground">
-              {confirmKind === "deactivate"
-                ? t("data_privacy.deactivate_confirm_body")
-                : t("data_privacy.delete_confirm_body")}
-            </Text>
-          </AlertDialogBody>
-          <AlertDialogFooter>
-            <Button
-              variant="outline"
-              onPress={() => setConfirmKind(null)}
-              accessibilityRole="button"
-              accessibilityLabel={t("profile_bottom_sheet.cancel")}
-            >
-              <ButtonText>{t("profile_bottom_sheet.cancel")}</ButtonText>
-            </Button>
-            <Button
-              variant="destructive"
-              onPress={handleConfirm}
-              accessibilityRole="button"
-              accessibilityLabel={
-                confirmKind === "deactivate"
-                  ? t("data_privacy.deactivate_account")
-                  : t("data_privacy.delete_account")
-              }
-            >
-              <ButtonText>
-                {confirmKind === "deactivate"
-                  ? t("data_privacy.deactivate_confirm_cta")
-                  : t("data_privacy.delete_confirm_cta")}
-              </ButtonText>
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <ConfirmAlertDialog
+        isOpen={confirmKind !== null}
+        onClose={() => setConfirmKind(null)}
+        title={
+          confirmKind === "deactivate"
+            ? t("data_privacy.deactivate_account")
+            : t("data_privacy.delete_account")
+        }
+        description={
+          confirmKind === "deactivate"
+            ? t("data_privacy.deactivate_confirm_body")
+            : t("data_privacy.delete_confirm_body")
+        }
+        cancelLabel={t("profile_bottom_sheet.cancel")}
+        confirmLabel={
+          confirmKind === "deactivate"
+            ? t("data_privacy.deactivate_confirm_cta")
+            : t("data_privacy.delete_confirm_cta")
+        }
+        onConfirm={handleConfirm}
+      />
     </KeyboardAvoidingScrollView>
   );
 };

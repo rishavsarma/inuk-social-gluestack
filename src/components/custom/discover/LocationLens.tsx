@@ -8,6 +8,9 @@ import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
+import EntityGridCard from "@/components/custom/discover/EntityGridCard";
+import SectionTitle from "@/components/custom/discover/SectionTitle";
+
 import { LOC, PLACES, REGIONS } from "@/constants/discover-web-data";
 import { WEB_FONT_BODY, WEB_FONT_ROUND } from "@/constants/web-reference-theme";
 
@@ -18,25 +21,25 @@ interface LocationLensProps {
 function LocationLens({ onPlace }: LocationLensProps) {
   return (
     <VStack>
-      <Box className="mx-3.5 mt-2 h-30 items-center justify-center rounded-2xl bg-muted">
+      <Box className="mx-4 mt-2 h-30 items-center justify-center rounded-2xl bg-muted">
         <Icon as={Map} size="lg" style={{ color: LOC }} />
-        <Text className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-1.5 text-[12.5px]`}>
+        <Text className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-2 text-xs`}>
           Map · Kumaon & Garhwal
         </Text>
       </Box>
 
       <SectionTitle>Regions</SectionTitle>
-      <VStack className="gap-2.5 px-3.5">
+      <VStack className="gap-3 px-4">
         {REGIONS.map((r) => (
           <Pressable
             key={r.name}
             className="flex-row items-center gap-3 rounded-card border border-border p-3"
           >
             <Box style={{ backgroundColor: LOC }} className="h-10 w-10 items-center justify-center rounded-full">
-              <Text className={`${WEB_FONT_ROUND[800]} text-[16px] text-white`}>{r.gl}</Text>
+              <Text className={`${WEB_FONT_ROUND[800]} text-base text-white`}>{r.gl}</Text>
             </Box>
             <VStack className="flex-1">
-              <Text className={`${WEB_FONT_ROUND[700]} text-foreground text-[15px]`}>
+              <Text className={`${WEB_FONT_ROUND[700]} text-foreground text-base`}>
                 {r.name}
               </Text>
               <Text className={`${WEB_FONT_BODY[400]} text-muted-foreground text-xs`}>
@@ -49,10 +52,17 @@ function LocationLens({ onPlace }: LocationLensProps) {
       </VStack>
 
       <SectionTitle>Popular places</SectionTitle>
-      <Box className="flex-row flex-wrap gap-2.5 px-3.5">
+      <Box className="flex-row flex-wrap gap-3 px-4">
         {PLACES.map((p) => (
-          <Pressable
+          <EntityGridCard
             key={p.name}
+            icon={MapPin}
+            iconClassName="text-white"
+            iconBgColor={LOC}
+            name={p.name}
+            nameClassName={`${WEB_FONT_ROUND[700]} text-foreground text-base`}
+            subtitle={`${p.kind} · ${p.posts} posts`}
+            subtitleClassName={`${WEB_FONT_BODY[400]} text-muted-foreground mt-px text-xs`}
             onPress={() =>
               onPlace({
                 name: p.name,
@@ -65,30 +75,10 @@ function LocationLens({ onPlace }: LocationLensProps) {
             }
             style={{ flexBasis: "47.5%", flexGrow: 1, minHeight: 96 }}
             className="justify-between rounded-2xl bg-muted p-3"
-          >
-            <Box style={{ backgroundColor: LOC }} className="h-8.5 w-8.5 items-center justify-center rounded-[17px]">
-              <Icon as={MapPin} size="sm" className="text-white" />
-            </Box>
-            <VStack>
-              <Text className={`${WEB_FONT_ROUND[700]} text-foreground text-[15px]`}>
-                {p.name}
-              </Text>
-              <Text className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-px text-[11.5px]`}>
-                {p.kind} · {p.posts} posts
-              </Text>
-            </VStack>
-          </Pressable>
+          />
         ))}
       </Box>
     </VStack>
-  );
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-2.5 mt-4.5 px-4.5 text-[14px]`}>
-      {children}
-    </Text>
   );
 }
 

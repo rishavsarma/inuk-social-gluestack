@@ -9,6 +9,10 @@ import { Pressable } from "@/components/ui/pressable";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 
+import EntityGridCard from "@/components/custom/discover/EntityGridCard";
+import SectionTitle from "@/components/custom/discover/SectionTitle";
+
+import { SPACING_PX } from "@/constants";
 import { resolveTaxonomyIcon } from "@/constants/mdi-icon-map";
 import { CAT_BY_TITLE, POPULAR, TAX } from "@/constants/discover-web-data";
 import { WEB_FONT_BODY, WEB_FONT_ROUND } from "@/constants/web-reference-theme";
@@ -32,28 +36,28 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
             accessibilityRole="button"
             accessibilityLabel={featured.displayTitle}
             style={{ backgroundColor: featured.colour }}
-            className="mx-3.5 mb-1.5 overflow-hidden rounded-[20px] p-4.5"
+            className="mx-4 mb-2 overflow-hidden rounded-[20px] p-4"
           >
             <Text
               style={{ color: featured.onColour }}
-              className={`${WEB_FONT_BODY[700]} text-[11px] tracking-[1px] opacity-[0.85]`}
+              className={`${WEB_FONT_BODY[700]} text-xs tracking-[1px] opacity-[0.85]`}
             >
               DEVBHOOMI · LAND OF GODS
             </Text>
             <Text
               style={{ color: featured.onColour }}
-              className={`${WEB_FONT_ROUND[800]} mt-1 text-[22px]`}
+              className={`${WEB_FONT_ROUND[800]} mt-1 text-2xl`}
             >
               Temples & Deities
             </Text>
             <Text
               style={{ color: featured.onColour }}
-              className={`${WEB_FONT_BODY[400]} mt-0.75 max-w-[80%] text-[13px] opacity-90`}
+              className={`${WEB_FONT_BODY[400]} mt-1 max-w-[80%] text-sm opacity-90`}
             >
               {featured.summary}
             </Text>
             <HStackRow>
-              <Text style={{ color: featured.onColour }} className={`${WEB_FONT_ROUND[700]} text-[13px]`}>
+              <Text style={{ color: featured.onColour }} className={`${WEB_FONT_ROUND[700]} text-sm`}>
                 Explore
               </Text>
               <Icon as={ChevronRight} size="sm" style={{ color: featured.onColour }} />
@@ -64,55 +68,34 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 14, gap: 10, paddingBottom: 4 }}
-            style={{ marginBottom: 4 }}
+            contentContainerStyle={{ paddingHorizontal: SPACING_PX[4], gap: SPACING_PX[3], paddingBottom: SPACING_PX[1] }}
+            style={{ marginBottom: SPACING_PX[1] }}
           >
             {POPULAR.map((p) => (
-              <Pressable
+              <EntityGridCard
                 key={p.name}
+                icon={resolveTaxonomyIcon(p.catObj.icon, ChevronRight)}
+                iconColor={p.catObj.onColour}
+                iconBgColor={p.catObj.colour}
+                name={p.name}
+                nameColor={p.catObj.text}
+                nameNumberOfLines={2}
+                subtitle={p.catObj.displayTitle}
+                subtitleColor={p.catObj.text}
+                subtitleNumberOfLines={1}
                 onPress={() => onEntity(p.name, p.catObj, p.sub)}
-                accessibilityRole="button"
-                accessibilityLabel={p.name}
                 style={{ width: 140, backgroundColor: p.catObj.background, minHeight: 110 }}
-                className="justify-between rounded-2xl p-3"
-              >
-                <Box
-                  style={{ backgroundColor: p.catObj.colour }}
-                  className="h-8.5 w-8.5 items-center justify-center rounded-[17px]"
-                >
-                  <Icon
-                    as={resolveTaxonomyIcon(p.catObj.icon, ChevronRight)}
-                    size="sm"
-                    style={{ color: p.catObj.onColour }}
-                  />
-                </Box>
-                <VStack>
-                  <Text
-                    numberOfLines={2}
-                    style={{ color: p.catObj.text }}
-                    className={`${WEB_FONT_ROUND[700]} text-[14px]`}
-                  >
-                    {p.name}
-                  </Text>
-                  <Text
-                    numberOfLines={1}
-                    style={{ color: p.catObj.text }}
-                    className={`${WEB_FONT_BODY[400]} mt-px text-[11px] opacity-70`}
-                  >
-                    {p.catObj.displayTitle}
-                  </Text>
-                </VStack>
-              </Pressable>
+              />
             ))}
           </ScrollView>
         </>
       ) : null}
 
-      <VStack className="px-3.5 pt-2">
+      <VStack className="px-4 pt-2">
         {TAX.themes.map((th) => (
           <VStack key={th} className="mb-4">
-            <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-2.5 px-1 text-[14px]`}>{th}</Text>
-            <Box className="flex-row flex-wrap gap-2.5">
+            <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-3 px-1 text-sm`}>{th}</Text>
+            <Box className="flex-row flex-wrap gap-3">
               {TAX.categories
                 .filter((x) => x.theme === th)
                 .map((cat) => (
@@ -122,7 +105,7 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
                     accessibilityRole="button"
                     accessibilityLabel={cat.displayTitle}
                     style={{ flexBasis: "47.5%", flexGrow: 1, backgroundColor: cat.background, minHeight: 104 }}
-                    className="justify-between rounded-2xl p-3.5"
+                    className="justify-between rounded-2xl p-4"
                   >
                     <Box
                       style={{ backgroundColor: cat.colour }}
@@ -138,13 +121,13 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
                       <Text
                         numberOfLines={1}
                         style={{ color: cat.text }}
-                        className={`${WEB_FONT_ROUND[700]} text-[15.5px]`}
+                        className={`${WEB_FONT_ROUND[700]} text-base`}
                       >
                         {cat.displayTitle}
                       </Text>
                       <Text
                         style={{ color: cat.text }}
-                        className={`${WEB_FONT_BODY[400]} mt-px text-[11.5px] opacity-75`}
+                        className={`${WEB_FONT_BODY[400]} mt-px text-xs opacity-75`}
                       >
                         {cat.subCount} topics · {cat.entCount} places
                       </Text>
@@ -156,14 +139,6 @@ function CategoryLens({ onCat, onEntity }: CategoryLensProps) {
         ))}
       </VStack>
     </VStack>
-  );
-}
-
-function SectionTitle({ children }: { children: React.ReactNode }) {
-  return (
-    <Text className={`${WEB_FONT_ROUND[700]} text-muted-foreground mb-2.5 mt-4.5 px-4.5 text-[14px]`}>
-      {children}
-    </Text>
   );
 }
 

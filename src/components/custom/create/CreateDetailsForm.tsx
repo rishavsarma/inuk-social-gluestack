@@ -213,7 +213,7 @@ export function CreateDetailsForm({
               style={{ textAlignVertical: "top" }}
               multiline={true}
             />
-            <Text size="xs" className="self-end text-muted-foreground mb-1.5 font-medium">
+            <Text size="xs" className="self-end text-muted-foreground mb-2 font-medium">
               {t("create_post.char_count", {
                 count: (caption || "").length,
                 max: CAPTION_MAX_LENGTH,
@@ -300,12 +300,12 @@ export function CreateDetailsForm({
               {t("create_post.tags_label")}
             </FormControlLabelText>
           </FormControlLabel>
-          <Input className="h-auto  flex-row flex-wrap items-center gap-2 px-3 py-2.5 rounded-md">
+          <Input className="h-auto  flex-row flex-wrap items-center gap-2 px-3 py-3 rounded-md">
             {tags.map((tag) => (
               <HStack
                 key={tag}
                 space="xs"
-                className="items-center rounded-full bg-theme/10 border border-theme/20 py-1 pl-3 pr-1.5"
+                className="items-center rounded-full bg-theme/10 border border-theme/20 py-1 pl-3 pr-2"
               >
                 <Text size="xs" className="font-semibold text-theme">
                   #{tag}

@@ -3,21 +3,16 @@ import {
   AvatarFallbackText,
   AvatarImage,
 } from "@/components/ui/avatar";
-import {
-  Button,
-  ButtonIcon,
-  ButtonSpinner,
-  ButtonText,
-} from "@/components/ui/button";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
-import { useTimeAgo } from "@/hooks/useTimeAgo";
-import { SlidersHorizontal, UserPlus } from "lucide-react-native";
+import { SlidersHorizontal } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 import { Pressable } from "react-native";
+import { useTimeAgo } from "@/hooks/useTimeAgo";
+import { FollowButton } from "@/components/custom/FollowButton";
 
 interface PostAuthorHeaderProps {
   post: PostDetail;
@@ -56,32 +51,13 @@ function PostAuthorHeader({
         </VStack>
       </HStack>
       {!post.author.is_me && (
-        <Button
-          variant={"theme"}
-          className="rounded-full"
+        <FollowButton
+          isFollowing={isFollowing}
+          isFollowLoading={isFollowLoading}
+          displayName={post.author.display_name}
           onPress={onFollowPress}
-          disabled={isFollowLoading}
-          accessibilityRole="button"
-          accessibilityLabel={
-            isFollowing
-              ? t("network.unfollow_a11y", { name: post.author.display_name })
-              : t("network.follow_a11y", { name: post.author.display_name })
-          }
-        >
-          {isFollowLoading ? (
-            <ButtonSpinner color={isFollowing ? undefined : "white"} />
-          ) : (
-            <>
-              <ButtonIcon
-                as={UserPlus}
-                className={isFollowing ? "" : "text-white"}
-              />
-              <ButtonText className={isFollowing ? "" : "text-white"}>
-                {isFollowing ? t("network.following_btn") : t("network.follow")}
-              </ButtonText>
-            </>
-          )}
-        </Button>
+          variant="overlay"
+        />
       )}
       {onOptionsPress && (
         <Pressable

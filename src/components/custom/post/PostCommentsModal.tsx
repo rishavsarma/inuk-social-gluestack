@@ -22,6 +22,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useTimeAgo } from "@/hooks/useTimeAgo";
+import { buildImageUrl } from "@/utils/media";
 import { FlashList } from "@shopify/flash-list";
 import { SendHorizontal, XIcon } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
@@ -34,7 +35,7 @@ function commentAuthorInfo(profile?: PostCommentAuthorProfile) {
     "User";
   const avatarUrl =
     profile?.avatar && profile.avatar !== "string"
-      ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.avatar}/jpeg/720`
+      ? buildImageUrl(profile.avatar)
       : undefined;
   return { displayName, username: profile?.username ?? "user", avatarUrl };
 }
@@ -48,7 +49,7 @@ function CommentRow({ comment }: { comment: PostComment }) {
 
   return (
     <HStack space="sm" className="items-start px-4 py-3">
-      <Avatar className="mt-0.5 h-10 w-10">
+      <Avatar className="mt-1 h-10 w-10">
         <AvatarFallbackText>{displayName}</AvatarFallbackText>
         {avatarUrl && (
           <AvatarImage

@@ -3,7 +3,6 @@ import * as ImagePicker from "expo-image-picker";
 import { manipulateAsync, SaveFormat } from "expo-image-manipulator";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import {
-  ArrowLeft,
   ArrowRight,
   AtSign,
   Calendar,
@@ -26,12 +25,7 @@ import {
   ActionsheetItem,
   ActionsheetItemText,
 } from "@/components/ui/actionsheet";
-import {
-  Button,
-  ButtonIcon,
-  ButtonSpinner,
-  ButtonText,
-} from "@/components/ui/button";
+import { Button, ButtonIcon } from "@/components/ui/button";
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
@@ -68,7 +62,6 @@ import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import {
   ChevronDownIcon,
-  ChevronRightIcon,
   CheckCircleIcon,
   CloseCircleIcon,
   CloseIcon,
@@ -85,6 +78,8 @@ import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { useUpdateProfile } from "@/hooks/useProfile";
 import { useUpload } from "@/hooks/useUpload";
 import Logo from "@/components/custom/Logo";
+import AuthSubmitButton from "@/components/custom/AuthSubmitButton";
+import BackToLoginButton from "@/components/custom/BackToLoginButton";
 import { buildUsernameSuggestions } from "@/utils/username";
 import { Badge, BadgeText } from "@/components/ui/badge";
 import { differenceInYears, format, subYears } from "date-fns";
@@ -495,7 +490,7 @@ const SetProfile = () => {
                             setUsernameManuallyEdited(true);
                             if (usernameError) setUsernameError(null);
                           }}
-                          className={`px-2.5 py-1 rounded-full border ${
+                          className={`px-3 py-1 rounded-full border ${
                             username === suggestion
                               ? "bg-primary border-primary"
                               : "bg-secondary border-border"
@@ -811,37 +806,15 @@ const SetProfile = () => {
               </FormControl>
 
               {/* Complete Profile Button */}
-              <Button
-                size="xl"
-                variant="theme"
+              <AuthSubmitButton
+                label={t("auth.complete_profile_button")}
                 onPress={handleCompleteProfile}
+                isLoading={isPending || isUploadingAvatar}
                 disabled={isPending || isProcessingAvatar || isUploadingAvatar}
-                className="gap-1"
-                accessibilityRole="button"
-                accessibilityLabel={t("auth.complete_profile_button")}
-              >
-                <ButtonText>{t("auth.complete_profile_button")}</ButtonText>
-                {isPending || isUploadingAvatar ? (
-                  <ButtonSpinner color={"white"} />
-                ) : (
-                  <Icon as={ChevronRightIcon} className="text-white stroke-2" />
-                )}
-              </Button>
+              />
               {/* Timer and Resend Actions */}
               <HStack space="xs" className="justify-between items-center">
-                <Button
-                  variant="link"
-                  size="default"
-                  onPress={() => router.replace(ROUTES.AUTH.HOME)}
-                  className="p-0"
-                  accessibilityRole="button"
-                  accessibilityLabel={t("auth.back_to_login")}
-                >
-                  <ButtonIcon as={ArrowLeft} />
-                  <ButtonText className="">
-                    {t("auth.back_to_login")}
-                  </ButtonText>
-                </Button>
+                <BackToLoginButton />
               </HStack>
             </VStack>
           </Card>

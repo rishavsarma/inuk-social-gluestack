@@ -77,10 +77,10 @@ export function ProfileEmptyState({
       </Box>
 
       <VStack space="xs" className="items-center">
-        <Text className="text-center text-[20px] font-extrabold tracking-tight text-foreground">
+        <Text className="text-center text-xl font-extrabold tracking-tight text-foreground">
           {t("profile.no_posts_yet", { type: t(`profile.${activeTab}`) })}
         </Text>
-        <Text className="text-center text-[15px] font-medium leading-5 text-muted-foreground">
+        <Text className="text-center text-base font-medium leading-5 text-muted-foreground">
           {isOtherUser
             ? t("profile.no_posts_other_user", {
                 name: userName || t("common.user"),

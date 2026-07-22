@@ -36,7 +36,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
 }) => (
   <Box className=" p-4">
     <HStack space="md" className="items-center mb-3">
-      <Box className="p-2.5 rounded-2xl bg-primary/10">
+      <Box className="p-3 rounded-2xl bg-primary/10">
         <IconComponent className="w-5 h-5 text-primary" />
       </Box>
       <Heading size="xs" className="text-foreground font-bold flex-1">
@@ -108,7 +108,7 @@ const PrivacyScreen = () => {
         {/* Section Cards */}
         <SectionCard title={t("legal.privacy.sec1_title")} icon={Database}>
           <VStack space="md" className="mt-2 pl-1">
-            <VStack space="2xs">
+            <VStack space="xs">
               <Heading
                 size="xs"
                 className="text-foreground font-semibold text-xs"
@@ -120,7 +120,7 @@ const PrivacyScreen = () => {
               </Text>
             </VStack>
             <VStack space="md" className="h-px bg-zinc-900 my-2" />
-            <VStack space="2xs">
+            <VStack space="xs">
               <Heading
                 size="xs"
                 className="text-foreground font-semibold text-xs"

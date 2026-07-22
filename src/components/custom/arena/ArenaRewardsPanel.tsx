@@ -44,20 +44,20 @@ function ArenaRewardsPanel() {
 
   return (
     <VStack>
-      <Box style={{ backgroundColor: WEB_PALETTE.red }} className="mx-3.5 mt-3.5 rounded-2xl p-4">
-        <Text className={`${WEB_FONT_BODY[400]} text-[11px] tracking-[0.5px] text-white opacity-90`}>
+      <Box style={{ backgroundColor: WEB_PALETTE.red }} className="mx-4 mt-4 rounded-2xl p-4">
+        <Text className={`${WEB_FONT_BODY[400]} text-xs tracking-[0.5px] text-white opacity-90`}>
           ★ SPARKS BALANCE
         </Text>
-        <Text className={`${WEB_FONT_ROUND[800]} text-[30px] text-white`}>{formatCompactNumber(points)}</Text>
-        <Text className={`${WEB_FONT_BODY[400]} text-[11.5px] text-white opacity-90`}>
+        <Text className={`${WEB_FONT_ROUND[800]} text-3xl text-white`}>{formatCompactNumber(points)}</Text>
+        <Text className={`${WEB_FONT_BODY[400]} text-xs text-white opacity-90`}>
           {t("rewards.redeemable", { count: MIN_REDEEMABLE_SPARKS })} · {t("rewards.lifetime_never_spent", { count: lifetimeEarned })}
         </Text>
       </Box>
 
       <SectionTitle>REDEEM</SectionTitle>
-      <VStack className="gap-2.5 px-3.5">
+      <VStack className="gap-3 px-4">
         {chunkPairs(ARENA_REWARDS).map((row, rowIndex) => (
-          <Box key={rowIndex} className="flex-row gap-2.5">
+          <Box key={rowIndex} className="flex-row gap-3">
             {row.map((reward) => (
               <ArenaRewardTile key={reward.name} reward={reward} />
             ))}
@@ -68,7 +68,7 @@ function ArenaRewardsPanel() {
 
       <SectionTitle>YOUR WINNINGS</SectionTitle>
       {MOCK_ARENA_WINNINGS.length > 0 ? (
-        <VStack className="gap-2.5">
+        <VStack className="gap-3">
           {MOCK_ARENA_WINNINGS.map((winning) => (
             <ArenaWinningRow
               key={winning.id}
@@ -79,7 +79,7 @@ function ArenaRewardsPanel() {
           ))}
         </VStack>
       ) : (
-        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} px-4.5 text-sm`}>
+        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} px-4 text-sm`}>
           {t("rewards.empty_winnings")}
         </Text>
       )}
@@ -89,7 +89,7 @@ function ArenaRewardsPanel() {
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mb-2.5 mt-4.5 px-4.5 text-[13px]`}>
+    <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mb-3 mt-4 px-4 text-sm`}>
       {children}
     </Text>
   );

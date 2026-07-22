@@ -36,7 +36,7 @@ const TOP_CREATOR_COUNT = 6;
 
 function SectionTitle({ children }: { children: React.ReactNode }) {
   return (
-    <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mb-2.5 mt-5 px-4.5 text-[13px] uppercase tracking-[0.5px]`}>
+    <Text className={`${WEB_FONT_ROUND[700]} ${WEB_TEXT_SUB} mb-3 mt-5 px-4 text-sm uppercase tracking-[0.5px]`}>
       {children}
     </Text>
   );
@@ -51,7 +51,7 @@ function ActivityRow({ item }: { item: SparkTransactionItem }) {
   return (
     <Box
       style={{ borderColor: isDark ? "#2b3050" : "#E3E4EC" }}
-      className="mx-3.5 mb-2.25 flex-row items-center gap-2.75 rounded-field border p-2.75"
+      className="mx-4 mb-2 flex-row items-center gap-3 rounded-field border p-3"
     >
       <Box
         style={{ backgroundColor: isEarned ? "#2E7D32" : WEB_PALETTE.red }}
@@ -60,14 +60,14 @@ function ActivityRow({ item }: { item: SparkTransactionItem }) {
         <Icon as={Sparkles} size="sm" className="text-white" />
       </Box>
       <VStack className="flex-1">
-        <Text className={`${WEB_FONT_ROUND[700]} text-[13.5px] ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
+        <Text className={`${WEB_FONT_ROUND[700]} text-sm ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
           {t(item.reasonKey)}
         </Text>
-        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} text-[11.5px]`}>{timeAgo}</Text>
+        <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} text-xs`}>{timeAgo}</Text>
       </VStack>
       <Text
         style={{ color: isEarned ? "#2E7D32" : WEB_PALETTE.red }}
-        className={`${WEB_FONT_ROUND[700]} text-[13.5px]`}
+        className={`${WEB_FONT_ROUND[700]} text-sm`}
       >
         {isEarned ? `+${item.amount}` : `${item.amount}`}
       </Text>
@@ -96,8 +96,8 @@ const AwardScreen = () => {
 
   return (
     <View className="flex-1" style={{ backgroundColor: bg }}>
-      <Box className="flex-row items-center justify-between px-4.5 pb-2 pt-13">
-        <Text className={`${WEB_FONT_ROUND[800]} ${WEB_TEXT_INK} text-[27px]`}>
+      <Box className="flex-row items-center justify-between px-4 pb-2 pt-13">
+        <Text className={`${WEB_FONT_ROUND[800]} ${WEB_TEXT_INK} text-3xl`}>
           {t("awards.title")}
         </Text>
         <Icon as={Trophy} size="lg" style={{ color: "#E6B325" }} />
@@ -109,16 +109,16 @@ const AwardScreen = () => {
           accessibilityRole="button"
           accessibilityLabel={t("sparks.inuk_balance")}
           style={{ backgroundColor: WEB_PALETTE.red }}
-          className="mx-3.5 mt-2 rounded-2xl p-4"
+          className="mx-4 mt-2 rounded-2xl p-4"
         >
-          <Text className={`${WEB_FONT_BODY[400]} text-[11px] uppercase tracking-[0.5px] text-white opacity-90`}>
+          <Text className={`${WEB_FONT_BODY[400]} text-xs uppercase tracking-[0.5px] text-white opacity-90`}>
             ★ {t("sparks.inuk_balance")}
           </Text>
-          <Text className={`${WEB_FONT_ROUND[800]} text-[30px] text-white`}>
+          <Text className={`${WEB_FONT_ROUND[800]} text-3xl text-white`}>
             {formatCompactNumber(points)}
           </Text>
-          <Box className="flex-row items-center gap-0.5">
-            <Text className={`${WEB_FONT_ROUND[700]} text-[12.5px] text-white`}>
+          <Box className="flex-row items-center gap-1">
+            <Text className={`${WEB_FONT_ROUND[700]} text-xs text-white`}>
               {t("awards.view_all")}
             </Text>
             <Icon as={ChevronRight} size="xs" className="text-white" />
@@ -126,7 +126,7 @@ const AwardScreen = () => {
         </Pressable>
 
         <SectionTitle>{t("awards.this_weeks_podium")}</SectionTitle>
-        <Box className="px-3.5">
+        <Box className="px-4">
           {ARENA_PODIUM.map((entry) => (
             <ArenaLeaderboardRow key={entry.rank} entry={entry} />
           ))}
@@ -151,7 +151,7 @@ const AwardScreen = () => {
             ))}
           </VStack>
         ) : (
-          <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} px-4.5 text-sm`}>
+          <Text className={`${WEB_FONT_BODY[400]} ${WEB_TEXT_SUB} px-4 text-sm`}>
             {t("sparks.no_history")}
           </Text>
         )}

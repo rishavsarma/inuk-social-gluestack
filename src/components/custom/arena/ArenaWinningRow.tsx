@@ -5,6 +5,8 @@ import { useColorScheme } from "react-native";
 
 import { useTranslation } from "react-i18next";
 
+import ArenaRowShell from "@/components/custom/arena/ArenaRowShell";
+
 import { Box } from "@/components/ui/box";
 import { Icon } from "@/components/ui/icon";
 import { Pressable } from "@/components/ui/pressable";
@@ -23,28 +25,34 @@ function ArenaWinningRow({ winning, claimed, onClaim }: ArenaWinningRowProps) {
   const isDark = useColorScheme() === "dark";
 
   return (
-    <Box
-      style={{ borderColor: isDark ? "#2b3050" : "#E3E4EC" }}
-      className="mx-3.5 flex-row items-center gap-2.75 rounded-field border p-3"
+    <ArenaRowShell
+      className="mx-4 p-3"
+      leading={
+        <Box
+          style={{ backgroundColor: WEB_PALETTE.red }}
+          className="h-9 w-9 items-center justify-center rounded-[10px]"
+        >
+          <Icon as={Star} size="sm" className="text-white" />
+        </Box>
+      }
+      trailing={
+        <Pressable
+          onPress={() => onClaim(winning)}
+          accessibilityRole="button"
+          accessibilityLabel={t("rewards.claim_a11y", { label: winning.label })}
+          style={{ backgroundColor: WEB_PALETTE.red }}
+          className="rounded-2xl px-4 py-2"
+        >
+          <Text className={`${WEB_FONT_ROUND[700]} text-xs text-white`}>
+            {claimed ? t("rewards.claimed") : t("rewards.claim")}
+          </Text>
+        </Pressable>
+      }
     >
-      <Box style={{ backgroundColor: WEB_PALETTE.red }} className="h-9 w-9 items-center justify-center rounded-[10px]">
-        <Icon as={Star} size="sm" className="text-white" />
-      </Box>
-      <Text className={`${WEB_FONT_ROUND[700]} flex-1 text-[13.5px] ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
+      <Text className={`${WEB_FONT_ROUND[700]} flex-1 text-sm ${isDark ? "text-[#E9EBF4]" : "text-[#1B1F3B]"}`}>
         {winning.label} · {winning.amountLabel}
       </Text>
-      <Pressable
-        onPress={() => onClaim(winning)}
-        accessibilityRole="button"
-        accessibilityLabel={t("rewards.claim_a11y", { label: winning.label })}
-        style={{ backgroundColor: WEB_PALETTE.red }}
-        className="rounded-2xl px-3.5 py-1.75"
-      >
-        <Text className={`${WEB_FONT_ROUND[700]} text-[12.5px] text-white`}>
-          {claimed ? t("rewards.claimed") : t("rewards.claim")}
-        </Text>
-      </Pressable>
-    </Box>
+    </ArenaRowShell>
   );
 }
 

@@ -1,17 +1,11 @@
 import { useRouter } from "expo-router";
-import { ChevronRightIcon, Globe, Moon, Sun } from "lucide-react-native";
+import { Globe, Moon, Sun } from "lucide-react-native";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import switchTheme from "react-native-theme-switch-animation";
 
-import {
-  Button,
-  ButtonIcon,
-  ButtonSpinner,
-  ButtonText,
-} from "@/components/ui/button";
+import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
 import { Box } from "@/components/ui/box";
-import { Card } from "@/components/ui/card";
 import {
   FormControl,
   FormControlError,
@@ -21,7 +15,7 @@ import {
 } from "@/components/ui/form-control";
 import { Heading } from "@/components/ui/heading";
 import { HStack } from "@/components/ui/hstack";
-import { ChevronDownIcon, Icon } from "@/components/ui/icon";
+import { ChevronDownIcon } from "@/components/ui/icon";
 import { Input, InputField } from "@/components/ui/input";
 import {
   Select,
@@ -42,7 +36,6 @@ import { VStack } from "@/components/ui/vstack";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { KeyboardAvoidingView } from "@/components/ui/keyboard-avoiding-view";
 import { COUNTRY_CODES, LANGUAGES } from "@/constants";
-import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { useInitiateJourney } from "@/hooks/useAuth";
 import type { ApiError } from "@/services/api";
 import { ROUTES } from "@/routes";
@@ -50,12 +43,12 @@ import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { useJourneyStore } from "@/stores/journey.store";
 import { useSettingStore } from "@/stores/setting.store";
 import { Platform } from "react-native";
-import Logo from "@/components/custom/Logo";
+import AuthScreenLayout from "@/components/custom/AuthScreenLayout";
+import AuthSubmitButton from "@/components/custom/AuthSubmitButton";
 
 const AuthHome = () => {
   const { t, i18n } = useTranslation();
   const { setTheme, language, setLanguage } = useSettingStore();
-  const bottomInset = useAppBottomInset();
   const router = useRouter();
 
   const [countryCode, setCountryCode] = useState("+91");
@@ -197,11 +190,10 @@ const AuthHome = () => {
 
   return (
     <KeyboardAvoidingScrollView>
-      <VStack className="flex-1 justify-between bg-background">
-        {/* Top Right Actions */}
-        <HStack space="sm" className="justify-end items-center w-full px-4">
-          {/* Language Picker */}
-          {/* <Select selectedValue={language} onValueChange={handleLanguageChange}>
+      {/* Top Right Actions */}
+      <HStack space="sm" className="justify-end items-center w-full px-4">
+        {/* Language Picker */}
+        {/* <Select selectedValue={language} onValueChange={handleLanguageChange}>
             <SelectTrigger
               accessibilityLabel={t("settings.language")}
               variant="rounded"
@@ -236,211 +228,185 @@ const AuthHome = () => {
             </SelectPortal>
           </Select> */}
 
-          {/* Theme Switcher Button */}
-          <Button
-            onPress={toggleTheme}
-            size="icon"
-            variant="secondary"
-            className="h-12 w-12 rounded-full"
+        {/* Theme Switcher Button */}
+        <Button
+          onPress={toggleTheme}
+          size="icon"
+          variant="secondary"
+          className="h-12 w-12 rounded-full"
+        >
+          <ButtonIcon as={isDark ? Sun : Moon} size="lg" />
+        </Button>
+      </HStack>
+
+      <AuthScreenLayout>
+        <VStack space="2xl">
+          <VStack space="xs">
+            <Heading size="2xl" className="font-bold text-foreground">
+              {t("auth.get_started")}
+            </Heading>
+            <Text size="sm" className="text-muted-foreground">
+              {t("auth.enter_number_to_started")}
+            </Text>
+          </VStack>
+
+          <FormControl
+            isInvalid={!!error}
+            isDisabled={isPending}
+            className="w-full"
           >
-            <ButtonIcon as={isDark ? Sun : Moon} size="lg" />
-          </Button>
-        </HStack>
-
-        {/* Brand/Logo Section */}
-        <VStack
-          className="flex-1 items-center justify-center px-6 py-12"
-          space="md"
-        >
-          <Logo size={40} />
-        </VStack>
-
-        {/* Bottom Card Form */}
-        <Card
-          className="px-4 bg-card pt-8 shadow-none border-0 rounded-none rounded-t-4xl"
-          style={{ paddingBottom: bottomInset + 20 }}
-        >
-          <VStack space="2xl">
             <VStack space="xs">
-              <Heading size="2xl" className="font-bold text-foreground">
-                {t("auth.get_started")}
-              </Heading>
-              <Text size="sm" className="text-muted-foreground">
-                {t("auth.enter_number_to_started")}
-              </Text>
-            </VStack>
+              <FormControlLabel>
+                <FormControlLabelText className="text-sm font-semibold">
+                  {t("auth.phone_label")}
+                </FormControlLabelText>
+              </FormControlLabel>
 
-            <FormControl
-              isInvalid={!!error}
-              isDisabled={isPending}
-              className="w-full"
-            >
-              <VStack space="xs">
-                <FormControlLabel>
-                  <FormControlLabelText className="text-sm font-semibold">
-                    {t("auth.phone_label")}
-                  </FormControlLabelText>
-                </FormControlLabel>
-
-                <HStack space="sm" className="items-center">
-                  {/* Country Selector */}
-                  <Select
-                    selectedValue={countryCode}
-                    onValueChange={(val) => {
-                      setCountryCode(val);
-                      setCountrySearch("");
-                    }}
+              <HStack space="sm" className="items-center">
+                {/* Country Selector */}
+                <Select
+                  selectedValue={countryCode}
+                  onValueChange={(val) => {
+                    setCountryCode(val);
+                    setCountrySearch("");
+                  }}
+                >
+                  <SelectTrigger
+                    variant="outline"
+                    size="xl"
+                    className="w-28 pl-1"
                   >
-                    <SelectTrigger
-                      variant="outline"
-                      size="xl"
-                      className="w-28 pl-1"
-                    >
-                      <SelectInput
-                        value={`${selectedCountry.flag} ${selectedCountry.code}`}
-                        className="flex-1 text-base font-medium text-foreground pointer-events-none px-0 mx-2"
-                      />
-                      <SelectIcon
-                        as={ChevronDownIcon}
-                        className="mr-2 text-foreground/50 w-4 h-4"
-                      />
-                    </SelectTrigger>
-                    <SelectPortal snapPoints={[80]}>
-                      <SelectBackdrop />
-                      <SelectContent className="h-full w-full bg-card gap-1">
-                        <SelectDragIndicatorWrapper className="pt-4 pb-2">
-                          <SelectDragIndicator />
-                        </SelectDragIndicatorWrapper>
-                        <KeyboardAvoidingView className="w-full flex-1">
-                          <Box className="w-full px-1 pb-2">
-                            <Input>
-                              <InputField
-                                autoFocus
-                                placeholder={t(
-                                  "auth.country_search_placeholder",
-                                )}
-                                value={countrySearch}
-                                onChangeText={setCountrySearch}
-                                className="text-base text-foreground"
-                              />
-                            </Input>
-                          </Box>
-                          <SelectVirtualizedList
-                            data={filteredCountryCodes}
-                            keyExtractor={(item: unknown) =>
-                              (item as (typeof COUNTRY_CODES)[number]).code
-                            }
-                            getItemCount={(data: unknown) =>
-                              (data as typeof COUNTRY_CODES).length
-                            }
-                            getItem={(data: unknown, index: number) =>
-                              (data as typeof COUNTRY_CODES)[index]
-                            }
-                            keyboardShouldPersistTaps="handled"
-                            renderItem={({ item }: { item: unknown }) => {
-                              const country =
-                                item as (typeof COUNTRY_CODES)[number];
-                              return (
-                                <SelectItem
-                                  key={country.code}
-                                  label={`${country.flag}  ${country.code} (${country.country})`}
-                                  value={country.code}
-                                  className="py-4"
-                                />
-                              );
-                            }}
-                            ListEmptyComponent={
-                              <Text className="text-xs text-muted-foreground px-1 py-6 text-center w-full">
-                                {t("auth.country_no_results")}
-                              </Text>
-                            }
-                            className="w-full flex-1"
-                          />
-                        </KeyboardAvoidingView>
-                      </SelectContent>
-                    </SelectPortal>
-                  </Select>
-
-                  {/* Phone Number Input */}
-                  <Input className="flex-1">
-                    <InputField
-                      keyboardType="phone-pad"
-                      placeholder={t("auth.phone_placeholder_10_digit")}
-                      value={phoneNumber}
-                      onChangeText={(val) => {
-                        setPhoneNumber(val);
-                        if (error) setError(null);
-                      }}
-                      className="text-base text-foreground"
+                    <SelectInput
+                      value={`${selectedCountry.flag} ${selectedCountry.code}`}
+                      className="flex-1 text-base font-medium text-foreground pointer-events-none px-0 mx-2"
                     />
-                  </Input>
-                </HStack>
+                    <SelectIcon
+                      as={ChevronDownIcon}
+                      className="mr-2 text-foreground/50 w-4 h-4"
+                    />
+                  </SelectTrigger>
+                  <SelectPortal snapPoints={[80]}>
+                    <SelectBackdrop />
+                    <SelectContent className="h-full w-full bg-card gap-1">
+                      <SelectDragIndicatorWrapper className="pt-4 pb-2">
+                        <SelectDragIndicator />
+                      </SelectDragIndicatorWrapper>
+                      <KeyboardAvoidingView className="w-full flex-1">
+                        <Box className="w-full px-1 pb-2">
+                          <Input>
+                            <InputField
+                              autoFocus
+                              placeholder={t(
+                                "auth.country_search_placeholder",
+                              )}
+                              value={countrySearch}
+                              onChangeText={setCountrySearch}
+                              className="text-base text-foreground"
+                            />
+                          </Input>
+                        </Box>
+                        <SelectVirtualizedList
+                          data={filteredCountryCodes}
+                          keyExtractor={(item: unknown) =>
+                            (item as (typeof COUNTRY_CODES)[number]).code
+                          }
+                          getItemCount={(data: unknown) =>
+                            (data as typeof COUNTRY_CODES).length
+                          }
+                          getItem={(data: unknown, index: number) =>
+                            (data as typeof COUNTRY_CODES)[index]
+                          }
+                          keyboardShouldPersistTaps="handled"
+                          renderItem={({ item }: { item: unknown }) => {
+                            const country =
+                              item as (typeof COUNTRY_CODES)[number];
+                            return (
+                              <SelectItem
+                                key={country.code}
+                                label={`${country.flag}  ${country.code} (${country.country})`}
+                                value={country.code}
+                                className="py-4"
+                              />
+                            );
+                          }}
+                          ListEmptyComponent={
+                            <Text className="text-xs text-muted-foreground px-1 py-6 text-center w-full">
+                              {t("auth.country_no_results")}
+                            </Text>
+                          }
+                          className="w-full flex-1"
+                        />
+                      </KeyboardAvoidingView>
+                    </SelectContent>
+                  </SelectPortal>
+                </Select>
 
-                {/* <FormControlHelper>
+                {/* Phone Number Input */}
+                <Input className="flex-1">
+                  <InputField
+                    keyboardType="phone-pad"
+                    placeholder={t("auth.phone_placeholder_10_digit")}
+                    value={phoneNumber}
+                    onChangeText={(val) => {
+                      setPhoneNumber(val);
+                      if (error) setError(null);
+                    }}
+                    className="text-base text-foreground"
+                  />
+                </Input>
+              </HStack>
+
+              {/* <FormControlHelper>
                   <FormControlHelperText>
                     {t("auth.phone_helper")}
                   </FormControlHelperText>
                 </FormControlHelper> */}
 
-                {error && (
-                  <FormControlError>
-                    <FormControlErrorText>{error}</FormControlErrorText>
-                  </FormControlError>
-                )}
-              </VStack>
-            </FormControl>
-
-            {/* Continue Button */}
-            <Button
-              size="xl"
-              variant="theme"
-              onPress={handleContinue}
-              disabled={isPending}
-              className="gap-1"
-            >
-              <ButtonText className="text-white">
-                {t("auth.continue")}
-              </ButtonText>
-              {isPending ? (
-                <ButtonSpinner color={"white"} />
-              ) : (
-                <Icon as={ChevronRightIcon} className="text-white stroke-2" />
+              {error && (
+                <FormControlError>
+                  <FormControlErrorText>{error}</FormControlErrorText>
+                </FormControlError>
               )}
-            </Button>
+            </VStack>
+          </FormControl>
 
-            {/* Legal Footer Links */}
-            <HStack
-              space="xs"
-              className="justify-center items-center flex-wrap"
+          {/* Continue Button */}
+          <AuthSubmitButton
+            label={t("auth.continue")}
+            onPress={handleContinue}
+            isLoading={isPending}
+            disabled={isPending}
+          />
+
+          {/* Legal Footer Links */}
+          <HStack space="xs" className="justify-center items-center flex-wrap">
+            <Text size="sm">{t("auth.terms_agreement")}</Text>
+            <Button
+              variant="ghost"
+              size="default"
+              className="p-0"
+              onPress={() => router.push(ROUTES.LEGAL.TERMS)}
             >
-              <Text size="sm">{t("auth.terms_agreement")}</Text>
-              <Button
-                variant="ghost"
-                size="default"
-                className="p-0"
-                onPress={() => router.push(ROUTES.LEGAL.TERMS)}
-              >
-                {/* <ButtonIcon as={ExternalLink} className="w-2 h-2" /> */}
-                <ButtonText className="font-semibold text-sm border-b border-foreground/60">
-                  {t("auth.terms")}
-                </ButtonText>
-              </Button>
-              <Text size="sm">{t("auth.and")}</Text>
-              <Button
-                variant="ghost"
-                size="default"
-                className="p-0"
-                onPress={() => router.push(ROUTES.LEGAL.PRIVACY)}
-              >
-                {/* <ButtonIcon as={ExternalLink} className="w-2 h-2" /> */}
-                <ButtonText className="font-semibold text-sm border-b border-foreground/60">
-                  {t("auth.privacy_policy")}
-                </ButtonText>
-              </Button>
-            </HStack>
-          </VStack>
-        </Card>
-      </VStack>
+              {/* <ButtonIcon as={ExternalLink} className="w-2 h-2" /> */}
+              <ButtonText className="font-semibold text-sm border-b border-foreground/60">
+                {t("auth.terms")}
+              </ButtonText>
+            </Button>
+            <Text size="sm">{t("auth.and")}</Text>
+            <Button
+              variant="ghost"
+              size="default"
+              className="p-0"
+              onPress={() => router.push(ROUTES.LEGAL.PRIVACY)}
+            >
+              {/* <ButtonIcon as={ExternalLink} className="w-2 h-2" /> */}
+              <ButtonText className="font-semibold text-sm border-b border-foreground/60">
+                {t("auth.privacy_policy")}
+              </ButtonText>
+            </Button>
+          </HStack>
+        </VStack>
+      </AuthScreenLayout>
     </KeyboardAvoidingScrollView>
   );
 };

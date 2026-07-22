@@ -70,13 +70,13 @@ export const AwardItem = React.memo(function AwardItem({
       />
       <VStack space="xs" className="mt-2 items-center">
         <Text
-          className="text-[11px] font-bold uppercase tracking-widest text-foreground/70"
+          className="text-xs font-bold uppercase tracking-widest text-foreground/70"
           numberOfLines={1}
         >
           {item.label}
         </Text>
         <Text
-          className="text-[10px] text-foreground/40 font-medium"
+          className="text-xs text-foreground/40 font-medium"
           numberOfLines={1}
         >
           {item.period}

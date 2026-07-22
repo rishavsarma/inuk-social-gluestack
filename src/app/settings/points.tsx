@@ -8,8 +8,6 @@ import { compareDesc } from "date-fns";
 
 import { Box } from "@/components/ui/box";
 import { Card } from "@/components/ui/card";
-import { Heading } from "@/components/ui/heading";
-import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
@@ -18,7 +16,9 @@ import { useWalletStore, SparkTransactionItem } from "@/stores/wallet.store";
 
 import { useTimeAgo } from "@/hooks/useTimeAgo";
 
+import { InlineEmptyState } from "@/components/custom/InlineEmptyState";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
+import { ListRowCard } from "@/components/custom/ListRowCard";
 import { AnimatedStatNumber } from "@/components/custom/NumberFormatter";
 
 interface TransactionRowProps {
@@ -31,37 +31,39 @@ function TransactionRow({ item }: TransactionRowProps) {
   const isEarned = item.amount >= 0;
 
   return (
-    <HStack
-      space="md"
-      className="mx-4 mb-2 items-center rounded-xl border border-border bg-card px-4 py-3"
+    <ListRowCard
+      leading={
+        <Box
+          className={`h-10 w-10 items-center justify-center rounded-full ${
+            isEarned
+              ? "bg-green-500/10 dark:bg-green-500/20"
+              : "bg-red-500/10 dark:bg-red-500/20"
+          }`}
+        >
+          <Icon
+            as={isEarned ? TrendingUp : TrendingDown}
+            size="md"
+            className={isEarned ? "text-green-600" : "text-red-500"}
+          />
+        </Box>
+      }
+      trailing={
+        <Text
+          className={`text-base font-bold ${
+            isEarned ? "text-green-600" : "text-red-500"
+          }`}
+        >
+          {isEarned ? `+${item.amount}` : `${item.amount}`}
+        </Text>
+      }
     >
-      <Box
-        className={`h-10 w-10 items-center justify-center rounded-full ${
-          isEarned
-            ? "bg-green-500/10 dark:bg-green-500/20"
-            : "bg-red-500/10 dark:bg-red-500/20"
-        }`}
-      >
-        <Icon
-          as={isEarned ? TrendingUp : TrendingDown}
-          size="md"
-          className={isEarned ? "text-green-600" : "text-red-500"}
-        />
-      </Box>
       <VStack className="flex-1">
         <Text className="text-base font-medium text-foreground">
           {t(item.reasonKey)}
         </Text>
         <Text className="text-xs text-muted-foreground">{timeAgo}</Text>
       </VStack>
-      <Text
-        className={`text-base font-bold ${
-          isEarned ? "text-green-600" : "text-red-500"
-        }`}
-      >
-        {isEarned ? `+${item.amount}` : `${item.amount}`}
-      </Text>
-    </HStack>
+    </ListRowCard>
   );
 }
 
@@ -104,15 +106,11 @@ function SparksEmptyState() {
   const { t } = useTranslation();
 
   return (
-    <VStack space="xs" className="items-center px-8 py-12">
-      <Icon as={Sparkles} size="xl" className="text-muted-foreground" />
-      <Text className="text-base font-semibold text-foreground">
-        {t("sparks.no_history")}
-      </Text>
-      <Text className="text-center text-sm text-muted-foreground">
-        {t("sparks.no_history_sub")}
-      </Text>
-    </VStack>
+    <InlineEmptyState
+      icon={Sparkles}
+      title={t("sparks.no_history")}
+      description={t("sparks.no_history_sub")}
+    />
   );
 }
 

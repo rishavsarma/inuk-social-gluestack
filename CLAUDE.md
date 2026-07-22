@@ -93,14 +93,45 @@ React → Expo → React Native → gluestack UI → third-party libs → servic
 - Every interactive element needs appropriate accessibility props and screen reader support.
 - Support light and dark mode via semantic tokens — never hardcode colors.
 
+## Design Tokens
+
+Two spacing mechanisms coexist by necessity — gluestack's `space` prop only covers the gap between `VStack`/`HStack` children, it has no padding/margin equivalent. Typography is a single scale used everywhere.
+
+**Spacing — gap between Stack children.** Use `VStack`/`HStack`'s `space` prop. Allowed values only: `xs` `sm` `md` `lg` `xl` `2xl`. Never `2xs`, `3xl`, `4xl`, or a raw number.
+
+**Spacing — padding, margin, and gap outside a Stack.** Use NativeWind classNames. Allowed step values only: `1` `2` `3` `4` `6` `8` `12` (e.g. `p-4`, `px-6`, `gap-2`, `mb-8`). Never an arbitrary bracket value (`p-[13px]`) or an off-scale/fractional number (`p-2.75`, `gap-3.5`, `px-4.5`).
+
+Exempt from the spacing scale (different purpose, not visual rhythm — don't "fix" these):
+- `contentContainerStyle`'s `paddingBottom` on scrollable screens, which reserves clearance for floating chrome (tab bar / floating action buttons), sized to that chrome's height rather than a rhythm step.
+- Hairline grid-seam padding (e.g. the profile post grid's tile gutters) — sub-pixel seams, not content padding.
+
+**Typography.** Allowed sizes only, always via `Text`/`Heading`'s `size` prop where the component allows it, otherwise the matching `text-*` className. Never `fontSize: N` or `text-[Npx]`.
+
+| Token | px | Tailwind class | `Text` `size` | `Heading` `size` |
+| ----- | -- | --------------- | -------------- | ------------------ |
+| xs    | 12 | `text-xs`   | `xs`  | — *(Heading has no 12px step; use `Text` instead)* |
+| sm    | 14 | `text-sm`   | `sm`  | `xs` |
+| base  | 16 | `text-base` | `md`  | `sm` |
+| lg    | 18 | `text-lg`   | `lg`  | `md` |
+| xl    | 20 | `text-xl`   | `xl`  | `lg` |
+| 2xl   | 24 | `text-2xl`  | `2xl` | `xl` |
+| 3xl   | 30 | `text-3xl`  | `3xl` | `2xl` |
+
+`Heading`'s `size` scale is shifted one step up from `Text`'s (by design — a heading is never the smallest text on screen), so to land on the same px value pick the row *below* the one you'd use for `Text`.
+
+Raw pixel numbers for the rare case where neither a class nor a `size` prop is reachable (third-party component style props, Skia canvas text) live in `constants/index.ts` as `FONT_SIZE_PX` / `SPACING_PX` — reference those, never retype the number.
+
+Arena, Discover, Awards, and anything importing `constants/web-reference-theme.ts` are pixel-matched to the reference website and previously used bespoke fractional values (`text-[13.5px]`, `gap-2.75`, etc.) for that reason — they've been normalized onto the scales above like the rest of the app; no standing exception remains for them.
+
 ## Anti-Patterns (check before generating code)
 
-Never: `StyleSheet.create` (unless truly unavoidable) · inline styles (except runtime/animated values) · Redux · Context for global state · `Moment.js` · `FlatList` when FlashList works · `fetch` · raw `TextInput` in forms · hardcoded strings · hardcoded colors · hardcoded constants in UI · custom UI duplicating an existing gluestack component.
+Never: `StyleSheet.create` (unless truly unavoidable) · inline styles (except runtime/animated values) · Redux · Context for global state · `Moment.js` · `FlatList` when FlashList works · `fetch` · raw `TextInput` in forms · hardcoded strings · hardcoded colors · hardcoded constants in UI · custom UI duplicating an existing gluestack component · off-scale spacing or font sizes (see Design Tokens).
 
 ## Definition of Done
 
 - [ ] gluestack UI used, no duplicated components
 - [ ] NativeWind + semantic tokens, no hardcoded colors
+- [ ] Spacing and typography follow the Design Tokens scale — no raw/off-scale numbers
 - [ ] FlashList for lists, with all required props
 - [ ] Axios inside `services/`, none in components
 - [ ] Zustand for global state

@@ -86,6 +86,7 @@ import { useUpload } from "@/hooks/useUpload";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 
 import { useAppBottomInset } from "@/hooks/useAppInsets";
+import { buildImageUrl } from "@/utils/media";
 
 const GENDERS = [
   { id: "MALE", labelKey: "edit_profile.male" },
@@ -165,11 +166,9 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
 
   const { mutateAsync: updateProfile, isPending } = useUpdateProfile(profileId);
 
-  const [avatarUri, setAvatarUri] = useState(
-    `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.avatar}/jpeg/720`,
-  );
+  const [avatarUri, setAvatarUri] = useState(buildImageUrl(profile.avatar));
   const [coverUri, setCoverUri] = useState(
-    `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${profile.coverPhoto}/jpeg/720`,
+    buildImageUrl(profile.coverPhoto),
   );
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const [isUploadingCover, setIsUploadingCover] = useState(false);
@@ -342,7 +341,7 @@ function EditProfileForm({ profile, profileId }: EditProfileFormProps) {
           </Box>
           <HStack
             space="xs"
-            className="absolute bottom-3 right-4 items-center rounded-full bg-black/55 px-3 py-1.5"
+            className="absolute bottom-3 right-4 items-center rounded-full bg-black/55 px-3 py-2"
           >
             <Icon as={Camera} size="xs" className="text-white" />
             <Text className="text-xs font-semibold text-white">

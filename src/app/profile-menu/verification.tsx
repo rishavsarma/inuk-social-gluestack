@@ -6,18 +6,18 @@ import { router } from "expo-router";
 
 import { Icon } from "@/components/ui/icon";
 import { Text } from "@/components/ui/text";
-import { Toast, ToastDescription, useToast } from "@/components/ui/toast";
 import { VStack } from "@/components/ui/vstack";
 
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
 import { SettingsRow } from "@/components/custom/settings/SettingsRow";
+import { useFeedbackToast } from "@/hooks/useFeedbackToast";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
 import { useAccountSettingsStore } from "@/stores/accountSettings.store";
 
 const VerificationScreen = () => {
   const { t } = useTranslation();
-  const toast = useToast();
+  const showToast = useFeedbackToast();
   const user = useAuthStore((state) => state.user);
   const idVerificationStatus = useAccountSettingsStore(
     (state) => state.idVerificationStatus,
@@ -28,17 +28,6 @@ const VerificationScreen = () => {
 
   const hasMobile = !!user?.mobile;
   const hasEmail = !!user?.email;
-
-  const showToast = (message: string) => {
-    toast.show({
-      placement: "top",
-      render: ({ id }) => (
-        <Toast nativeID={`toast-${id}`} action="muted" variant="solid">
-          <ToastDescription>{message}</ToastDescription>
-        </Toast>
-      ),
-    });
-  };
 
   const handleIdPress = () => {
     if (idVerificationStatus === "not_submitted") {

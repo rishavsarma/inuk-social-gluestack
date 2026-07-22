@@ -178,7 +178,7 @@ export const MapTile = React.memo(function MapTile({
 
           {/* Coords badge */}
           <View className="absolute bottom-2.5 left-3 rounded-lg bg-black/60 px-3 py-1">
-            <Text className="text-[10px] font-semibold tabular-nums text-white/90">
+            <Text className="text-xs font-semibold tabular-nums text-white/90">
               {latitude.toFixed(4)}, {longitude.toFixed(4)}
             </Text>
           </View>
@@ -186,7 +186,7 @@ export const MapTile = React.memo(function MapTile({
           {/* Open Maps CTA */}
           <View className="absolute bottom-2.5 right-3 flex-row items-center gap-1 rounded-lg bg-black/60 px-3 py-1">
             <Icon as={NavigationIcon} size="xs" className="text-white/80" />
-            <Text className="text-[10px] font-bold uppercase tracking-wider text-white">
+            <Text className="text-xs font-bold uppercase tracking-wider text-white">
               {t("post_detail.open_maps")}
             </Text>
           </View>

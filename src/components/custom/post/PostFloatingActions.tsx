@@ -11,11 +11,7 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-function fmt(n: number) {
-  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1).replace(".0", "")}M`;
-  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(".0", "")}K`;
-  return String(n);
-}
+import { formatCompactNumber } from "@/utils/formatNumber";
 
 interface PostFloatingActionsProps {
   likesCount?: number;
@@ -57,13 +53,13 @@ export function PostFloatingActions({
       style={{ paddingBottom: Math.max(bottomInset, 16) }}
       className="pointer-events-box-none absolute bottom-0 left-0 right-0 items-center justify-end px-6 z-10"
     >
-      <View className="w-full max-w-55 flex-row items-center justify-between rounded-full border border-background/5 bg-card/90 px-5 py-3.5 backdrop-blur-3xl dark:border-white/10 dark:bg-[#1a1a1a]/85">
+      <View className="w-full max-w-55 flex-row items-center justify-between rounded-full border border-background/5 bg-card/90 px-5 py-4 backdrop-blur-3xl dark:border-white/10 dark:bg-[#1a1a1a]/85">
         {/* Like */}
         <Animated.View style={[likeAnimStyle, bounceAnimStyle]}>
           <Pressable
             onPress={handleLikePress}
             hitSlop={12}
-            className="flex-row items-center gap-1.5"
+            className="flex-row items-center gap-2"
             accessibilityRole="button"
             accessibilityLabel={
               isLiked
@@ -83,7 +79,7 @@ export function PostFloatingActions({
                 isLiked ? "text-theme" : "text-foreground",
               )}
             >
-              {fmt(likesCount)}
+              {formatCompactNumber(likesCount)}
             </Text>
           </Pressable>
         </Animated.View>
@@ -95,14 +91,14 @@ export function PostFloatingActions({
         <Pressable
           onPress={onComment}
           hitSlop={12}
-          className="flex-row items-center gap-1.5"
+          className="flex-row items-center gap-2"
           accessibilityRole="button"
           accessibilityLabel={t("post_detail.comments")}
           accessibilityHint={t("post_detail.comments_hint")}
         >
           <Icon size="sm" as={MessageCircleIcon} className="text-foreground" />
           <Text size="sm" className="font-medium tracking-wide text-foreground">
-            {fmt(commentsCount)}
+            {formatCompactNumber(commentsCount)}
           </Text>
         </Pressable>
 
@@ -116,7 +112,7 @@ export function PostFloatingActions({
           accessibilityRole="button"
           accessibilityLabel={t("post_detail.share_post")}
           accessibilityHint={t("post_detail.share_hint")}
-          className="flex-row items-center gap-1.5"
+          className="flex-row items-center gap-2"
         >
           <Icon size="sm" as={Share2Icon} className="text-foreground/80" />
         </Pressable>

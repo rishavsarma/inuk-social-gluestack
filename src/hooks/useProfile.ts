@@ -1,4 +1,7 @@
+import { useTranslation } from "react-i18next";
+
 import { profileService } from "@/services/profile.service";
+import { buildImageUrl } from "@/utils/media";
 import {
   useInfiniteQuery,
   useMutation,
@@ -7,6 +10,23 @@ import {
 } from "@tanstack/react-query";
 
 const NETWORK_PAGE_LIMIT = 20;
+
+/**
+ * Derives the display name and avatar URL shared by the various profile
+ * card/row components (ProfileListItem, SuggestedProfileCard, ...).
+ */
+export function useProfileCardData(profile: NetworkProfileItem) {
+  const { t } = useTranslation();
+
+  const fullName =
+    [profile.firstName, profile.lastName].filter(Boolean).join(" ") ||
+    profile.username ||
+    t("common.user");
+
+  const avatarUrl = profile.avatar ? buildImageUrl(profile.avatar, 150) : undefined;
+
+  return { fullName, avatarUrl };
+}
 
 export function useGetProfile(profileId: string) {
   return useQuery({

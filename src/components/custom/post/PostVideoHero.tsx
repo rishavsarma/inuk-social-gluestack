@@ -1,4 +1,5 @@
 import { POST_CONSTANTS } from "@/constants";
+import { useMediaPagerIndex } from "@/hooks/useMediaPagerIndex";
 import { useEvent } from "expo";
 import { Image } from "expo-image";
 import { useIsFocused } from "expo-router";
@@ -12,12 +13,12 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import Animated, {
+import {
   SharedValue,
   useAnimatedStyle,
   useSharedValue,
-  withTiming,
 } from "react-native-reanimated";
+import { IndicatorDot } from "./IndicatorDot";
 
 // ─── Exposed Controls State ────────────────────────────────────────────────
 
@@ -61,7 +62,7 @@ const PostVideoHero = React.memo(function PostVideoHero({
   isVisible = true,
   onControlsReady,
 }: PostVideoHeroProps) {
-  const [currentMediaIndex, setCurrentMediaIndex] = React.useState(0);
+  const { currentIndex: currentMediaIndex, onScroll } = useMediaPagerIndex();
 
   if (!post.post.media || post.post.media.length === 0) return null;
 
@@ -71,13 +72,7 @@ const PostVideoHero = React.memo(function PostVideoHero({
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onScroll={(e) =>
-          setCurrentMediaIndex(
-            Math.round(
-              e.nativeEvent.contentOffset.x / POST_CONSTANTS.SCREEN_WIDTH,
-            ),
-          )
-        }
+        onScroll={onScroll}
         scrollEventThrottle={16}
       >
         {post.post.media.map((m: any, idx: number) => (
@@ -331,19 +326,6 @@ function PostVideoHeroItem({
       )}
     </View>
   );
-}
-
-// ─── Indicator Dot ─────────────────────────────────────────────────────────
-
-function IndicatorDot({ isActive }: { isActive: boolean }) {
-  const animStyle = useAnimatedStyle(() => ({
-    width: withTiming(isActive ? 16 : 5, { duration: 150 }),
-    backgroundColor: withTiming(
-      isActive ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.5)",
-      { duration: 150 },
-    ),
-  }));
-  return <Animated.View className="h-1.5 rounded-full" style={animStyle} />;
 }
 
 export default PostVideoHero;

@@ -586,9 +586,9 @@ export function CreateModeStage({
               </ScrollView>
               {/* Multi-video count badge */}
               {multiSelect && videoUris.length > 1 && (
-                <Box className="absolute left-2.5 top-2.5 z-10 flex-row items-center gap-1 rounded-full bg-black/60 px-2.5 py-1">
+                <Box className="absolute left-2.5 top-2.5 z-10 flex-row items-center gap-1 rounded-full bg-black/60 px-3 py-1">
                   <Icon as={Layers} size="xs" className="text-white" />
-                  <Text className="text-[11px] font-bold text-white">{videoUris.length}</Text>
+                  <Text className="text-xs font-bold text-white">{videoUris.length}</Text>
                 </Box>
               )}
               {/* Dot indicators for multiple videos */}
@@ -866,8 +866,8 @@ export function CreateModeStage({
                               </Box>
                             )}
                             {asset.duration !== null && (
-                              <Box className="absolute bottom-1 right-1 bg-black/60 rounded px-1 py-0.5">
-                                <Text className="text-[10px] font-medium text-white">
+                              <Box className="absolute bottom-1 right-1 bg-black/60 rounded px-1 py-1">
+                                <Text className="text-xs font-medium text-white">
                                   {formatDuration(asset.duration)}
                                 </Text>
                               </Box>

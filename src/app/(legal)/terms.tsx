@@ -35,7 +35,7 @@ const SectionCard: React.FC<SectionCardProps> = ({
 }) => (
   <Box className="p-4">
     <HStack space="md" className="items-center mb-3">
-      <Box className="p-2.5 rounded-2xl bg-primary/10">
+      <Box className="p-3 rounded-2xl bg-primary/10">
         <IconComponent className="w-5 h-5 text-primary" />
       </Box>
       <Heading size="xs" className="text-foreground font-bold flex-1">

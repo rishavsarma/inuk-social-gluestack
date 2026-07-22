@@ -17,7 +17,6 @@ import {
   SendHorizontal,
   Share,
   Share2,
-  UserPlus,
 } from "lucide-react-native";
 import { useTranslation } from "react-i18next";
 
@@ -27,7 +26,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Box } from "@/components/ui/box";
-import { Button, ButtonIcon, ButtonText } from "@/components/ui/button";
+import { Button, ButtonIcon } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { HStack } from "@/components/ui/hstack";
 import { Icon } from "@/components/ui/icon";
@@ -35,6 +34,7 @@ import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { useTimeAgo } from "@/hooks/useTimeAgo";
 
+import { FollowButton } from "@/components/custom/FollowButton";
 import { FeedPostVideo } from "@/components/custom/feed/FeedPostVideo";
 
 import { formatCompactNumber } from "@/utils/formatNumber";
@@ -143,24 +143,14 @@ function FeedPostCardV2Component({
         </Pressable>
         <HStack space="sm" className="items-center">
           {!isMe && (
-            <Button
-              variant="theme"
-              size="sm"
+            <FollowButton
+              isFollowing={isFollowing}
+              isFollowLoading={isFollowLoading}
+              displayName={displayName}
               onPress={() => onFollowPress(post, isFollowing)}
-              disabled={isFollowLoading}
-              accessibilityRole="button"
-              accessibilityLabel={
-                isFollowing
-                  ? t("network.unfollow_a11y", { name: displayName })
-                  : t("network.follow_a11y", { name: displayName })
-              }
-              className="rounded-full"
-            >
-              <ButtonIcon as={UserPlus} />
-              <ButtonText>
-                {isFollowing ? t("network.following_btn") : t("network.follow")}
-              </ButtonText>
-            </Button>
+              size="sm"
+              variant="default"
+            />
           )}
           <Button
             size="default"

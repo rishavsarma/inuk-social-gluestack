@@ -9,14 +9,12 @@ import {
 import { LinearGradient } from "@/components/ui/linear-gradient";
 import { VStack } from "@/components/ui/vstack";
 import { POST_CONSTANTS } from "@/constants";
+import { useMediaPagerIndex } from "@/hooks/useMediaPagerIndex";
 import { Image } from "expo-image";
 import * as React from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import Animated, {
-  useAnimatedStyle,
-  withTiming,
-} from "react-native-reanimated";
+import { IndicatorDot } from "./IndicatorDot";
 import PostAuthorHeader from "./PostAuthorHeader";
 
 const PostPhotoGallery = React.memo(function PostMediaGallery({
@@ -25,7 +23,7 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
   isFollowLoading,
 }: PostMediaGalleryProps) {
   const { t } = useTranslation();
-  const [currentMediaIndex, setCurrentMediaIndex] = React.useState(0);
+  const { currentIndex: currentMediaIndex, onScroll } = useMediaPagerIndex();
   const [isFullScreen, setIsFullScreen] = React.useState(false);
   const [currentIndex, setCurrentIndex] = React.useState(0);
 
@@ -41,13 +39,7 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onScroll={(e) =>
-          setCurrentMediaIndex(
-            Math.round(
-              e.nativeEvent.contentOffset.x / POST_CONSTANTS.SCREEN_WIDTH,
-            ),
-          )
-        }
+        onScroll={onScroll}
         scrollEventThrottle={16}
       >
         {media.map(
@@ -114,7 +106,7 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
         <VStack className="h-full w-full">
           {/* Mapped Indicator dots for main feed/view */}
           {post.post.media.length > 1 && (
-            <Box className="flex-row items-center gap-1.5 bg-black/40 px-3 py-2 rounded-full justify-center flex-1">
+            <Box className="flex-row items-center gap-2 bg-black/40 px-3 py-2 rounded-full justify-center flex-1">
               {post.post.media.map((_: unknown, idx: number) => (
                 <IndicatorDot key={idx} isActive={idx === currentMediaIndex} />
               ))}
@@ -147,19 +139,5 @@ const PostPhotoGallery = React.memo(function PostMediaGallery({
     </View>
   );
 });
-
-function IndicatorDot({ isActive }: { isActive: boolean }) {
-  const animStyle = useAnimatedStyle(() => ({
-    width: withTiming(isActive ? 16 : 5, { duration: 150 }),
-    backgroundColor: withTiming(
-      isActive ? "rgba(255,255,255,1)" : "rgba(255,255,255,0.5)",
-      {
-        duration: 150,
-      },
-    ),
-  }));
-
-  return <Animated.View className="h-1.5 rounded-full" style={animStyle} />;
-}
 
 export default PostPhotoGallery;

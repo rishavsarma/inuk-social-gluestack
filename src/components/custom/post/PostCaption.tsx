@@ -7,7 +7,7 @@ function PostCaption({ post }: { post: PostDetail }) {
   return (
     <Text
       numberOfLines={3}
-      className="px-4 py-2.5 font-inter text-sm text-foreground bg-card"
+      className="px-4 py-3 font-inter text-sm text-foreground bg-card"
     >
       {caption}
     </Text>

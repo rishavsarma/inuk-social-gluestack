@@ -30,6 +30,7 @@ import { VStack } from "@/components/ui/vstack";
 import { useGetNotifications } from "@/hooks/useNotifications";
 import { useTimeAgo } from "@/hooks/useTimeAgo";
 import { ROUTES } from "@/routes";
+import { buildImageUrl } from "@/utils/media";
 
 import { EmptyState } from "@/components/custom/feed/EmptyState";
 import { KeyboardAvoidingScrollView } from "@/components/custom/KeyboardAvoidingScrollView";
@@ -61,7 +62,7 @@ const NotificationRow = ({ item }: { item: NotificationItem }) => {
   const fallbackIcon = NOTIFICATION_ICONS[item.type ?? ""] ?? Bell;
   const message = item.message ?? item.body ?? item.title ?? "";
   const avatarUrl = item.actor?.avatar
-    ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${item.actor.avatar}/jpeg/150`
+    ? buildImageUrl(item.actor.avatar, 150)
     : undefined;
 
   const handlePress = useCallback(() => {
@@ -209,7 +210,7 @@ const NotificationsScreen = () => {
       orientation="horizontal"
       className="px-4 pt-1"
     >
-      <TabsList className="bg-transparent rounded-none pb-0.5">
+      <TabsList className="bg-transparent rounded-none pb-1">
         {NOTIFICATION_FILTERS.map((filter) => (
           <TabsTrigger key={filter} value={filter} className="flex-1">
             <TabsTriggerText>

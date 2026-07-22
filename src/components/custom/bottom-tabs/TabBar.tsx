@@ -5,20 +5,22 @@ import { useAppBottomInset } from "@/hooks/useAppInsets";
 import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 import { ROUTES } from "@/routes";
 import { useAuthStore } from "@/stores/auth.store";
+import { buildImageUrl } from "@/utils/media";
 import { cn } from "@gluestack-ui/utils/nativewind-utils";
 import * as Haptics from "expo-haptics";
-import { GlassView } from "expo-glass-effect";
 import { usePathname, useRouter } from "expo-router";
 import { Compass, Gamepad2, Home, Plus, User } from "lucide-react-native";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Platform, Pressable, View, useWindowDimensions } from "react-native";
+import { Pressable, View, useWindowDimensions } from "react-native";
 import Animated, {
   Easing,
   useAnimatedStyle,
   useSharedValue,
   withTiming,
 } from "react-native-reanimated";
+import GlassPillBar from "@/components/custom/GlassPillBar";
+
 import { useTabBar } from "./TabBarContext";
 
 // ─── Tab definitions ─────────────────────────────────────────────────
@@ -99,9 +101,7 @@ function TabItem({
   const label = t(`tabs.${tab.name}`);
 
   const avatarPath = useAuthStore((state) => state.user?.avatar);
-  const avatarUrl = avatarPath
-    ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${avatarPath}/jpeg/150`
-    : null;
+  const avatarUrl = avatarPath ? buildImageUrl(avatarPath, 150) : null;
 
   if (isCreate) {
     return (
@@ -214,7 +214,7 @@ export default function CustomTabBar() {
 
   // Sliding Indicator Logic
   const TAB_BAR_WIDTH = width - 32; // left: 16, right: 16
-  const CONTENT_WIDTH = TAB_BAR_WIDTH - 12; // px-1.5 is 6px padding on each side
+  const CONTENT_WIDTH = TAB_BAR_WIDTH - 16; // px-2 is 8px padding on each side
   const TAB_WIDTH = CONTENT_WIDTH / TABS.length;
 
   const indicatorPosition = useSharedValue(safeIndex * TAB_WIDTH);
@@ -242,28 +242,6 @@ export default function CustomTabBar() {
     bottom: 0,
   };
 
-  const barStyle = {
-    marginHorizontal: 16,
-    marginBottom: Platform.OS === "ios" ? 30 : bottomInset,
-    borderRadius: 9999,
-    overflow: "hidden" as const,
-    borderWidth: 0.1,
-    borderColor: isDark ? "rgba(255,255,255,0.14)" : "rgba(0,0,0,0.10)",
-    backgroundColor:
-      Platform.OS === "ios"
-        ? isDark
-          ? "rgba(0,0,0,0.5)"
-          : "rgba(245,245,247,0.5)"
-        : isDark
-          ? "rgba(14,14,14,0.96)"
-          : "rgba(245,245,247,0.96)",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 12 },
-    shadowRadius: 32,
-    shadowOpacity: isDark ? 0.6 : 0.14,
-    elevation: 180,
-  };
-
   // Animated wrapper — slides the whole pill up/down
   const slideStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: tabBarTranslateYRef.current.value }],
@@ -278,14 +256,14 @@ export default function CustomTabBar() {
     return null;
 
   const content = (
-    <View className="relative flex-row px-1.5 py-1">
+    <View className="relative flex-row px-2 py-1">
       <Animated.View
         style={[
           {
             position: "absolute",
             top: 4,
             bottom: 4,
-            left: 6, // account for px-1.5
+            left: 8, // account for px-2
             width: TAB_WIDTH,
             borderRadius: 9999,
             backgroundColor: isDark
@@ -315,21 +293,14 @@ export default function CustomTabBar() {
     </View>
   );
 
-  const bar =
-    Platform.OS === "ios" ? (
-      <GlassView isInteractive style={barStyle} glassEffectStyle="regular">
-        {content}
-      </GlassView>
-    ) : (
-      <View style={barStyle}>{content}</View>
-    );
-
   return (
     <Animated.View
       pointerEvents="box-none"
       style={[slideStyle, containerStyle]}
     >
-      {bar}
+      <GlassPillBar isDark={isDark} bottomInset={bottomInset}>
+        {content}
+      </GlassPillBar>
     </Animated.View>
   );
 }

@@ -99,7 +99,7 @@ export function FloatingCardView({
     >
       <HStack
         space="sm"
-        className="items-center rounded-[22px] border border-white/15 bg-[#080401]/65 px-3.5 py-2.5"
+        className="items-center rounded-[22px] border border-white/15 bg-[#080401]/65 px-4 py-3"
       >
         <VStack
           style={{ backgroundColor: bg }}
@@ -112,7 +112,7 @@ export function FloatingCardView({
             {card.value}
           </Text>
           {card.label && (
-            <Text className="text-[10px] text-white/55">{card.label}</Text>
+            <Text className="text-xs text-white/55">{card.label}</Text>
           )}
         </VStack>
       </HStack>

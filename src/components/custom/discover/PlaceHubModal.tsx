@@ -10,10 +10,12 @@ import { ScrollView } from "@/components/ui/scroll-view";
 import { Text } from "@/components/ui/text";
 import { VStack } from "@/components/ui/vstack";
 import { getHeaderBarHeight, UiHeader } from "@/components/custom/UiHeader";
+import UnderlineTabBar from "@/components/custom/UnderlineTabBar";
 
 import { useAppTopInset } from "@/hooks/useAppInsets";
 import { useIsDarkMode } from "@/hooks/useIsDarkMode";
 
+import { SPACING_PX } from "@/constants";
 import { resolveTaxonomyIcon } from "@/constants/mdi-icon-map";
 import { THEME_SERIES } from "@/constants/discover-web-data";
 import { WEB_FONT_BODY, WEB_FONT_ROUND } from "@/constants/web-reference-theme";
@@ -48,7 +50,7 @@ function PlaceHubModal({ subject, onClose }: PlaceHubModalProps) {
     <VStack className="items-center rounded-2xl bg-muted py-11">
       <Icon as={icon} size="xl" style={{ color: s.colour }} />
       <Text
-        className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-3 px-7.5 text-center text-[13px]`}
+        className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-3 px-8 text-center text-sm`}
       >
         {message}
       </Text>
@@ -75,19 +77,19 @@ function PlaceHubModal({ subject, onClose }: PlaceHubModalProps) {
           className="flex-1"
           style={{ paddingTop: getHeaderBarHeight(topInset) }}
         >
-          <Box className="flex-row gap-2 px-4.5 py-3.5">
+          <Box className="flex-row gap-2 px-4 py-4">
             {(["Posts", "Contributors", "Themes"] as const).map((label) => (
               <Box
                 key={label}
-                className="flex-1 items-center rounded-xl border border-border py-2.5"
+                className="flex-1 items-center rounded-xl border border-border py-3"
               >
                 <Text
-                  className={`${WEB_FONT_ROUND[800]} text-foreground text-[18px]`}
+                  className={`${WEB_FONT_ROUND[800]} text-foreground text-lg`}
                 >
                   —
                 </Text>
                 <Text
-                  className={`${WEB_FONT_BODY[400]} text-muted-foreground text-[11px]`}
+                  className={`${WEB_FONT_BODY[400]} text-muted-foreground text-xs`}
                 >
                   {label}
                 </Text>
@@ -95,39 +97,30 @@ function PlaceHubModal({ subject, onClose }: PlaceHubModalProps) {
             ))}
           </Box>
 
-          <Box className="flex-row border-b border-border px-2">
-            {TABS.map((t) => (
-              <Pressable
-                key={t}
-                onPress={() => setTab(t)}
-                style={{ borderColor: tab === t ? s.colour : "transparent" }}
-                className="flex-1 items-center border-b-2 py-3"
-              >
-                <Text
-                  style={{ color: tab === t ? s.colour : undefined }}
-                  className={`${tab === t ? WEB_FONT_ROUND[700] : WEB_FONT_ROUND[500]} text-[13.5px] ${
-                    tab === t ? "" : "text-muted-foreground"
-                  }`}
-                >
-                  {t}
-                </Text>
-              </Pressable>
-            ))}
-          </Box>
+          <UnderlineTabBar
+            tabs={TABS.map((tabKey) => ({ key: tabKey, label: tabKey }))}
+            activeTab={tab}
+            onTabChange={setTab}
+            activeColor={s.colour}
+            borderClassName="border-border"
+            tabClassName="py-3"
+            textClassName="text-sm"
+            inactiveTextClassName="text-muted-foreground"
+          />
 
           <ScrollView
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ padding: 16, paddingBottom: 40 }}
+            contentContainerStyle={{ padding: SPACING_PX[4], paddingBottom: SPACING_PX[12] }}
           >
             {tab !== "Posts" ? (
               <Pressable
                 style={{ backgroundColor: s.colour }}
-                className="mb-4.5 h-11 flex-row items-center justify-center gap-2 rounded-full"
+                className="mb-4 h-11 flex-row items-center justify-center gap-2 rounded-full"
               >
                 <Icon as={Plus} size="sm" style={{ color: s.onColour }} />
                 <Text
                   style={{ color: s.onColour }}
-                  className={`${WEB_FONT_ROUND[700]} text-[14px]`}
+                  className={`${WEB_FONT_ROUND[700]} text-sm`}
                 >
                   Post about {s.name}
                 </Text>
@@ -139,8 +132,8 @@ function PlaceHubModal({ subject, onClose }: PlaceHubModalProps) {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{ gap: 8 }}
-                  style={{ marginBottom: 14 }}
+                  contentContainerStyle={{ gap: SPACING_PX[2] }}
+                  style={{ marginBottom: SPACING_PX[4] }}
                 >
                   {GENRES.map((g) => (
                     <Pressable
@@ -149,13 +142,13 @@ function PlaceHubModal({ subject, onClose }: PlaceHubModalProps) {
                       style={
                         genre === g ? { backgroundColor: s.colour } : undefined
                       }
-                      className={`h-8 items-center justify-center rounded-2xl px-3.5 ${
+                      className={`h-8 items-center justify-center rounded-2xl px-4 ${
                         genre === g ? "" : "bg-muted"
                       }`}
                     >
                       <Text
                         style={genre === g ? { color: s.onColour } : undefined}
-                        className={`${WEB_FONT_BODY[600]} text-[13px] ${genre === g ? "" : "text-muted-foreground"}`}
+                        className={`${WEB_FONT_BODY[600]} text-sm ${genre === g ? "" : "text-muted-foreground"}`}
                       >
                         {g}
                       </Text>
@@ -175,12 +168,12 @@ function PlaceHubModal({ subject, onClose }: PlaceHubModalProps) {
                     <Icon as={icon} size="lg" style={{ color: s.onColour }} />
                   </Box>
                   <Text
-                    className={`${WEB_FONT_ROUND[700]} text-foreground text-center text-[15px]`}
+                    className={`${WEB_FONT_ROUND[700]} text-foreground text-center text-base`}
                   >
                     Be the first to document {s.name}
                   </Text>
                   <Text
-                    className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-1 px-2 text-center text-[12.5px]`}
+                    className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-1 px-2 text-center text-xs`}
                   >
                     {`No ${genre === "All" ? "" : genre.toLowerCase() + " "}posts yet — photos, treks and stories will show up here.`}
                   </Text>
@@ -191,7 +184,7 @@ function PlaceHubModal({ subject, onClose }: PlaceHubModalProps) {
                     <Icon as={Plus} size="sm" style={{ color: s.onColour }} />
                     <Text
                       style={{ color: s.onColour }}
-                      className={`${WEB_FONT_ROUND[700]} text-[13.5px]`}
+                      className={`${WEB_FONT_ROUND[700]} text-sm`}
                     >
                       Post about {s.name}
                     </Text>
@@ -207,20 +200,20 @@ function PlaceHubModal({ subject, onClose }: PlaceHubModalProps) {
             {tab === "Contests" ? (
               <VStack>
                 {s.theme ? (
-                  <Box className="mb-3 rounded-card border border-border p-3.5">
+                  <Box className="mb-3 rounded-card border border-border p-4">
                     <Text
                       style={{ color: s.colour }}
-                      className={`${WEB_FONT_BODY[700]} text-[11px] tracking-[0.5px]`}
+                      className={`${WEB_FONT_BODY[700]} text-xs tracking-[0.5px]`}
                     >
                       WEEKLY CONTEST
                     </Text>
                     <Text
-                      className={`${WEB_FONT_ROUND[700]} text-foreground mt-0.75 text-[15px]`}
+                      className={`${WEB_FONT_ROUND[700]} text-foreground mt-1 text-base`}
                     >
                       {THEME_SERIES[s.theme] || "Wildcard Sunday"}
                     </Text>
                     <Text
-                      className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-0.5 text-[12.5px]`}
+                      className={`${WEB_FONT_BODY[400]} text-muted-foreground mt-1 text-xs`}
                     >
                       {s.name} features in the {s.theme} rotation. Enter to win
                       Sparks.

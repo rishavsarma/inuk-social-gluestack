@@ -35,6 +35,7 @@ import { useLocationDetails } from "@/hooks/useLocation";
 import { useFollowUser } from "@/hooks/useProfile";
 import { useAuthStore } from "@/stores/auth.store";
 import { useFollowStore } from "@/stores/follow.store";
+import { buildImageUrl } from "@/utils/media";
 import { BlurView } from "expo-blur";
 import { useLocalSearchParams } from "expo-router";
 import {
@@ -188,7 +189,7 @@ const PostDetailContent = ({
                       className="text-white"
                     />
                   </Pressable>
-                  <Text className="text-[12px] font-medium text-white">
+                  <Text className="text-xs font-medium text-white">
                     {videoControls.formatTime(videoControls.currentTime)}
                   </Text>
                   <Pressable
@@ -204,7 +205,7 @@ const PostDetailContent = ({
                       className="h-full rounded-full bg-theme"
                     />
                   </Pressable>
-                  <Text className="text-[12px] font-medium text-white">
+                  <Text className="text-xs font-medium text-white">
                     {videoControls.formatTime(videoControls.duration)}
                   </Text>
                   <Pressable
@@ -483,7 +484,7 @@ const PostDetail = () => {
         "User",
       avatar_url:
         apiProfile?.avatar && apiProfile?.avatar !== "string"
-          ? `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${apiProfile.avatar}/jpeg/720`
+          ? buildImageUrl(apiProfile.avatar)
           : "https://randomuser.me/api/portraits/men/32.jpg",
       is_following:
         followOverrides[apiProfile?.id ?? ""] ??
@@ -512,7 +513,7 @@ const PostDetail = () => {
       : hasApiMedia
         ? postDetails.media.data.map((m: Record<string, unknown>) => ({
             id: (m?.id as string) || id,
-            url: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${(m?.mediaId as string) || id}/jpg/1080`,
+            url: buildImageUrl((m?.mediaId as string) || id, 1080, "jpg"),
             type: "image",
             width: 1080,
             height: 1080,
@@ -521,7 +522,7 @@ const PostDetail = () => {
         : [
             {
               id,
-              url: `${process.env.EXPO_PUBLIC_IMAGE_BASE_URL}/${id}/jpg/1080`,
+              url: buildImageUrl(id, 1080, "jpg"),
               type: "image",
               width: 1080,
               height: 1080,
